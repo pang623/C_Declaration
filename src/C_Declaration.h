@@ -1,0 +1,5 @@
+#ifndef C_DECLARATION_H
+#define C_DECLARATION_H
+
+
+#endif // C_DECLARATION_H
