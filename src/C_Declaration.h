@@ -4,6 +4,7 @@
 #include "Exception.h"
 #include "Token.h"
 #include "Tokenizer.h"
+#include "CDecl_Errors.h"
 
 //bp_type
 #define   LEFTBP    0
@@ -19,7 +20,7 @@ struct Symbol {
 };
 
 struct BindingPower {
-  char *_operator;
+  char *symbol;
   int rbp;
   int lbp;
 };
