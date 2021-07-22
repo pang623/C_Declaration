@@ -18,6 +18,7 @@
 #define   NOT         8
 #define   INC         9
 #define   DEC         10
+#define   EOL         11
 
 //Arity
 #define   PREFIX      100
@@ -64,6 +65,7 @@ Symbol *infixLedR(Symbol *left);
 Symbol *suffixLed(Symbol *left);
 Symbol *identityNud();
 Symbol *errorNud();
+Symbol *missingOperandNud();
 Symbol *errorLed(Symbol *left);
 Symbol *identityLed(Symbol *left);
 Symbol *createSymbol(Symbol *leftChild, Token *token, int arity, Symbol *rightChild);

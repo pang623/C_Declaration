@@ -3,17 +3,18 @@
 #include <stdlib.h>
 
 SymbolAttrTable symbolTable[256] = {
-  [NUMBER]    =   { 1,  1,  1,   identityNud,  identityLed},
-  [VARIABLE]  =   { 1,  1,  1,   identityNud,  identityLed},
-  [ADD]       =   {50, 30, 30,     prefixNud,    infixLedL},
-  [MINUS]     =   {50, 30, 30,     prefixNud,    infixLedL},
-  [MULTIPLY]  =   {50, 40, 40,     prefixNud,    infixLedL},
-  [DIVIDE]    =   { 0, 40, 40,      errorNud,    infixLedL},
-  [MODULUS]   =   { 0, 40, 40,      errorNud,    infixLedL},
-  [TILDE]     =   {50,  0,100,     prefixNud,     errorLed},
-  [NOT]       =   {50,  0,100,     prefixNud,     errorLed},
-  [INC]       =   {50,  0, 60,  prefixNudTwo,    suffixLed},
-  [DEC]       =   {50,  0, 60,  prefixNudTwo,    suffixLed},
+  [NUMBER]    =   { 1,  1,  1,        identityNud,  identityLed},
+  [VARIABLE]  =   { 1,  1,  1,        identityNud,  identityLed},
+  [ADD]       =   {50, 30, 30,          prefixNud,    infixLedL},
+  [MINUS]     =   {50, 30, 30,          prefixNud,    infixLedL},
+  [MULTIPLY]  =   {50, 40, 40,          prefixNud,    infixLedL},
+  [DIVIDE]    =   { 0, 40, 40,           errorNud,    infixLedL},
+  [MODULUS]   =   { 0, 40, 40,           errorNud,    infixLedL},
+  [TILDE]     =   {50,  0,100,          prefixNud,     errorLed},
+  [NOT]       =   {50,  0,100,          prefixNud,     errorLed},
+  [INC]       =   {50,  0, 60,       prefixNudTwo,    suffixLed},
+  [DEC]       =   {50,  0, 60,       prefixNudTwo,    suffixLed},
+  [EOL]       =   { 0,  0,  0,  missingOperandNud,         NULL},
 };
 
 int operatorIdTable[256] = {
@@ -76,10 +77,10 @@ Token *peek(Tokenizer *tokenizer) {
   token2 = getToken(tokenizer);
   token = token1;
   if((token1->str)[0] == '+') {
-    if((token2->str)[0] == '+')
+    if(!(isNULLToken(token2)) && (token2->str)[0] == '+')
       token = (Token *)createOperatorToken(createString("++"), tokenizer->index, tokenizer->str, TOKEN_OPERATOR_TYPE);
   }else if((token1->str)[0] == '-') {
-    if((token2->str)[0] == '-')
+    if(!(isNULLToken(token2)) && (token2->str)[0] == '-')
       token = (Token *)createOperatorToken(createString("--"), tokenizer->index, tokenizer->str, TOKEN_OPERATOR_TYPE);
   }
   pushBackToken(tokenizer, token2);
@@ -153,6 +154,14 @@ Symbol *errorNud() {
   "Operator %s is not a unary operator", token->str);
 }
 
+//error handling for missing right operand
+Symbol *missingOperandNud() {
+  Token *token = NULL;
+  token = getToken(tokenizer);
+  throwException(ERR_MISSING_OPERAND, token, 0,
+  "Expected an operand here, but none received", token->str);
+}
+
 //error handling for illegal infix
 Symbol *errorLed(Symbol *left) {
   Token *token = NULL;
@@ -176,7 +185,7 @@ int getSymbolId(Token *token) {
   else if(isIntegerToken(token))
     return NUMBER;
   else if(isNULLToken(token))
-    return -1;
+    return EOL;
   else if(isIncToken(token))
     return INC;
   else if(isDecToken(token))

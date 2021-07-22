@@ -114,26 +114,26 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
   freeTokenizer(tokenizer);
 }
 
-//parsed as (2-(3++))+((--8)*4)
+//parsed as ((~2)-(a++))+((--8)*b)
 void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
   Symbol *symbol;
-  tokenizer = createTokenizer("2-3+++--8*4");
+  tokenizer = createTokenizer("~2-a+++--8*b");
   Try {
     symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
     TEST_ASSERT_EQUAL_STRING("-", symbol->left->token->str);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->left->left->token->str);
+    TEST_ASSERT_EQUAL_STRING("~", symbol->left->left->token->str);
     TEST_ASSERT_NULL(symbol->left->left->left);
-    TEST_ASSERT_NULL(symbol->left->left->right);
+    TEST_ASSERT_EQUAL_STRING("2", symbol->left->left->right->token->str);
     TEST_ASSERT_EQUAL_STRING("++", symbol->left->right->token->str);
-    TEST_ASSERT_EQUAL_STRING("3", symbol->left->right->left->token->str);
+    TEST_ASSERT_EQUAL_STRING("a", symbol->left->right->left->token->str);
     TEST_ASSERT_NULL(symbol->left->right->right);
     TEST_ASSERT_EQUAL_STRING("*", symbol->right->token->str);
     TEST_ASSERT_EQUAL_STRING("--", symbol->right->left->token->str);
     TEST_ASSERT_NULL(symbol->right->left->left);
     TEST_ASSERT_EQUAL_STRING("8", symbol->right->left->right->token->str);
-    TEST_ASSERT_EQUAL_STRING("4", symbol->right->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("b", symbol->right->right->token->str);
     TEST_ASSERT_NULL(symbol->right->right->left);
     TEST_ASSERT_NULL(symbol->right->right->right);
   } Catch(e){
@@ -147,6 +147,20 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
 void test_expression_given_3_and_2_expect_error_expected_operator_is_thrown(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("3 2");
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_EXPECTED_OPERATOR, e->errorCode);
+  }
+  freeTokenizer(tokenizer);
+}
+
+void test_expression_given_expression_with_missing_operator_expect_error_expected_operator_is_thrown(void) {
+  Symbol *symbol;
+  //parsed as (a++)b, missing operator to the left of b
+  tokenizer = createTokenizer("a++b");
   Try {
     symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
@@ -184,6 +198,35 @@ void test_expression_given_unary_only_operator_used_as_binary_expect_error_synta
   }
   freeTokenizer(tokenizer);
 }
+
+void test_expression_given_missing_operand_for_binary_operator_expect_error_missing_operand_is_thrown(void) {
+  Symbol *symbol;
+  //binary "%" is missing an operand
+  tokenizer = createTokenizer("a+-b% ");
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
+  }
+  freeTokenizer(tokenizer);
+}
+
+void test_expression_given_missing_operand_for_unary_operator_expect_error_missing_operand_is_thrown(void) {
+  Symbol *symbol;
+  //unary "-" is missing an operand
+  tokenizer = createTokenizer("3+5 * -");
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
+  }
+  freeTokenizer(tokenizer);
+}
+
 
 /*
 //this is evaluated to (3++)++ + 2, which is invalid
