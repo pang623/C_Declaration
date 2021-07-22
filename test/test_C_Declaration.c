@@ -114,6 +114,77 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
   freeTokenizer(tokenizer);
 }
 
+//parsed as (2-(3++))+((--8)*4)
+void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
+  Symbol *symbol;
+  tokenizer = createTokenizer("2-3+++--8*4");
+  Try {
+    symbol = expression(0);
+    //Test tree created is correct in order
+    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
+    TEST_ASSERT_EQUAL_STRING("-", symbol->left->token->str);
+    TEST_ASSERT_EQUAL_STRING("2", symbol->left->left->token->str);
+    TEST_ASSERT_NULL(symbol->left->left->left);
+    TEST_ASSERT_NULL(symbol->left->left->right);
+    TEST_ASSERT_EQUAL_STRING("++", symbol->left->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("3", symbol->left->right->left->token->str);
+    TEST_ASSERT_NULL(symbol->left->right->right);
+    TEST_ASSERT_EQUAL_STRING("*", symbol->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("--", symbol->right->left->token->str);
+    TEST_ASSERT_NULL(symbol->right->left->left);
+    TEST_ASSERT_EQUAL_STRING("8", symbol->right->left->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("4", symbol->right->right->token->str);
+    TEST_ASSERT_NULL(symbol->right->right->left);
+    TEST_ASSERT_NULL(symbol->right->right->right);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  freeSymbol(symbol);
+  freeTokenizer(tokenizer);
+}
+
+void test_expression_given_3_and_2_expect_error_expected_operator_is_thrown(void) {
+  Symbol *symbol;
+  tokenizer = createTokenizer("3 2");
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_EXPECTED_OPERATOR, e->errorCode);
+  }
+  freeTokenizer(tokenizer);
+}
+
+void test_expression_given_binary_only_operator_used_as_unary_expect_error_syntax_is_thrown(void) {
+  Symbol *symbol;
+  //"/" cannot be used as unary operator
+  tokenizer = createTokenizer("5+ /6");
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+  }
+  freeTokenizer(tokenizer);
+}
+
+void test_expression_given_unary_only_operator_used_as_binary_expect_error_syntax_is_thrown(void) {
+  Symbol *symbol;
+  //"~" cannot be used as binary operator
+  tokenizer = createTokenizer("5%6 + 3~9");
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+  }
+  freeTokenizer(tokenizer);
+}
+
 /*
 //this is evaluated to (3++)++ + 2, which is invalid
 void test_expression_given_3_doublepostincrement_plus_2_expect_ERR_SYNTAX_thrown(void) {
@@ -134,31 +205,6 @@ void test_expression_given_3_doublepostincrement_plus_2_expect_ERR_SYNTAX_thrown
 void test_expression_given_predecrement_3_plus_2_expect_correctly_parsed(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("--3+++2");
-  Try {
-    symbol = expression(0);
-    //Test tree created is correct in order
-    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
-    TEST_ASSERT_EQUAL(INFIX, symbol->arity);
-    TEST_ASSERT_EQUAL_STRING("++", symbol->left->token->str);
-    TEST_ASSERT_EQUAL(SUFFIX, symbol->left->arity);
-    TEST_ASSERT_EQUAL_STRING("3", symbol->left->left->token->str);
-    TEST_ASSERT_EQUAL(IDENTITY, symbol->left->left->arity);
-    TEST_ASSERT_NULL(symbol->left->right);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->right->token->str);
-    TEST_ASSERT_EQUAL(IDENTITY, symbol->right->arity);
-    TEST_ASSERT_NULL(symbol->right->left);
-    TEST_ASSERT_NULL(symbol->right->right);
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
-  }
-  freeSymbol(symbol);
-  freeTokenizer(tokenizer);
-}
-
-void test_expression_given_3_and_2_expect_correctly_parsed(void) {
-  Symbol *symbol;
-  tokenizer = createTokenizer("3 2");
   Try {
     symbol = expression(0);
     //Test tree created is correct in order

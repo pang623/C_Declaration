@@ -10,8 +10,8 @@ SymbolAttrTable symbolTable[256] = {
   [MULTIPLY]  =   {50, 40, 40,     prefixNud,    infixLedL},
   [DIVIDE]    =   { 0, 40, 40,      errorNud,    infixLedL},
   [MODULUS]   =   { 0, 40, 40,      errorNud,    infixLedL},
-  [TILDE]     =   {50,  0,  0,     prefixNud,     errorLed},
-  [NOT]       =   {50,  0,  0,     prefixNud,     errorLed},
+  [TILDE]     =   {50,  0,100,     prefixNud,     errorLed},
+  [NOT]       =   {50,  0,100,     prefixNud,     errorLed},
   [INC]       =   {50,  0, 60,  prefixNudTwo,    suffixLed},
   [DEC]       =   {50,  0, 60,  prefixNudTwo,    suffixLed},
 };
@@ -43,10 +43,12 @@ void freeSymbol(Symbol *symbol) {
     return;
   freeSymbol(symbol->left);
   freeSymbol(symbol->right);
-  freeToken(symbol->token);
+  if(symbol->token)
+    freeToken(symbol->token);
   free(symbol);
 }
 
+//return a malloc'ed string
 char *createString(char *str) {
   char *newStr;
   int len;
@@ -61,6 +63,7 @@ char *createString(char *str) {
 }
 
 //only peeks current token, does not consume it
+//will peek '++' and '--' as a token
 Token *peek(Tokenizer *tokenizer) {
   Token *token = NULL;
   Token *token1, *token2;
@@ -70,22 +73,16 @@ Token *peek(Tokenizer *tokenizer) {
     pushBackToken(tokenizer, token1);
     return token;
   }
+  token2 = getToken(tokenizer);
+  token = token1;
   if((token1->str)[0] == '+') {
-    token2 = getToken(tokenizer);
     if((token2->str)[0] == '+')
       token = (Token *)createOperatorToken(createString("++"), tokenizer->index, tokenizer->str, TOKEN_OPERATOR_TYPE);
-    else
-      token = token1;
-    pushBackToken(tokenizer, token2);
   }else if((token1->str)[0] == '-') {
-    token2 = getToken(tokenizer);
     if((token2->str)[0] == '-')
       token = (Token *)createOperatorToken(createString("--"), tokenizer->index, tokenizer->str, TOKEN_OPERATOR_TYPE);
-    else
-      token = token1;
-    pushBackToken(tokenizer, token2);
-  }else
-    token = token1;
+  }
+  pushBackToken(tokenizer, token2);
   pushBackToken(tokenizer, token1);
   return token;
 }
@@ -130,9 +127,11 @@ Symbol *suffixLed(Symbol *left) {
   Token *token = NULL;
   Token *spare;
   token = peek(tokenizer);
-  if(isIncToken(left->token) || isDecToken(left->token))
+  /*
+  if(!(isIdentifierToken(left->token)))
     throwException(ERR_SYNTAX, token, 0,
     "Does not expect suffix %s here", token->str);
+  */
   spare = getToken(tokenizer);
   spare = getToken(tokenizer);
   free(spare);
