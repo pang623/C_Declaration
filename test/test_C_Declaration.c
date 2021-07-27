@@ -9,6 +9,9 @@
 #include "TokenizerExceptionThrowing.h"
 #include "C_Declaration.h"
 #include "CDecl_Errors.h"
+#include "Symbol.h"
+#include "Symbol_Id.h"
+#include "Arity.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,10 +26,12 @@ void tearDown(void)
 CEXCEPTION_T e;
 
 extern Tokenizer *tokenizer;
+extern DoubleLinkedList *symbolStack;
 
 void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("3 +2 *   4");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     /*
@@ -52,6 +57,7 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeSymbol(symbol);
   freeTokenizer(tokenizer);
 }
@@ -59,6 +65,7 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
 void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("-3 -+2 *-   4");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     //Test tree created is correct in order
@@ -85,6 +92,7 @@ void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void)
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeSymbol(symbol);
   freeTokenizer(tokenizer);
 }
@@ -92,6 +100,7 @@ void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void)
 void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("3+++2");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     //Test tree created is correct in order
@@ -110,6 +119,7 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeSymbol(symbol);
   freeTokenizer(tokenizer);
 }
@@ -118,6 +128,7 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
 void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("~2-a+++--8*b");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     //Test tree created is correct in order
@@ -140,6 +151,7 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeSymbol(symbol);
   freeTokenizer(tokenizer);
 }
@@ -147,6 +159,7 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
 void test_expression_given_3_and_2_expect_error_expected_operator_is_thrown(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("3 2");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
@@ -154,6 +167,7 @@ void test_expression_given_3_and_2_expect_error_expected_operator_is_thrown(void
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_EXPECTED_OPERATOR, e->errorCode);
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);
 }
 
@@ -161,6 +175,7 @@ void test_expression_given_expression_with_missing_operator_expect_error_expecte
   Symbol *symbol;
   //parsed as (a++)b, missing operator to the left of b
   tokenizer = createTokenizer("a++b");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
@@ -168,6 +183,7 @@ void test_expression_given_expression_with_missing_operator_expect_error_expecte
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_EXPECTED_OPERATOR, e->errorCode);
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);
 }
 
@@ -175,6 +191,7 @@ void test_expression_given_binary_only_operator_used_as_unary_expect_error_synta
   Symbol *symbol;
   //"/" cannot be used as unary operator
   tokenizer = createTokenizer("5+ /6");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
@@ -182,6 +199,7 @@ void test_expression_given_binary_only_operator_used_as_unary_expect_error_synta
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);
 }
 
@@ -189,6 +207,7 @@ void test_expression_given_unary_only_operator_used_as_binary_expect_error_synta
   Symbol *symbol;
   //"~" cannot be used as binary operator
   tokenizer = createTokenizer("5%6 + 3~9");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
@@ -196,6 +215,7 @@ void test_expression_given_unary_only_operator_used_as_binary_expect_error_synta
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);
 }
 
@@ -203,6 +223,7 @@ void test_expression_given_missing_operand_for_binary_operator_expect_error_miss
   Symbol *symbol;
   //binary "%" is missing an operand
   tokenizer = createTokenizer("a+-b% ");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
@@ -210,6 +231,7 @@ void test_expression_given_missing_operand_for_binary_operator_expect_error_miss
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);
 }
 
@@ -217,6 +239,7 @@ void test_expression_given_missing_operand_for_unary_operator_expect_error_missi
   Symbol *symbol;
   //unary "-" is missing an operand
   tokenizer = createTokenizer("3+5 * -");
+  symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
@@ -224,6 +247,7 @@ void test_expression_given_missing_operand_for_unary_operator_expect_error_missi
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
   }
+  linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);
 }
 

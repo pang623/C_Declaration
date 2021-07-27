@@ -3,203 +3,111 @@
 #include <stdlib.h>
 
 SymbolAttrTable symbolTable[256] = {
-  [NUMBER]    =   { 1,  1,  1,        identityNud,  identityLed},
-  [VARIABLE]  =   { 1,  1,  1,        identityNud,  identityLed},
-  [ADD]       =   {50, 30, 30,          prefixNud,    infixLedL},
-  [MINUS]     =   {50, 30, 30,          prefixNud,    infixLedL},
-  [MULTIPLY]  =   {50, 40, 40,          prefixNud,    infixLedL},
-  [DIVIDE]    =   { 0, 40, 40,           errorNud,    infixLedL},
-  [MODULUS]   =   { 0, 40, 40,           errorNud,    infixLedL},
-  [TILDE]     =   {50,  0,100,          prefixNud,     errorLed},
-  [NOT]       =   {50,  0,100,          prefixNud,     errorLed},
-  [INC]       =   {50,  0, 60,       prefixNudTwo,    suffixLed},
-  [DEC]       =   {50,  0, 60,       prefixNudTwo,    suffixLed},
-  [EOL]       =   { 0,  0,  0,  missingOperandNud,         NULL},
-};
-
-int operatorIdTable[256] = {
-  ['+'] = ADD,
-  ['-'] = MINUS,
-  ['*'] = MULTIPLY,
-  ['/'] = DIVIDE,
-  ['%'] = MODULUS,
-  ['~'] = TILDE,
-  ['!'] = NOT,
+  [NUMBER]      =   { 1,  1,  1,        identityNud,  identityLed},
+  [VARIABLE]    =   { 1,  1,  1,        identityNud,  identityLed},
+  [ADD]         =   {50, 30, 30,          prefixNud,    infixLedL},
+  [MINUS]       =   {50, 30, 30,          prefixNud,    infixLedL},
+  [MULTIPLY]    =   {50, 40, 40,          prefixNud,    infixLedL},
+  [DIVIDE]      =   { 0, 40, 40,           errorNud,    infixLedL},
+  [MODULUS]     =   { 0, 40, 40,           errorNud,    infixLedL},
+  [TILDE]       =   {50,  0,100,          prefixNud,     errorLed},
+  [NOT]         =   {50,  0,100,          prefixNud,     errorLed},
+  [INC]         =   {50,  0, 60,          prefixNud,    suffixLed},
+  [DEC]         =   {50,  0, 60,          prefixNud,    suffixLed},
+  /*
+  [OPEN_PARENT] =   {50,  0, 60,          parentNud, errorParentLed},
+  [CLOSE_PARENT]=   { 0,  0,  0,     errorParentNud,         NULL},
+  */
+  [EOL]         =   { 0,  0,  0,  missingOperandNud,         NULL},
 };
 
 Tokenizer *tokenizer;
 
-//create data structure for Symbol
-Symbol *createSymbol(Symbol *leftChild, Token *token, int arity, Symbol *rightChild) {
-  Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
-  symbol->token = token;
-  symbol->arity = arity;
-  symbol->left = leftChild;
-  symbol->right = rightChild;
+//handles prefix
+//unary, inc, dec etc
+Symbol *prefixNud(Symbol *symbol) {
+  symbol->arity = PREFIX;
+  symbol->right = expression(getPrefixRBP(symbol));
   return symbol;
 }
 
-void freeSymbol(Symbol *symbol) {
-  if(symbol == NULL)
-    return;
-  freeSymbol(symbol->left);
-  freeSymbol(symbol->right);
-  if(symbol->token)
-    freeToken(symbol->token);
-  free(symbol);
-}
-
-//return a malloc'ed string
-char *createString(char *str) {
-  char *newStr;
-  int len;
-  if(str) {
-    len = strlen(str);
-    newStr = malloc(len+1);
-    strncpy(newStr, str, len);
-    newStr[len] = '\0';
-    return newStr;
-  }else
-    return NULL;
-}
-
-//only peeks current token, does not consume it
-//will peek '++' and '--' as a token
-Token *peek(Tokenizer *tokenizer) {
-  Token *token = NULL;
-  Token *token1, *token2;
-  token1 = getToken(tokenizer);
-  if(isNULLToken(token1)) {
-    token = token1;
-    pushBackToken(tokenizer, token1);
-    return token;
-  }
-  token2 = getToken(tokenizer);
-  token = token1;
-  if((token1->str)[0] == '+') {
-    if(!(isNULLToken(token2)) && (token2->str)[0] == '+')
-      token = (Token *)createOperatorToken(createString("++"), tokenizer->index, tokenizer->str, TOKEN_OPERATOR_TYPE);
-  }else if((token1->str)[0] == '-') {
-    if(!(isNULLToken(token2)) && (token2->str)[0] == '-')
-      token = (Token *)createOperatorToken(createString("--"), tokenizer->index, tokenizer->str, TOKEN_OPERATOR_TYPE);
-  }
-  pushBackToken(tokenizer, token2);
-  pushBackToken(tokenizer, token1);
-  return token;
-}
-
-//handles prefix
-//unary etc
-Symbol *prefixNud() {
-  Token *token = NULL;
-  token = getToken(tokenizer);
-  return createSymbol(NULL, token, PREFIX, expression(getPrefixRBP(token)));
-}
-
-//for prefix operators with two symbols, eg: "++", "--"
-Symbol *prefixNudTwo() {
-  Token *token = NULL;
-  Token *spare;
-  token = peek(tokenizer);
-  spare = getToken(tokenizer);
-  spare = getToken(tokenizer);
-  free(spare);
-  return createSymbol(NULL, token, PREFIX, expression(getPrefixRBP(token)));
-}
-
-//handles infix and postfix
+//handles infix
 //called when operator binds to the left
 //for left associativity
-Symbol *infixLedL(Symbol *left) {
-  Token *token = NULL;
-  token = getToken(tokenizer);
-  return createSymbol(left, token, INFIX, expression(getInfixRBP(token)));
+Symbol *infixLedL(Symbol *symbol, Symbol *left) {
+  symbol->arity = INFIX;
+  symbol->left = left;
+  symbol->right = expression(getInfixRBP(symbol));
+  return symbol;
 }
 
 //for right associativity
-Symbol *infixLedR(Symbol *left) {
-  Token *token = NULL;
-  token = getToken(tokenizer);
-  return createSymbol(left, token, INFIX, expression(getInfixRBP(token) - 1));
+Symbol *infixLedR(Symbol *symbol, Symbol *left) {
+  symbol->arity = INFIX;
+  symbol->left = left;
+  symbol->right = expression(getInfixRBP(symbol) - 1);
+  return symbol;
 }
 
 //postfix, eg: "++", "--"
-Symbol *suffixLed(Symbol *left) {
-  Token *token = NULL;
-  Token *spare;
-  token = peek(tokenizer);
+Symbol *suffixLed(Symbol *symbol, Symbol *left) {
   /*
   if(!(isIdentifierToken(left->token)))
     throwException(ERR_SYNTAX, token, 0,
     "Does not expect suffix %s here", token->str);
   */
-  spare = getToken(tokenizer);
-  spare = getToken(tokenizer);
-  free(spare);
-  return createSymbol(left, token, SUFFIX, NULL);
+  symbol->arity = SUFFIX;
+  symbol->left = left;
+  symbol->right = NULL;
+  return symbol;
 }
+/*
+Symbol *parentNud() {
+  Symbol *left = expression(0);
+  if(
+  
+}
+*/
 
 //just returns the symbol (numbers, var)
-Symbol *identityNud() {
-  Token *token = NULL;
-  token = getToken(tokenizer);
-  return createSymbol(NULL, token, IDENTITY, NULL);
+Symbol *identityNud(Symbol *symbol) {
+  symbol->arity = IDENTITY;
+  return symbol;
 }
 
 //error handling for illegal prefix
-Symbol *errorNud() {
-  Token *token = NULL;
-  token = getToken(tokenizer);
-  throwException(ERR_SYNTAX, token, 0,
-  "Operator %s is not a unary operator", token->str);
+Symbol *errorNud(Symbol *symbol) {
+  throwException(ERR_SYNTAX, symbol->token, 0,
+  "Operator %s is not a unary operator", symbol->token->str);
 }
 
 //error handling for missing right operand
-Symbol *missingOperandNud() {
-  Token *token = NULL;
-  token = getToken(tokenizer);
-  throwException(ERR_MISSING_OPERAND, token, 0,
-  "Expected an operand here, but none received", token->str);
+Symbol *missingOperandNud(Symbol *symbol) {
+  throwException(ERR_MISSING_OPERAND, symbol->token, 0,
+  "Expected an operand here, but none received", symbol->token->str);
 }
 
 //error handling for illegal infix
-Symbol *errorLed(Symbol *left) {
-  Token *token = NULL;
-  token = getToken(tokenizer);
-  throwException(ERR_SYNTAX, token, 0,
-  "Operator %s is not a binary operator", token->str);
+Symbol *errorLed(Symbol *symbol, Symbol *left) {
+  throwException(ERR_SYNTAX, symbol->token, 0,
+  "Operator %s is not a binary operator", symbol->token->str);
 }
 
 //error handling for numbers and variables 
 //they cannot be infix, thus if led is called an error is thrown
-Symbol *identityLed(Symbol *left) {
-  Token *token = NULL;
-  token = getToken(tokenizer);
-  throwException(ERR_EXPECTED_OPERATOR, token, 0,
-  "Expected an operator here, but received %s instead", token->str);
-}
-
-int getSymbolId(Token *token) {
-  if(isIdentifierToken(token))
-    return VARIABLE;
-  else if(isIntegerToken(token))
-    return NUMBER;
-  else if(isNULLToken(token))
-    return EOL;
-  else if(isIncToken(token))
-    return INC;
-  else if(isDecToken(token))
-    return DEC;
-  else
-    return operatorIdTable[(token->str)[0]];
+Symbol *identityLed(Symbol *symbol, Symbol *left) {
+  throwException(ERR_EXPECTED_OPERATOR, symbol->token, 0,
+  "Expected an operator here, but received %s instead", symbol->token->str);
 }
 
 //main parser
 Symbol *expression(int rbp) {
-  Symbol *left;
-  //maybe put nud and led to a macro
-  left = symbolTable[getSymbolId(peek(tokenizer))].nud();
-  while(rbp < getInfixLBP(peek(tokenizer)))
-    left = symbolTable[getSymbolId(peek(tokenizer))].led(left);
+  Symbol *left, *symbol;
+  symbol = getSymbol(tokenizer);
+  left = symbolTable[symbol->id].nud(symbol);
+  while(rbp < getInfixLBP(peekSymbol(tokenizer))) {
+    symbol = getSymbol(tokenizer);
+    left = symbolTable[symbol->id].led(symbol, left);
+  }
   return left;
 }
