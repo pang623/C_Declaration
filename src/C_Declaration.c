@@ -104,10 +104,10 @@ Symbol *identityLed(Symbol *symbol, Symbol *left) {
 Symbol *expression(int rbp) {
   Symbol *left, *symbol;
   symbol = getSymbol(tokenizer);
-  left = symbolTable[symbol->id].nud(symbol);
+  left = nudOf(symbol);
   while(rbp < getInfixLBP(peekSymbol(tokenizer))) {
     symbol = getSymbol(tokenizer);
-    left = symbolTable[symbol->id].led(symbol, left);
+    left = ledOf(symbol, left);
   }
   return left;
 }

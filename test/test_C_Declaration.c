@@ -156,6 +156,59 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
   freeTokenizer(tokenizer);
 }
 
+void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(void) {
+  Symbol *symbol;
+  //parsed as i + (++j), not (i++) + j
+  tokenizer = createTokenizer("i+ ++j");
+  symbolStack = linkedListCreateList();
+  Try {
+    symbol = expression(0);
+    //Test tree created is correct in order
+    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
+    TEST_ASSERT_EQUAL_STRING("i", symbol->left->token->str);
+    TEST_ASSERT_NULL(symbol->left->left);
+    TEST_ASSERT_NULL(symbol->left->right);
+    TEST_ASSERT_EQUAL_STRING("++", symbol->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("j", symbol->right->right->token->str);
+    TEST_ASSERT_NULL(symbol->right->left);
+    TEST_ASSERT_NULL(symbol->right->right->left);
+    TEST_ASSERT_NULL(symbol->right->right->right);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  linkedListFreeList(symbolStack, freeSymbol);
+  freeSymbol(symbol);
+  freeTokenizer(tokenizer);
+}
+
+void test_expression_given_minus_minus_but_not_adjacent_expect_not_parsed_as_dec(void) {
+  Symbol *symbol;
+  //parsed as i - (-(+j)), not (i--) + j
+  tokenizer = createTokenizer("i- -+j");
+  symbolStack = linkedListCreateList();
+  Try {
+    symbol = expression(0);
+    //Test tree created is correct in order
+    TEST_ASSERT_EQUAL_STRING("-", symbol->token->str);
+    TEST_ASSERT_EQUAL_STRING("i", symbol->left->token->str);
+    TEST_ASSERT_NULL(symbol->left->left);
+    TEST_ASSERT_NULL(symbol->left->right);
+    TEST_ASSERT_EQUAL_STRING("-", symbol->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("+", symbol->right->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("j", symbol->right->right->right->token->str);
+    TEST_ASSERT_NULL(symbol->right->left);
+    TEST_ASSERT_NULL(symbol->right->right->right->left);
+    TEST_ASSERT_NULL(symbol->right->right->right->right);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  linkedListFreeList(symbolStack, freeSymbol);
+  freeSymbol(symbol);
+  freeTokenizer(tokenizer);
+}
+
 void test_expression_given_3_and_2_expect_error_expected_operator_is_thrown(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("3 2");
@@ -250,6 +303,7 @@ void test_expression_given_missing_operand_for_unary_operator_expect_error_missi
   linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);
 }
+
 
 
 /*

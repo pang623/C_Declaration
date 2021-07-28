@@ -7,6 +7,8 @@
 #include "Symbol_Id.h"
 #include "Arity.h"
 
+extern Tokenizer *tokenizer;
+
 typedef struct Symbol Symbol;
 typedef struct OperatorAttrTable OperatorAttrTable;
 typedef Symbol *(*FuncPtr)(Token *);
@@ -15,7 +17,7 @@ typedef Symbol *(*FuncPtr)(Token *);
 #define   isIdentifierToken(token)                   (token->type == TOKEN_IDENTIFIER_TYPE)
 #define   isNULLToken(token)                         (token->type == TOKEN_NULL_TYPE)
 #define   isSymbolSameAndAdjacent(symbol, token)     ((symbol->str)[0] == (nextSymbol->str)[0] && nextSymbol->startColumn == symbol->startColumn + 1)
-#define   isCloseParentToken(token)   ((token->str)[0] == ')')
+//#define   isCloseParentToken(token)   ((token->str)[0] == ')')
 
 struct Symbol {
   Symbol *left;
@@ -30,7 +32,7 @@ struct OperatorAttrTable {
   FuncPtr func;
 };
 
-Symbol *createSymbol(Symbol *leftChild, Token *token, int arity, int id, Symbol *rightChild);
+Symbol *createSymbol(Symbol *symbolInfo);
 Symbol *getSymbol(Tokenizer *tokenizer);
 Symbol *_getSymbol(Tokenizer *tokenizer);
 Symbol *peekSymbol(Tokenizer *tokenizer);

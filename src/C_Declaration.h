@@ -11,6 +11,9 @@
 #define   getInfixRBP(symbol)         (symbolTable[symbol->id].infixRBP)
 #define   getPrefixRBP(symbol)        (symbolTable[symbol->id].prefixRBP)
 
+#define   nudOf(symbol)               (symbolTable[symbol->id].nud(symbol))
+#define   ledOf(symbol, left)         (symbolTable[symbol->id].led(symbol, left))
+
 typedef struct SymbolAttrTable SymbolAttrTable;
 typedef Symbol *(*NudFuncPtr)(Symbol *symbol);
 typedef Symbol *(*LedFuncPtr)(Symbol *symbol, Symbol *left);

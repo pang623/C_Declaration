@@ -17,17 +17,16 @@ OperatorAttrTable operatorIdTable[256] = {
   */
 };
 
-extern Tokenizer *tokenizer;
 DoubleLinkedList *symbolStack;
 
 //create data structure for Symbol
-Symbol *createSymbol(Symbol *leftChild, Token *token, int arity, int id, Symbol *rightChild) {
+Symbol *createSymbol(Symbol *symbolInfo) {
   Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
-  symbol->token = token;
-  symbol->arity = arity;
-  symbol->id = id;
-  symbol->left = leftChild;
-  symbol->right = rightChild;
+  symbol->token = symbolInfo->token;
+  symbol->arity = symbolInfo->arity;
+  symbol->id = symbolInfo->id;
+  symbol->left = symbolInfo->left;
+  symbol->right = symbolInfo->right;
   return symbol;
 }
 
@@ -57,34 +56,37 @@ char *createString(char *str) {
 
 Symbol *checkDoubleChar(Token *symbol) {
   Token *nextSymbol;
+  Symbol symbolInfo = {NULL, NULL, symbol, INFIX, operatorIdTable[(symbol->str)[0]].type[0]};
   nextSymbol = getToken(tokenizer);
-  if(isNULLToken(nextSymbol) || !(isSymbolSameAndAdjacent(symbol, nextSymbol))) {
+  if(isNULLToken(nextSymbol) || !(isSymbolSameAndAdjacent(symbol, nextSymbol)))
     pushBackToken(tokenizer, nextSymbol);
-    return createSymbol(NULL, symbol, INFIX, operatorIdTable[(symbol->str)[0]].type[0], NULL);
   //if both symbols are same and adjacent to each other
-  }else {
+  else {
     freeToken(nextSymbol);
     (symbol->length)++;
     char newStr[3] = {(symbol->str)[0], (symbol->str)[0], '\0'};
     free(symbol->str);
     symbol->str = createString(newStr);
-    return createSymbol(NULL, symbol, INFIX, operatorIdTable[(symbol->str)[0]].type[1], NULL);
+    symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[1];
   }
+  return createSymbol(&symbolInfo);
 }
 
 Symbol *_getSymbol(Tokenizer *tokenizer) {
-  Token *token;
-  token = getToken(tokenizer);
-  if(isIdentifierToken(token))
-    return createSymbol(NULL, token, INFIX, VARIABLE, NULL);
-  else if(isIntegerToken(token))
-    return createSymbol(NULL, token, INFIX, NUMBER, NULL);
-  else if(isNULLToken(token))
-    return createSymbol(NULL, token, INFIX, EOL, NULL);
-  else if(operatorIdTable[(token->str)[0]].func == NULL)
-    return createSymbol(NULL, token, INFIX, operatorIdTable[(token->str)[0]].type[0], NULL);
+  Token *symbol;
+  symbol = getToken(tokenizer);
+  Symbol symbolInfo = {NULL, NULL, symbol, INFIX, EOL};
+  if(isNULLToken(symbol))
+    return createSymbol(&symbolInfo);
+  else if(isIdentifierToken(symbol))
+    symbolInfo.id = VARIABLE;
+  else if(isIntegerToken(symbol))
+    symbolInfo.id = NUMBER;
+  else if(operatorIdTable[(symbol->str)[0]].func == NULL)
+    symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[0];
   else
-    return operatorIdTable[(token->str)[0]].func(token);
+    return operatorIdTable[(symbol->str)[0]].func(symbol);
+  return createSymbol(&symbolInfo);
 }
 
 Symbol *peekSymbol(Tokenizer *tokenizer) {
