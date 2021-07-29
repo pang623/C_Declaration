@@ -12,6 +12,7 @@
 #include "Symbol.h"
 #include "Symbol_Id.h"
 #include "Arity.h"
+#include "Exception.h"
 
 void setUp(void)
 {
@@ -20,6 +21,8 @@ void setUp(void)
 void tearDown(void)
 {
 }
+
+CEXCEPTION_T e;
 
 void test_createSymbol_given_symbol_data_expect_symbol_created() {
   Token *token = NULL;
@@ -34,6 +37,9 @@ void test_createSymbol_given_symbol_data_expect_symbol_created() {
   TEST_ASSERT_EQUAL_STRING("*", symbol->token->str);
   TEST_ASSERT_EQUAL(INFIX, symbol->arity);
   TEST_ASSERT_EQUAL(MULTIPLY, symbol->id);
+  
+  freeSymbol(symbol);
+  freeTokenizer(tokenizer);
 }
 
 #endif // TEST

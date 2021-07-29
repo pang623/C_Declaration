@@ -11,10 +11,8 @@ OperatorAttrTable operatorIdTable[256] = {
   ['&'] = {{BIT_AND, LOGI_AND}  , checkDoubleChar},
   ['|'] = {{BIT_OR, LOGI_OR}    , checkDoubleChar},
   ['='] = {{ASSIGNMENT, EQUAL}  , checkDoubleChar},
-  /*
   ['('] = {{OPEN_PARENT, 0}     ,            NULL},
   [')'] = {{CLOSE_PARENT, 0}    ,            NULL},
-  */
 };
 
 DoubleLinkedList *symbolStack;
@@ -82,17 +80,11 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
     symbolInfo.id = VARIABLE;
   else if(isIntegerToken(symbol))
     symbolInfo.id = NUMBER;
-  else if(operatorIdTable[(symbol->str)[0]].func == NULL)
+  else if(!(hasSymbolVariations(symbol)))
     symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[0];
   else
     return operatorIdTable[(symbol->str)[0]].func(symbol);
   return createSymbol(&symbolInfo);
-}
-
-Symbol *peekSymbol(Tokenizer *tokenizer) {
-  if(symbolStack->count == 0)
-    pushStack(symbolStack, _getSymbol(tokenizer));
-  return peekStack(symbolStack);
 }
 
 Symbol *getSymbol(Tokenizer *tokenizer) {
@@ -100,6 +92,12 @@ Symbol *getSymbol(Tokenizer *tokenizer) {
     return _getSymbol(tokenizer);
   else
     return popStack(symbolStack);
+}
+
+Symbol *peekSymbol(Tokenizer *tokenizer) {
+  if(symbolStack->count == 0)
+    pushStack(symbolStack, _getSymbol(tokenizer));
+  return peekStack(symbolStack);
 }
 
 Symbol *popStack(DoubleLinkedList *stack) {
@@ -113,4 +111,15 @@ void pushStack(DoubleLinkedList *stack, Symbol *symbol) {
 
 Symbol *peekStack(DoubleLinkedList *stack) {
   return stack->head->data;
+}
+
+void verifyIsSymbolClosingParentAndConsume(Tokenizer *tokenizer) {
+  Symbol *symbol = NULL;
+  symbol = getSymbol(tokenizer);
+  if(!(isCloseParentSymbol(symbol))) {
+    throwException(ERR_MISSING_CLOSING_PARENT, symbol->token, 0,
+    "Expecting a closing parent here, but received %s instead", symbol->token->str);
+  }
+  else
+    freeSymbol(symbol);
 }

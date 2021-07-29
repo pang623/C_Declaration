@@ -6,6 +6,8 @@
 #include "DoubleLinkedList.h"
 #include "Symbol_Id.h"
 #include "Arity.h"
+#include "Exception.h"
+#include "CDecl_Errors.h"
 
 extern Tokenizer *tokenizer;
 
@@ -17,7 +19,8 @@ typedef Symbol *(*FuncPtr)(Token *);
 #define   isIdentifierToken(token)                   (token->type == TOKEN_IDENTIFIER_TYPE)
 #define   isNULLToken(token)                         (token->type == TOKEN_NULL_TYPE)
 #define   isSymbolSameAndAdjacent(symbol, token)     ((symbol->str)[0] == (nextSymbol->str)[0] && nextSymbol->startColumn == symbol->startColumn + 1)
-//#define   isCloseParentToken(token)   ((token->str)[0] == ')')
+#define   hasSymbolVariations(symbol)                (operatorIdTable[(symbol->str)[0]].func != NULL)
+#define   isCloseParentSymbol(symbol)                ((symbol->token->str)[0] == ')')
 
 struct Symbol {
   Symbol *left;
@@ -42,5 +45,6 @@ char *createString(char *str);
 Symbol *peekStack(DoubleLinkedList *stack);
 void pushStack(DoubleLinkedList *stack, Symbol *symbol);
 Symbol *popStack(DoubleLinkedList *stack);
+void verifyIsSymbolClosingParentAndConsume(Tokenizer *tokenizer);
 
 #endif // SYMBOL_H

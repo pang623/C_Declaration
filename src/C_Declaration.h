@@ -6,6 +6,8 @@
 #include "CDecl_Errors.h"
 #include "Arity.h"
 
+#define   NIL   1000
+
 //Macros
 #define   getInfixLBP(symbol)         (symbolTable[symbol->id].infixLBP)
 #define   getInfixRBP(symbol)         (symbolTable[symbol->id].infixRBP)
@@ -36,5 +38,6 @@ Symbol *errorNud(Symbol *symbol);
 Symbol *missingOperandNud(Symbol *symbol);
 Symbol *errorLed(Symbol *symbol, Symbol *left);
 Symbol *identityLed(Symbol *symbol, Symbol *left);
+Symbol *parentNud(Symbol *symbol);
 
 #endif // C_DECLARATION_H

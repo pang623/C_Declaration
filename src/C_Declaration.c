@@ -3,22 +3,21 @@
 #include <stdlib.h>
 
 SymbolAttrTable symbolTable[256] = {
-  [NUMBER]      =   { 1,  1,  1,        identityNud,  identityLed},
-  [VARIABLE]    =   { 1,  1,  1,        identityNud,  identityLed},
-  [ADD]         =   {50, 30, 30,          prefixNud,    infixLedL},
-  [MINUS]       =   {50, 30, 30,          prefixNud,    infixLedL},
-  [MULTIPLY]    =   {50, 40, 40,          prefixNud,    infixLedL},
-  [DIVIDE]      =   { 0, 40, 40,           errorNud,    infixLedL},
-  [MODULUS]     =   { 0, 40, 40,           errorNud,    infixLedL},
-  [TILDE]       =   {50,  0,100,          prefixNud,     errorLed},
-  [NOT]         =   {50,  0,100,          prefixNud,     errorLed},
-  [INC]         =   {50,  0, 60,          prefixNud,    suffixLed},
-  [DEC]         =   {50,  0, 60,          prefixNud,    suffixLed},
-  /*
-  [OPEN_PARENT] =   {50,  0, 60,          parentNud, errorParentLed},
-  [CLOSE_PARENT]=   { 0,  0,  0,     errorParentNud,         NULL},
-  */
-  [EOL]         =   { 0,  0,  0,  missingOperandNud,         NULL},
+  //[SYMBOL]    =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
+  [NUMBER]      =   {NIL, NIL, NIL,        identityNud,  identityLed},
+  [VARIABLE]    =   {NIL, NIL, NIL,        identityNud,  identityLed},
+  [ADD]         =   { 50,  30,  30,          prefixNud,    infixLedL},
+  [MINUS]       =   { 50,  30,  30,          prefixNud,    infixLedL},
+  [MULTIPLY]    =   { 50,  40,  40,          prefixNud,    infixLedL},
+  [DIVIDE]      =   {NIL,  40,  40,           errorNud,    infixLedL},
+  [MODULUS]     =   {NIL,  40,  40,           errorNud,    infixLedL},
+  [TILDE]       =   { 50, NIL, NIL,          prefixNud,     errorLed},
+  [NOT]         =   { 50, NIL, NIL,          prefixNud,     errorLed},
+  [INC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
+  [DEC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
+  [OPEN_PARENT] =   { 50, NIL,  60,          parentNud,     errorLed},
+  [CLOSE_PARENT]=   {  0,   0,   0,           errorNud,     errorLed},
+  [EOL]         =   {  0,   0,   0,  missingOperandNud,         NULL},
 };
 
 Tokenizer *tokenizer;
@@ -61,13 +60,12 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
   symbol->right = NULL;
   return symbol;
 }
-/*
-Symbol *parentNud() {
+
+Symbol *parentNud(Symbol *symbol) {
   Symbol *left = expression(0);
-  if(
-  
+  verifyIsSymbolClosingParentAndConsume(tokenizer);
+  return left;
 }
-*/
 
 //just returns the symbol (numbers, var)
 Symbol *identityNud(Symbol *symbol) {

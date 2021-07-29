@@ -30,7 +30,7 @@ extern DoubleLinkedList *symbolStack;
 
 void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
   Symbol *symbol;
-  tokenizer = createTokenizer("3 +2 *   4");
+  tokenizer = createTokenizer("3 +(2 *   4)");
   symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
@@ -128,6 +128,38 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
 void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("~2-a+++--8*b");
+  symbolStack = linkedListCreateList();
+  Try {
+    symbol = expression(0);
+    //Test tree created is correct in order
+    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
+    TEST_ASSERT_EQUAL_STRING("-", symbol->left->token->str);
+    TEST_ASSERT_EQUAL_STRING("~", symbol->left->left->token->str);
+    TEST_ASSERT_NULL(symbol->left->left->left);
+    TEST_ASSERT_EQUAL_STRING("2", symbol->left->left->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("++", symbol->left->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("a", symbol->left->right->left->token->str);
+    TEST_ASSERT_NULL(symbol->left->right->right);
+    TEST_ASSERT_EQUAL_STRING("*", symbol->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("--", symbol->right->left->token->str);
+    TEST_ASSERT_NULL(symbol->right->left->left);
+    TEST_ASSERT_EQUAL_STRING("8", symbol->right->left->right->token->str);
+    TEST_ASSERT_EQUAL_STRING("b", symbol->right->right->token->str);
+    TEST_ASSERT_NULL(symbol->right->right->left);
+    TEST_ASSERT_NULL(symbol->right->right->right);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  linkedListFreeList(symbolStack, freeSymbol);
+  freeSymbol(symbol);
+  freeTokenizer(tokenizer);
+}
+
+//parsed as ((~2)-(a++))+((--8)*b)
+void test_expression_given_mix_of_prefixes_and_suffixes_with_parentheses_expect_correctly_parsed(void) {
+  Symbol *symbol;
+  tokenizer = createTokenizer("((~2)-(a++))+((--8)*b)");
   symbolStack = linkedListCreateList();
   Try {
     symbol = expression(0);
@@ -304,7 +336,38 @@ void test_expression_given_missing_operand_for_unary_operator_expect_error_missi
   freeTokenizer(tokenizer);
 }
 
+void test_expression_given_open_parent_used_as_infix_expect_error_syntax_is_thrown(void) {
+  Symbol *symbol;
+  //"(" used as infix, invalid
+  tokenizer = createTokenizer("3 (a");
+  symbolStack = linkedListCreateList();
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+  }
+  linkedListFreeList(symbolStack, freeSymbol);
+  freeTokenizer(tokenizer);
+}
 
+/*
+void test_expression_given_close_parent_used_as_infix_expect_error_syntax_is_thrown(void) {
+  Symbol *symbol;
+  //")" used as infix, invalid
+  tokenizer = createTokenizer("3 +a )6");
+  symbolStack = linkedListCreateList();
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+  }
+  linkedListFreeList(symbolStack, freeSymbol);
+  freeTokenizer(tokenizer);
+}
 
 /*
 //this is evaluated to (3++)++ + 2, which is invalid
