@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-SymbolAttrTable symbolTable[256] = {
+SymbolAttrTable symbolTable[] = {
   //[SYMBOL]    =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
   [NUMBER]      =   {NIL, NIL, NIL,        identityNud,  identityLed},
   [VARIABLE]    =   {NIL, NIL, NIL,        identityNud,  identityLed},
@@ -15,7 +15,7 @@ SymbolAttrTable symbolTable[256] = {
   [NOT]         =   { 50, NIL, NIL,          prefixNud,     errorLed},
   [INC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
   [DEC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
-  [OPEN_PARENT] =   { 50, NIL,  60,          parentNud,     errorLed},
+  [OPEN_PARENT] =   { 60, NIL, NIL,          parentNud,     errorLed},
   [CLOSE_PARENT]=   {  0,   0,   0,           errorNud,     errorLed},
   [EOL]         =   {  0,   0,   0,  missingOperandNud,         NULL},
 };
@@ -26,7 +26,7 @@ Tokenizer *tokenizer;
 //unary, inc, dec etc
 Symbol *prefixNud(Symbol *symbol) {
   symbol->arity = PREFIX;
-  symbol->right = expression(getPrefixRBP(symbol));
+  symbol->child[0] = expression(getPrefixRBP(symbol));
   return symbol;
 }
 
@@ -35,16 +35,16 @@ Symbol *prefixNud(Symbol *symbol) {
 //for left associativity
 Symbol *infixLedL(Symbol *symbol, Symbol *left) {
   symbol->arity = INFIX;
-  symbol->left = left;
-  symbol->right = expression(getInfixRBP(symbol));
+  symbol->child[0] = left;
+  symbol->child[1] = expression(getInfixRBP(symbol));
   return symbol;
 }
 
 //for right associativity
 Symbol *infixLedR(Symbol *symbol, Symbol *left) {
   symbol->arity = INFIX;
-  symbol->left = left;
-  symbol->right = expression(getInfixRBP(symbol) - 1);
+  symbol->child[0] = left;
+  symbol->child[1] = expression(getInfixRBP(symbol) - 1);
   return symbol;
 }
 
@@ -56,14 +56,14 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
     "Does not expect suffix %s here", token->str);
   */
   symbol->arity = SUFFIX;
-  symbol->left = left;
-  symbol->right = NULL;
+  symbol->child[0] = left;
   return symbol;
 }
 
 Symbol *parentNud(Symbol *symbol) {
   Symbol *left = expression(0);
-  verifyIsSymbolClosingParentAndConsume(tokenizer);
+  Symbol *_symbol = getSymbol(tokenizer);
+  verifyIsSymbolThenConsume(")", _symbol);
   return left;
 }
 

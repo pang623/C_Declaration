@@ -1,38 +1,46 @@
 #include "Symbol.h"
 
-OperatorAttrTable operatorIdTable[256] = {
-  ['+'] = {{ADD, INC}           , checkDoubleChar},
-  ['-'] = {{MINUS, DEC}         , checkDoubleChar},
-  ['*'] = {{MULTIPLY, 0}        ,            NULL},
-  ['/'] = {{DIVIDE, 0}          ,            NULL},
-  ['%'] = {{MODULUS, 0}         ,            NULL},
-  ['~'] = {{TILDE, 0}           ,            NULL},
-  ['!'] = {{NOT, 0}             ,            NULL},
-  ['&'] = {{BIT_AND, LOGI_AND}  , checkDoubleChar},
-  ['|'] = {{BIT_OR, LOGI_OR}    , checkDoubleChar},
-  ['='] = {{ASSIGNMENT, EQUAL}  , checkDoubleChar},
-  ['('] = {{OPEN_PARENT, 0}     ,            NULL},
-  [')'] = {{CLOSE_PARENT, 0}    ,            NULL},
+OperatorAttrTable operatorIdTable[] = {
+  ['+'] = {{ADD, INC}           , checkDoubleSameChar},
+  ['-'] = {{MINUS, DEC}         , checkDoubleSameChar},
+  ['*'] = {{MULTIPLY, 0}        , NULL},
+  ['/'] = {{DIVIDE, 0}          , NULL},
+  ['%'] = {{MODULUS, 0}         , NULL},
+  ['~'] = {{TILDE, 0}           , NULL},
+  ['!'] = {{NOT, 0}             , NULL},
+  ['&'] = {{BIT_AND, LOGI_AND}  , checkDoubleSameChar},
+  ['|'] = {{BIT_OR, LOGI_OR}    , checkDoubleSameChar},
+  ['='] = {{ASSIGNMENT, EQUAL}  , checkDoubleSameChar},
+  ['('] = {{OPEN_PARENT, 0}     , NULL},
+  [')'] = {{CLOSE_PARENT, 0}    , NULL},
 };
 
+ArityMemory arityMemoryTable[] = {
+  [PREFIX]      =  1,
+  [INFIX]       =  2,
+  [SUFFIX]      =  1,
+  [IDENTITY]    =  0,
+};
+  
 DoubleLinkedList *symbolStack;
 
 //create data structure for Symbol
 Symbol *createSymbol(Symbol *symbolInfo) {
-  Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
+  Symbol *symbol = (Symbol *)malloc(sizeof(Symbol) + 
+                                    (arityMemoryTable[symbolInfo->arity].extraMemory)*sizeof(Symbol *));
   symbol->token = symbolInfo->token;
   symbol->arity = symbolInfo->arity;
   symbol->id = symbolInfo->id;
-  symbol->left = symbolInfo->left;
-  symbol->right = symbolInfo->right;
+  for(int i = 0; i < arityMemoryTable[symbolInfo->arity].extraMemory; i++)
+    symbol->child[i] = NULL;
   return symbol;
 }
 
 void freeSymbol(void *symbol) {
   if((Symbol *)symbol == NULL)
     return;
-  freeSymbol(((Symbol *)symbol)->left);
-  freeSymbol(((Symbol *)symbol)->right);
+  freeSymbol(((Symbol *)symbol)->child[0]);
+  freeSymbol(((Symbol *)symbol)->child[1]);
   if(((Symbol *)symbol)->token)
     freeToken(((Symbol *)symbol)->token);
   free((Symbol *)symbol);
@@ -52,9 +60,9 @@ char *createString(char *str) {
     return NULL;
 }
 
-Symbol *checkDoubleChar(Token *symbol) {
+Symbol *checkDoubleSameChar(Token *symbol) {
   Token *nextSymbol;
-  Symbol symbolInfo = {NULL, NULL, symbol, INFIX, operatorIdTable[(symbol->str)[0]].type[0]};
+  Symbol symbolInfo = {INFIX, operatorIdTable[(symbol->str)[0]].type[0], symbol};
   nextSymbol = getToken(tokenizer);
   if(isNULLToken(nextSymbol) || !(isSymbolSameAndAdjacent(symbol, nextSymbol)))
     pushBackToken(tokenizer, nextSymbol);
@@ -73,7 +81,7 @@ Symbol *checkDoubleChar(Token *symbol) {
 Symbol *_getSymbol(Tokenizer *tokenizer) {
   Token *symbol;
   symbol = getToken(tokenizer);
-  Symbol symbolInfo = {NULL, NULL, symbol, INFIX, EOL};
+  Symbol symbolInfo = {INFIX, EOL, symbol};
   if(isNULLToken(symbol))
     return createSymbol(&symbolInfo);
   else if(isIdentifierToken(symbol))
@@ -113,10 +121,8 @@ Symbol *peekStack(DoubleLinkedList *stack) {
   return stack->head->data;
 }
 
-void verifyIsSymbolClosingParentAndConsume(Tokenizer *tokenizer) {
-  Symbol *symbol = NULL;
-  symbol = getSymbol(tokenizer);
-  if(!(isCloseParentSymbol(symbol))) {
+void verifyIsSymbolThenConsume(char *symToCheck, Symbol *symbol) {
+  if(isNULLToken(symbol->token) || !(isSymbol(symToCheck, symbol))) {
     throwException(ERR_MISSING_CLOSING_PARENT, symbol->token, 0,
     "Expecting a closing parent here, but received %s instead", symbol->token->str);
   }

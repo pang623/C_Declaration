@@ -23,7 +23,7 @@ void tearDown(void)
 }
 
 CEXCEPTION_T e;
-
+/*
 void test_createSymbol_given_symbol_data_expect_symbol_created() {
   Token *token = NULL;
   Symbol *symbol;
@@ -41,5 +41,5 @@ void test_createSymbol_given_symbol_data_expect_symbol_created() {
   freeSymbol(symbol);
   freeTokenizer(tokenizer);
 }
-
+*/
 #endif // TEST
