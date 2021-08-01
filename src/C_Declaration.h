@@ -39,5 +39,7 @@ Symbol *missingOperandNud(Symbol *symbol);
 Symbol *errorLed(Symbol *symbol, Symbol *left);
 Symbol *identityLed(Symbol *symbol, Symbol *left);
 Symbol *parentNud(Symbol *symbol);
+void verifyExpressionFullyParsed(Tokenizer *tokenizer);
+Symbol *parse(int rbp);
 
 #endif // C_DECLARATION_H

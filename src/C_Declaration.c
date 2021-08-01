@@ -4,7 +4,7 @@
 
 SymbolAttrTable symbolTable[] = {
   //[SYMBOL]    =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
-  [NUMBER]      =   {NIL, NIL, NIL,        identityNud,  identityLed},
+  [NUMBER]      =   {NIL, NIL, NIL  ,        identityNud,  identityLed},
   [VARIABLE]    =   {NIL, NIL, NIL,        identityNud,  identityLed},
   [ADD]         =   { 50,  30,  30,          prefixNud,    infixLedL},
   [MINUS]       =   { 50,  30,  30,          prefixNud,    infixLedL},
@@ -63,7 +63,7 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
 Symbol *parentNud(Symbol *symbol) {
   Symbol *left = symbol;
   left->child[0] = expression(0);
-  Symbol *_symbol = getSymbol(tokenizer);
+  Symbol *_symbol = peekSymbol(tokenizer);
   verifyIsSymbolThenConsume(")", _symbol);
   return left;
 }
@@ -108,5 +108,20 @@ Symbol *expression(int rbp) {
     symbol = getSymbol(tokenizer);
     left = ledOf(symbol)(symbol, left);
   }
+  return left;
+}
+
+void verifyExpressionFullyParsed(Tokenizer *tokenizer) {
+  Symbol *symbol = getSymbol(tokenizer);
+  if(isNULLToken(symbol->token) || isSymbol(";", symbol))
+    freeSymbol(symbol);
+  else
+    throwException(ERR_PARSE_ERROR, symbol->token, 0,
+    "An error has occured here, please check if there is missing pair of parentheses", symbol->token->str);
+}
+
+Symbol *parse(int rbp) {
+  Symbol *left = expression(rbp);
+  verifyExpressionFullyParsed(tokenizer);
   return left;
 }

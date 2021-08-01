@@ -82,7 +82,7 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
   Token *symbol;
   symbol = getToken(tokenizer);
   Symbol symbolInfo = {INFIX, EOL, symbol};
-  if(isNULLToken(symbol))
+  if(isNULLToken(symbol) || isToken(";", symbol))
     return createSymbol(&symbolInfo);
   else if(isIdentifierToken(symbol))
     symbolInfo.id = VARIABLE;
@@ -122,10 +122,10 @@ Symbol *peekStack(DoubleLinkedList *stack) {
 }
 
 void verifyIsSymbolThenConsume(char *symToCheck, Symbol *symbol) {
-  if(isNULLToken(symbol->token) || !(isSymbol(symToCheck, symbol))) {
-    throwException(ERR_MISSING_CLOSING_PARENT, symbol->token, 0,
-    "Expecting a closing parent here, but received %s instead", symbol->token->str);
+  if(isNULLToken(symbol->token) || !isSymbol(symToCheck, symbol)) {
+    throwException(ERR_WRONG_SYMBOL, symbol->token, 0,
+    "Expecting a %s here, but received %s instead", symToCheck, symbol->token->str);
   }
   else
-    freeSymbol(symbol);
+    freeSymbol(getSymbol(tokenizer));
 }

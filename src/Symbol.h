@@ -22,6 +22,7 @@ typedef Symbol *(*FuncPtr)(Token *);
 #define   isSymbolSameAndAdjacent(symbol, token)     ((symbol->str)[0] == (nextSymbol->str)[0] && nextSymbol->startColumn == symbol->startColumn + 1)
 #define   hasSymbolVariations(symbol)                (operatorIdTable[(symbol->str)[0]].func != NULL)
 #define   isSymbol(symToCheck, symbol)               !(stricmp(symToCheck, symbol->token->str))
+#define   isToken(strToCheck, token)                 !(stricmp(strToCheck, token->str))
 
 struct Symbol {
   int arity;
