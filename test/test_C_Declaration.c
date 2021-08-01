@@ -44,15 +44,16 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
     */
     TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
     TEST_ASSERT_EQUAL_STRING("3", symbol->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->token->str);
+    TEST_ASSERT_EQUAL_STRING("(", symbol->child[1]->token->str);
     TEST_ASSERT_NULL(symbol->child[0]->child[0]);
     TEST_ASSERT_NULL(symbol->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("4", symbol->child[1]->child[1]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]->child[1]);
+    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("2", symbol->child[1]->child[0]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("4", symbol->child[1]->child[0]->child[1]->token->str);
+    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]->child[0]);
+    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]->child[1]);
+    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]->child[0]);
+    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]->child[1]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -164,20 +165,22 @@ void test_expression_given_mix_of_prefixes_and_suffixes_with_parentheses_expect_
     symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
-    TEST_ASSERT_EQUAL_STRING("-", symbol->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("~", symbol->child[0]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[0]->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->child[0]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("++", symbol->child[0]->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("a", symbol->child[0]->child[1]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[0]->child[1]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("--", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("8", symbol->child[1]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("b", symbol->child[1]->child[1]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]->child[1]);
+    
+    TEST_ASSERT_EQUAL_STRING("(", symbol->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("-", symbol->child[0]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("(", symbol->child[0]->child[0]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("~", symbol->child[0]->child[0]->child[0]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("2", symbol->child[0]->child[0]->child[0]->child[0]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("(", symbol->child[0]->child[0]->child[1]->token->str);
+    TEST_ASSERT_EQUAL_STRING("++", symbol->child[0]->child[0]->child[1]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("a", symbol->child[0]->child[0]->child[1]->child[0]->child[0]->token->str);
+    
+    TEST_ASSERT_EQUAL_STRING("(", symbol->child[1]->token->str);
+    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("(", symbol->child[1]->child[0]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("--", symbol->child[1]->child[0]->child[0]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("8", symbol->child[1]->child[0]->child[0]->child[0]->child[0]->token->str);
+    TEST_ASSERT_EQUAL_STRING("b", symbol->child[1]->child[0]->child[1]->token->str);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");

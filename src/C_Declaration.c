@@ -15,7 +15,7 @@ SymbolAttrTable symbolTable[] = {
   [NOT]         =   { 50, NIL, NIL,          prefixNud,     errorLed},
   [INC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
   [DEC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
-  [OPEN_PARENT] =   { 60, NIL, NIL,          parentNud,     errorLed},
+  [OPEN_PARENT] =   {  0, NIL, NIL,          parentNud,     errorLed},
   [CLOSE_PARENT]=   {  0,   0,   0,           errorNud,     errorLed},
   [EOL]         =   {  0,   0,   0,  missingOperandNud,         NULL},
 };
@@ -61,7 +61,8 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
 }
 
 Symbol *parentNud(Symbol *symbol) {
-  Symbol *left = expression(0);
+  Symbol *left = symbol;
+  left->child[0] = expression(0);
   Symbol *_symbol = getSymbol(tokenizer);
   verifyIsSymbolThenConsume(")", _symbol);
   return left;
