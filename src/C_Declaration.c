@@ -11,7 +11,7 @@ SymbolAttrTable symbolTable[] = {
   [MULTIPLY]    =   { 50,  40,  40,          prefixNud,    infixLedL},
   [DIVIDE]      =   {NIL,  40,  40,           errorNud,    infixLedL},
   [MODULUS]     =   {NIL,  40,  40,           errorNud,    infixLedL},
-  [TILDE]       =   { 50, NIL, NIL,          prefixNud,     errorLed},
+  [BIT_NOT]     =   { 50, NIL, NIL,          prefixNud,     errorLed},
   [NOT]         =   { 50, NIL, NIL,          prefixNud,     errorLed},
   [INC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
   [DEC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
@@ -113,7 +113,7 @@ Symbol *expression(int rbp) {
 
 void verifyExpressionFullyParsed(Tokenizer *tokenizer) {
   Symbol *symbol = getSymbol(tokenizer);
-  if(isNULLToken(symbol->token) || isSymbol(";", symbol))
+  if(isNULLToken(symbol->token) || isToken(";", symbol->token))
     freeSymbol(symbol);
   else
     throwException(ERR_PARSE_ERROR, symbol->token, 0,

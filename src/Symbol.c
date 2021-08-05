@@ -1,18 +1,28 @@
 #include "Symbol.h"
 
 OperatorAttrTable operatorIdTable[] = {
-  ['+'] = {{ADD, INC}           , checkDoubleSameChar},
-  ['-'] = {{MINUS, DEC}         , checkDoubleSameChar},
-  ['*'] = {{MULTIPLY, 0}        , NULL},
-  ['/'] = {{DIVIDE, 0}          , NULL},
-  ['%'] = {{MODULUS, 0}         , NULL},
-  ['~'] = {{TILDE, 0}           , NULL},
-  ['!'] = {{NOT, 0}             , NULL},
-  ['&'] = {{BIT_AND, LOGI_AND}  , checkDoubleSameChar},
-  ['|'] = {{BIT_OR, LOGI_OR}    , checkDoubleSameChar},
-  ['='] = {{ASSIGNMENT, EQUAL}  , checkDoubleSameChar},
-  ['('] = {{OPEN_PARENT, 0}     , NULL},
-  [')'] = {{CLOSE_PARENT, 0}    , NULL},
+  ['+'] = {{ADD, INC, SH_ADD, 0}           , checkDoubleSameChar},
+  ['-'] = {{MINUS, DEC, SH_MINUS, 0}         , checkDoubleSameChar},
+  ['*'] = {{MULTIPLY, 0, SH_MUL, 0}        , checkEqualAsLastChar},
+  ['/'] = {{DIVIDE, 0, SH_DIV, 0}          , checkEqualAsLastChar},
+  ['%'] = {{MODULUS, 0, SH_MOD, 0}         , checkEqualAsLastChar},
+  ['~'] = {{BIT_NOT, 0, 0, 0}           , NULL},
+  ['!'] = {{NOT, 0, NOT_EQUAL, 0}             , checkEqualAsLastChar},
+  ['&'] = {{BIT_AND, LOGI_AND, SH_BIT_AND, 0}  , checkDoubleSameChar},
+  ['|'] = {{BIT_OR, LOGI_OR, SH_BIT_OR, 0}    , checkDoubleSameChar},
+  ['^'] = {{BIT_XOR, 0, SH_BIT_XOR, 0}, checkEqualAsLastChar},
+  ['='] = {{ASSIGNMENT, 0, EQUALITY, 0}  , checkEqualAsLastChar},
+  ['<'] = {{LESSER, L_SHIFT, LESS_OR_EQUAL, SH_L_SHIFT}, checkDoubleSameCharWithEqual},
+  ['>'] = {{GREATER, R_SHIFT, GREATER_OR_EQUAL, SH_R_SHIFT}, checkDoubleSameCharWithEqual}, 
+  ['('] = {{OPEN_PARENT, 0, 0, 0}     , NULL},
+  [')'] = {{CLOSE_PARENT, 0, 0, 0}    , NULL},
+  [';'] = {{EOL, 0, 0, 0}             , NULL},
+};
+
+SymbolCombination SymbolCombiTable[] = {
+  [DOUBLE]     = {NULL, 1, DOUBLE_SAME_CHAR},
+  [EQUAL]      = {"=",  2, EQUAL_AS_LAST_CHAR},
+  [DWITHEQUAL] = {"=",  3, DOUBLE_SAME_CHAR | EQUAL_AS_LAST_CHAR},
 };
 
 ArityMemory arityMemoryTable[] = {
@@ -60,29 +70,67 @@ char *createString(char *str) {
     return NULL;
 }
 
-Symbol *checkDoubleSameChar(Token *symbol) {
-  Token *nextSymbol;
-  Symbol symbolInfo = {INFIX, operatorIdTable[(symbol->str)[0]].type[0], symbol};
-  nextSymbol = getToken(tokenizer);
-  if(isNULLToken(nextSymbol) || !(isSymbolSameAndAdjacent(symbol, nextSymbol)))
+Token *processToken(Token *symbol, int option) {
+  (symbol->length)++;
+  char newStr[symbol->length];
+  for(int i = 0; i < symbol->length; i++)
+    newStr[i] = (symbol->str)[0];
+  newStr[symbol->length] = '\0';
+  if(SymbolCombiTable[option].symbol)
+    newStr[symbol->length - 1] = (SymbolCombiTable[option].symbol)[0];
+  free(symbol->str);
+  symbol->str = createString(newStr);
+  return symbol;
+}
+
+Symbol *processSymbol(Token *symbol, int *flag, int option, int type) {
+  Token *nextSymbol = getToken(tokenizer);
+  Symbol symbolInfo = {INFIX, operatorIdTable[(symbol->str)[0]].type[type], symbol};
+  if(isNULLToken(nextSymbol) || !(isCorrectSymbolAndAdjacent(symbol, nextSymbol, SymbolCombiTable[option].symbol)))
     pushBackToken(tokenizer, nextSymbol);
-  //if both symbols are same and adjacent to each other
   else {
+    if(flag)
+      *flag = SymbolCombiTable[option].flag;
     freeToken(nextSymbol);
-    (symbol->length)++;
-    char newStr[3] = {(symbol->str)[0], (symbol->str)[0], '\0'};
-    free(symbol->str);
-    symbol->str = createString(newStr);
-    symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[1];
+    symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[SymbolCombiTable[option].type];
+    symbolInfo.token = processToken(symbol, option);
   }
   return createSymbol(&symbolInfo);
 }
 
+int isCorrectSymbolAndAdjacent(Token *symbol, Token *nextSymbol, char *symToCheck) {
+  if(!symToCheck)
+    symToCheck = symbol->str;
+  return (isToken(symToCheck, nextSymbol) && (nextSymbol->startColumn == (symbol->startColumn + symbol->length)));
+}
+
+Symbol *checkEqualAsLastChar(Token *symbol, int *flag) {
+  return processSymbol(symbol, flag, EQUAL, 0);
+}
+
+Symbol *checkDoubleSameChar(Token *symbol, int *flag) {
+  Symbol *newSymbol = checkEqualAsLastChar(symbol, flag);
+  if(*flag != EQUAL_AS_LAST_CHAR)
+    return processSymbol(symbol, flag, DOUBLE, 0);
+  else
+    return newSymbol;
+}
+
+Symbol *checkDoubleSameCharWithEqual(Token *symbol, int *flag) {
+  Symbol *newSymbol = checkDoubleSameChar(symbol, flag);
+  if(*flag == DOUBLE_SAME_CHAR)
+    return processSymbol(symbol, flag, DWITHEQUAL, 1);
+  else
+    return newSymbol;
+}
+
 Symbol *_getSymbol(Tokenizer *tokenizer) {
   Token *symbol;
+  int flagVal = 0;
+  int *flag = &flagVal;
   symbol = getToken(tokenizer);
   Symbol symbolInfo = {INFIX, EOL, symbol};
-  if(isNULLToken(symbol) || isToken(";", symbol))
+  if(isNULLToken(symbol))
     return createSymbol(&symbolInfo);
   else if(isIdentifierToken(symbol))
     symbolInfo.id = VARIABLE;
@@ -91,7 +139,7 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
   else if(!(hasSymbolVariations(symbol)))
     symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[0];
   else
-    return operatorIdTable[(symbol->str)[0]].func(symbol);
+    return operatorIdTable[(symbol->str)[0]].func(symbol, flag);
   return createSymbol(&symbolInfo);
 }
 
@@ -122,7 +170,7 @@ Symbol *peekStack(DoubleLinkedList *stack) {
 }
 
 void verifyIsSymbolThenConsume(char *symToCheck, Symbol *symbol) {
-  if(isNULLToken(symbol->token) || !isSymbol(symToCheck, symbol)) {
+  if(isNULLToken(symbol->token) || !(isToken(symToCheck, symbol->token))) {
     throwException(ERR_WRONG_SYMBOL, symbol->token, 0,
     "Expecting a %s here, but received %s instead", symToCheck, symbol->token->str);
   }
