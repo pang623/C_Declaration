@@ -3,21 +3,51 @@
 #include <stdlib.h>
 
 SymbolAttrTable symbolTable[] = {
-  //[SYMBOL]    =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
-  [NUMBER]      =   {NIL, NIL, NIL  ,        identityNud,  identityLed},
-  [VARIABLE]    =   {NIL, NIL, NIL,        identityNud,  identityLed},
-  [ADD]         =   { 50,  30,  30,          prefixNud,    infixLedL},
-  [MINUS]       =   { 50,  30,  30,          prefixNud,    infixLedL},
-  [MULTIPLY]    =   { 50,  40,  40,          prefixNud,    infixLedL},
-  [DIVIDE]      =   {NIL,  40,  40,           errorNud,    infixLedL},
-  [MODULUS]     =   {NIL,  40,  40,           errorNud,    infixLedL},
-  [BIT_NOT]     =   { 50, NIL, NIL,          prefixNud,     errorLed},
-  [NOT]         =   { 50, NIL, NIL,          prefixNud,     errorLed},
-  [INC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
-  [DEC]         =   { 50, NIL,  60,          prefixNud,    suffixLed},
-  [OPEN_PARENT] =   {  0, NIL, NIL,          parentNud,     errorLed},
-  [CLOSE_PARENT]=   {  0,   0,   0,           errorNud,     errorLed},
-  [EOL]         =   {  0,   0,   0,  missingOperandNud,         NULL},
+  //[SYMBOLID]           =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
+  [NUMBER]             =   { NIL,  NIL,  NIL,        identityNud,  identityLed},
+  [VARIABLE]           =   { NIL,  NIL,  NIL,        identityNud,  identityLed},
+  //Arithmetic
+  [ADD]                =   { 140,  120,  120,          prefixNud,    infixLedL},
+  [MINUS]              =   { 140,  120,  120,          prefixNud,    infixLedL},
+  [MULTIPLY]           =   { NIL,  130,  130,          prefixNud,    infixLedL},
+  [DIVIDE]             =   { NIL,  130,  130,           errorNud,    infixLedL},
+  [MODULUS]            =   { NIL,  130,  130,           errorNud,    infixLedL},
+  [INC]                =   { 140,  NIL,  150,          prefixNud,    suffixLed},
+  [DEC]                =   { 140,  NIL,  150,          prefixNud,    suffixLed},
+  //Bitwise
+  [BIT_AND]            =   { NIL,   80,   80,           errorNud,    infixLedL},
+  [BIT_XOR]            =   { NIL,   70,   70,           errorNud,    infixLedL},
+  [BIT_OR]             =   { NIL,   60,   60,           errorNud,    infixLedL},
+  [BIT_NOT]            =   { 140,  NIL,  NIL,          prefixNud,     errorLed},
+  [L_SHIFT]            =   { NIL,  110,  110,           errorNud,    infixLedL},
+  [R_SHIFT]            =   { NIL,  110,  110,           errorNud,    infixLedL},
+  //Logical
+  [LOGI_NOT]           =   { 140,  NIL,  NIL,          prefixNud,     errorLed},
+  [LOGI_AND]           =   { NIL,   50,   50,           errorNud,    infixLedL},
+  [LOGI_OR]            =   { NIL,   40,   40,           errorNud,    infixLedL},
+  //Relational
+  [LESSER]             =   { NIL,  100,  100,           errorNud,    infixLedL},
+  [GREATER]            =   { NIL,  100,  100,           errorNud,    infixLedL},
+  [LESS_OR_EQUAL]      =   { NIL,  100,  100,           errorNud,    infixLedL},
+  [GREATER_OR_EQUAL]   =   { NIL,  100,  100,           errorNud,    infixLedL},
+  [EQUALITY]           =   { NIL,   90,   90,           errorNud,    infixLedL},
+  [NOT_EQUAL]          =   { NIL,   90,   90,           errorNud,    infixLedL},
+  //Assignment
+  [ASSIGNMENT]         =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_ADD]             =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_MINUS]           =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_MUL]             =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_DIV]             =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_MOD]             =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_BIT_AND]         =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_BIT_OR]          =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_BIT_XOR]         =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_L_SHIFT]         =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [SH_R_SHIFT]         =   { NIL,   20,   20,           errorNud,    infixLedR},
+  //Misc.
+  [OPEN_PARENT]        =   {  0,   NIL,  NIL,          parentNud,     errorLed},
+  [CLOSE_PARENT]       =   {  0,     0,    0,           errorNud,     errorLed},
+  [EOL]                =   {  0,     0,    0,  missingOperandNud,         NULL},
 };
 
 Tokenizer *tokenizer;

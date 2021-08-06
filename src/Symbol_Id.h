@@ -27,7 +27,7 @@
 //Logical Operators
 #define   LOGI_AND            30
 #define   LOGI_OR             31
-#define   NOT                 32
+#define   LOGI_NOT            32
 
 //Relational operators
 #define   LESSER              40
