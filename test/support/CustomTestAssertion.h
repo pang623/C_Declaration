@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "Arity.h"
 #include "Symbol.h"
 
@@ -45,6 +46,7 @@ struct TestNumber {
   char *value;
 };
 
+char *createMessage(char *message, ...);
 void testAssertInfix(int symbolId, char *symbol, TestSymbolType *childZero, TestSymbolType *childOne, Symbol *root, int lineNum);
 void testAssertSingleOperand(int symbolId, char *symbol, int arity, TestSymbolType *childZero, Symbol *root, int lineNum);
 TestSymbolType *Number(char *value);
