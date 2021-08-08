@@ -21,37 +21,36 @@ TestSymbolType *Operator(char *_operator) {
   return (TestSymbolType *)symbol;
 }
 
-void testAssertInfix(int symbolId, char *symbol, TestSymbolType *childZero, TestSymbolType *childOne, Symbol *root) {
-  TEST_ASSERT_EQUAL(symbolId, root->id);
-  TEST_ASSERT_EQUAL(INFIX, root->arity);
-  TEST_ASSERT_EQUAL_STRING(symbol, root->token->str);
+void testAssertInfix(int symbolId, char *symbol, TestSymbolType *childZero, TestSymbolType *childOne, Symbol *root, int lineNum) {
+  UNITY_TEST_ASSERT_EQUAL_INT(symbolId, root->id, lineNum, NULL);
+  UNITY_TEST_ASSERT_EQUAL_INT(INFIX, root->arity, lineNum, NULL);
+  UNITY_TEST_ASSERT_EQUAL_STRING(symbol, root->token->str, lineNum, NULL);
   
   TestSymbolType *testChild = childZero;
   for(int i = 0; i < 2; i++) {
     if(testChild->type == OPERATOR_TYPE)
-      TEST_ASSERT_EQUAL_STRING(((TestOperator *)testChild)->_operator, root->child[i]->token->str);
+      UNITY_TEST_ASSERT_EQUAL_STRING(((TestOperator *)testChild)->_operator, root->child[i]->token->str, lineNum, NULL);
     else if(testChild->type == NUMBER_TYPE)
-      TEST_ASSERT_EQUAL_STRING(((TestNumber *)testChild)->value, root->child[i]->token->str);
+      UNITY_TEST_ASSERT_EQUAL_STRING(((TestNumber *)testChild)->value, root->child[i]->token->str, lineNum, NULL);
     else
-      TEST_ASSERT_EQUAL_STRING(((TestIdentifier *)testChild)->str, root->child[i]->token->str);
+      UNITY_TEST_ASSERT_EQUAL_STRING(((TestIdentifier *)testChild)->str, root->child[i]->token->str, lineNum, NULL);
     testChild = childOne;
   }
   free(childZero);
   free(childOne);
 }
 
-void testAssertSingleOperand(int symbolId, char *symbol, int arity, TestSymbolType *childZero, Symbol *root) {
-  TEST_ASSERT_EQUAL(symbolId, root->id);
-  TEST_ASSERT_EQUAL(arity, root->arity);
-  TEST_ASSERT_EQUAL_STRING(symbol, root->token->str);
+void testAssertSingleOperand(int symbolId, char *symbol, int arity, TestSymbolType *childZero, Symbol *root, int lineNum) {
+  UNITY_TEST_ASSERT_EQUAL_INT(symbolId, root->id, lineNum, NULL);
+  UNITY_TEST_ASSERT_EQUAL_INT(arity, root->arity, lineNum, NULL);
+  UNITY_TEST_ASSERT_EQUAL_STRING(symbol, root->token->str, lineNum, NULL);
   
   TestSymbolType *testChild = childZero;
   if(testChild->type == OPERATOR_TYPE)
-    TEST_ASSERT_EQUAL_STRING(((TestOperator *)testChild)->_operator, root->child[0]->token->str);
+    UNITY_TEST_ASSERT_EQUAL_STRING(((TestOperator *)testChild)->_operator, root->child[0]->token->str, lineNum, NULL);
   else if(testChild->type == NUMBER_TYPE)
-    TEST_ASSERT_EQUAL_STRING(((TestNumber *)testChild)->value, root->child[0]->token->str);
+    UNITY_TEST_ASSERT_EQUAL_STRING(((TestNumber *)testChild)->value, root->child[0]->token->str, lineNum, NULL);
   else
-    TEST_ASSERT_EQUAL_STRING(((TestIdentifier *)testChild)->str, root->child[0]->token->str);
-  
+    UNITY_TEST_ASSERT_EQUAL_STRING(((TestIdentifier *)testChild)->str, root->child[0]->token->str, lineNum, NULL);
   free(childZero);
 }
