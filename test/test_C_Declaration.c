@@ -88,6 +88,14 @@ void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void)
   freeTokenizer(tokenizer);
 }
 
+/*
+          +
+         / \
+       ++   2
+       /  
+      3
+*/
+
 void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) {
   Symbol *symbol;
   //parser should just consume the semicolon
@@ -96,17 +104,8 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
   Try {
     symbol = parse(0);
     //Test tree created is correct in order
-    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
-    TEST_ASSERT_EQUAL(INFIX, symbol->arity);
-    TEST_ASSERT_EQUAL_STRING("++", symbol->child[0]->token->str);
-    TEST_ASSERT_EQUAL(SUFFIX, symbol->child[0]->arity);
-    TEST_ASSERT_EQUAL_STRING("3", symbol->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL(IDENTITY, symbol->child[0]->child[0]->arity);
-    TEST_ASSERT_NULL(symbol->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->child[1]->token->str);
-    TEST_ASSERT_EQUAL(IDENTITY, symbol->child[1]->arity);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]);
+    TEST_ASSERT_SYMBOL(ADD, "+", Operator("++"), Number("2"), symbol);
+    TEST_ASSERT_SYMBOL(INC_AFTER, "++", Number("3"), NULL, symbol->child[0]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -115,6 +114,16 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
   freeSymbol(symbol);
   freeTokenizer(tokenizer);
 }
+
+/*
+             +
+         /       \
+        -         *
+       / \       / \
+      ~  ++     --  b
+     /     \   /   
+    2       a 8   
+*/
 
 //parsed as ((~2)-(a++))+((--8)*b)
 void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
@@ -124,21 +133,12 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
   Try {
     symbol = parse(0);
     //Test tree created is correct in order
-    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
-    TEST_ASSERT_EQUAL_STRING("-", symbol->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("~", symbol->child[0]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[0]->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->child[0]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("++", symbol->child[0]->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("a", symbol->child[0]->child[1]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[0]->child[1]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("--", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("8", symbol->child[1]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("b", symbol->child[1]->child[1]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]->child[1]);
+    TEST_ASSERT_SYMBOL(ADD, "+", Operator("-"), Operator("*"), symbol);
+    TEST_ASSERT_SYMBOL(SUBTRACT, "-", Operator("~"), Operator("++"), symbol->child[0]);
+    TEST_ASSERT_SYMBOL(MULTIPLY, "*", Operator("--"), Identifier("b"), symbol->child[1]);
+    TEST_ASSERT_SYMBOL(BIT_NOT, "~", Number("2"), NULL, symbol->child[0]->child[0]);
+    TEST_ASSERT_SYMBOL(INC_AFTER, "++", Identifier("a"), NULL, symbol->child[0]->child[1]);
+    TEST_ASSERT_SYMBOL(DEC_BEFORE, "--", Number("8"), NULL, symbol->child[1]->child[0]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -148,31 +148,35 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
   freeTokenizer(tokenizer);
 }
 
+/*
+                   +
+               /       \
+              (         (
+             /          /
+            -          *
+           / \        / \
+          (   (      (   b
+         /     \    /   
+        ~      ++  --   
+       /        \   /
+      2          a  8
+*/
+
 //parsed as ((~2)-(a++))+((--8)*b)
 void test_expression_given_mix_of_prefixes_and_suffixes_with_parentheses_expect_correctly_parsed(void) {
+  TEST_IGNORE_MESSAGE("To be tested");
   Symbol *symbol;
   tokenizer = createTokenizer("((~2)-(a++))+((--8)*b)");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
     //Test tree created is correct in order
-    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
-    
-    TEST_ASSERT_EQUAL_STRING("(", symbol->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("-", symbol->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("(", symbol->child[0]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("~", symbol->child[0]->child[0]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->child[0]->child[0]->child[0]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("(", symbol->child[0]->child[0]->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("++", symbol->child[0]->child[0]->child[1]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("a", symbol->child[0]->child[0]->child[1]->child[0]->child[0]->token->str);
-    
-    TEST_ASSERT_EQUAL_STRING("(", symbol->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("(", symbol->child[1]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("--", symbol->child[1]->child[0]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("8", symbol->child[1]->child[0]->child[0]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("b", symbol->child[1]->child[0]->child[1]->token->str);
+    TEST_ASSERT_SYMBOL(ADD, "+", Operator("("), Operator("("), symbol);
+    TEST_ASSERT_SYMBOL(SUBTRACT, "-", Operator("("), Operator("("), symbol->child[0]);
+    TEST_ASSERT_SYMBOL(MULTIPLY, "*", Operator("--"), Identifier("b"), symbol->child[1]);
+    TEST_ASSERT_SYMBOL(BIT_NOT, "~", Number("2"), NULL, symbol->child[0]->child[0]);
+    TEST_ASSERT_SYMBOL(INC_AFTER, "++", Identifier("a"), NULL, symbol->child[0]->child[1]);
+    TEST_ASSERT_SYMBOL(DEC_BEFORE, "--", Number("8"), NULL, symbol->child[1]->child[0]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -181,6 +185,14 @@ void test_expression_given_mix_of_prefixes_and_suffixes_with_parentheses_expect_
   freeSymbol(symbol);
   freeTokenizer(tokenizer);
 }
+
+/*
+          +
+         / \
+        i  ++
+           /
+          j
+*/
 
 void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(void) {
   Symbol *symbol;
@@ -190,15 +202,8 @@ void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(v
   Try {
     symbol = parse(0);
     //Test tree created is correct in order
-    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
-    TEST_ASSERT_EQUAL_STRING("i", symbol->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("++", symbol->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("j", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]);
+    TEST_ASSERT_SYMBOL(ADD, "+", Identifier("i"), Operator("++"), symbol);
+    TEST_ASSERT_SYMBOL(INC_BEFORE, "++", Identifier("j"), NULL, symbol->child[1]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -207,6 +212,16 @@ void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(v
   freeSymbol(symbol);
   freeTokenizer(tokenizer);
 }
+
+/*
+          -
+         / \
+        i   -
+           /
+          +
+         /
+        j
+*/
 
 void test_expression_given_minus_minus_but_not_adjacent_expect_not_parsed_as_dec(void) {
   Symbol *symbol;
@@ -216,16 +231,9 @@ void test_expression_given_minus_minus_but_not_adjacent_expect_not_parsed_as_dec
   Try {
     symbol = parse(0);
     //Test tree created is correct in order
-    TEST_ASSERT_EQUAL_STRING("-", symbol->token->str);
-    TEST_ASSERT_EQUAL_STRING("i", symbol->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("-", symbol->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("+", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("j", symbol->child[1]->child[0]->child[0]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]->child[1]);
+    TEST_ASSERT_SYMBOL(SUBTRACT, "-", Identifier("i"), Operator("-"), symbol);
+    TEST_ASSERT_SYMBOL(MINUS_SIGN, "-", Operator("+"), NULL, symbol->child[1]);
+    TEST_ASSERT_SYMBOL(PLUS_SIGN, "+", Identifier("j"), NULL, symbol->child[1]->child[0]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -235,33 +243,31 @@ void test_expression_given_minus_minus_but_not_adjacent_expect_not_parsed_as_dec
   freeTokenizer(tokenizer);
 }
 
+/*
+          +
+         / \
+        a   (
+            /
+          <<=
+          /  \
+         b    *
+             / \
+            c   d
+*/
+
 //testing right associativity (assignment operators are of right assc.)
 void test_expression_given_expression_with_assignment_operator_expect_ast_created_correctly(void) {
   Symbol *symbol;
-  //parsed as a + (b <<= (c + d))
-  //which means, a + (b = (b << (c + d)))
-  tokenizer = createTokenizer("a +( b<<= c*d)");
+  //parsed as a + (b <<= (c * d))
+  //which means, a + (b = (b << (c * d)))
+  tokenizer = createTokenizer("a + (b<<= c*d)");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
     //Test tree created is correct in order
-    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
-    TEST_ASSERT_EQUAL_STRING("a", symbol->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("(", symbol->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("<<=", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("b", symbol->child[1]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->child[0]->child[1]->token->str);
-    TEST_ASSERT_EQUAL_STRING("c", symbol->child[1]->child[0]->child[1]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("d", symbol->child[1]->child[0]->child[1]->child[1]->token->str);
-    TEST_ASSERT_NULL(symbol->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[0]->child[1]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]->child[1]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]->child[0]->child[1]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]->child[1]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]->child[1]->child[1]);
+    TEST_ASSERT_SYMBOL(ADD, "+", Identifier("a"), Operator("("), symbol);
+    TEST_ASSERT_SYMBOL(L_SHIFT_ASSIGN, "<<=", Identifier("b"), Operator("*"), symbol->child[1]->child[0]);
+    TEST_ASSERT_SYMBOL(MULTIPLY, "*", Identifier("c"), Identifier("d"), symbol->child[1]->child[0]->child[1]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
