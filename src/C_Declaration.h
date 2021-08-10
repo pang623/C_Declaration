@@ -24,6 +24,7 @@ struct SymbolAttrTable {
   int prefixRBP;
   int infixRBP;
   int infixLBP;
+  int idType[2];
   NudFuncPtr nud;
   LedFuncPtr led;
 };

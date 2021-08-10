@@ -1,22 +1,22 @@
 #include "Symbol.h"
 
 OperatorAttrTable operatorIdTable[] = {
-  ['+'] = {{ADD, INC, SH_ADD, 0}                              , checkDoubleSameChar},
-  ['-'] = {{MINUS, DEC, SH_MINUS, 0}                          , checkDoubleSameChar},
-  ['*'] = {{MULTIPLY, 0, SH_MUL, 0}                           , checkEqualAsLastChar},
-  ['/'] = {{DIVIDE, 0, SH_DIV, 0}                             , checkEqualAsLastChar},
-  ['%'] = {{MODULUS, 0, SH_MOD, 0}                            , checkEqualAsLastChar},
-  ['~'] = {{BIT_NOT, 0, 0, 0}                                 , NULL},
-  ['!'] = {{LOGI_NOT, 0, NOT_EQUAL, 0}                        , checkEqualAsLastChar},
-  ['&'] = {{BIT_AND, LOGI_AND, SH_BIT_AND, 0}                 , checkDoubleSameChar},
-  ['|'] = {{BIT_OR, LOGI_OR, SH_BIT_OR, 0}                    , checkDoubleSameChar},
-  ['^'] = {{BIT_XOR, 0, SH_BIT_XOR, 0}                        , checkEqualAsLastChar},
-  ['='] = {{ASSIGNMENT, 0, EQUALITY, 0}                       , checkEqualAsLastChar},
-  ['<'] = {{LESSER, L_SHIFT, LESS_OR_EQUAL, SH_L_SHIFT}       , checkDoubleSameCharWithEqual},
-  ['>'] = {{GREATER, R_SHIFT, GREATER_OR_EQUAL, SH_R_SHIFT}   , checkDoubleSameCharWithEqual}, 
-  ['('] = {{OPEN_PARENT, 0, 0, 0}                             , NULL},
-  [')'] = {{CLOSE_PARENT, 0, 0, 0}                            , NULL},
-  [';'] = {{EOL, 0, 0, 0}                                     , NULL},
+  ['+'] = {{ADD, INC_BEFORE, ADD_ASSIGN, 0}                        , checkDoubleSameChar},
+  ['-'] = {{SUBTRACT, DEC_BEFORE, MINUS_ASSIGN, 0}                 , checkDoubleSameChar},
+  ['*'] = {{MULTIPLY, 0, MUL_ASSIGN, 0}                            , checkEqualAsLastChar},
+  ['/'] = {{DIVIDE, 0, DIV_ASSIGN, 0}                              , checkEqualAsLastChar},
+  ['%'] = {{MODULUS, 0, MOD_ASSIGN, 0}                             , checkEqualAsLastChar},
+  ['~'] = {{BIT_NOT, 0, 0, 0}                                      , NULL},
+  ['!'] = {{LOGI_NOT, 0, NOT_EQUAL, 0}                             , checkEqualAsLastChar},
+  ['&'] = {{BIT_AND, LOGI_AND, AND_ASSIGN, 0}                      , checkDoubleSameChar},
+  ['|'] = {{BIT_OR, LOGI_OR, OR_ASSIGN, 0}                         , checkDoubleSameChar},
+  ['^'] = {{BIT_XOR, 0, XOR_ASSIGN, 0}                             , checkEqualAsLastChar},
+  ['='] = {{ASSIGNMENT, 0, EQUALITY, 0}                            , checkEqualAsLastChar},
+  ['<'] = {{LESSER, L_SHIFT, LESS_OR_EQUAL, L_SHIFT_ASSIGN}        , checkDoubleSameCharWithEqual},
+  ['>'] = {{GREATER, R_SHIFT, GREATER_OR_EQUAL, R_SHIFT_ASSIGN}    , checkDoubleSameCharWithEqual}, 
+  ['('] = {{OPEN_PARENT, 0, 0, 0}                                  , NULL},
+  [')'] = {{CLOSE_PARENT, 0, 0, 0}                                 , NULL},
+  [';'] = {{EOL, 0, 0, 0}                                          , NULL},
 };
 
 SymbolCombination SymbolCombiTable[] = {

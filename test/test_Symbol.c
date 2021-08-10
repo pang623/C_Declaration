@@ -47,7 +47,7 @@ void test_underscore_getSymbol_given_a_triple_char_symbol_from_tokenizer_expect_
   Symbol *symbol;
   
   symbol = _getSymbol(tokenizer);
-  TEST_ASSERT_EQUAL(SH_R_SHIFT, symbol->id);
+  TEST_ASSERT_EQUAL(R_SHIFT_ASSIGN, symbol->id);
   TEST_ASSERT_EQUAL_STRING(">>=", symbol->token->str);
   TEST_ASSERT_EQUAL(3, symbol->token->length);
   TEST_ASSERT_EQUAL(INFIX, symbol->arity);  //INFIX arity by default
@@ -127,7 +127,7 @@ void test_underscore_getSymbol_given_a_double_char_symbol_from_tokenizer_expect_
   Symbol *symbol;
   
   symbol = _getSymbol(tokenizer);
-  TEST_ASSERT_EQUAL(SH_DIV, symbol->id);
+  TEST_ASSERT_EQUAL(DIV_ASSIGN, symbol->id);
   TEST_ASSERT_EQUAL_STRING("/=", symbol->token->str);
   TEST_ASSERT_EQUAL(2, symbol->token->length);
   TEST_ASSERT_EQUAL(INFIX, symbol->arity);  //INFIX arity by default
@@ -191,7 +191,7 @@ void test_underscore_getSymbol_given_a_triple_char_symbol_but_adjacent_with_anot
   Symbol *symbol;
   
   symbol = _getSymbol(tokenizer);
-  TEST_ASSERT_EQUAL(SH_L_SHIFT, symbol->id);
+  TEST_ASSERT_EQUAL(L_SHIFT_ASSIGN, symbol->id);
   TEST_ASSERT_EQUAL_STRING("<<=", symbol->token->str);
   TEST_ASSERT_EQUAL(3, symbol->token->length);
   TEST_ASSERT_EQUAL(INFIX, symbol->arity);  //INFIX arity by default

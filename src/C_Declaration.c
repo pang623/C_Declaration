@@ -4,50 +4,50 @@
 
 SymbolAttrTable symbolTable[] = {
   //[SYMBOLID]           =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
-  [NUMBER]             =   { NIL,  NIL,  NIL,        identityNud,  identityLed},
-  [VARIABLE]           =   { NIL,  NIL,  NIL,        identityNud,  identityLed},
+  [NUMBER]             =   { NIL,  NIL,  NIL,   {0,          0},        identityNud,  identityLed},
+  [VARIABLE]           =   { NIL,  NIL,  NIL,   {0,          0},        identityNud,  identityLed},
   //Arithmetic
-  [ADD]                =   { 140,  120,  120,          prefixNud,    infixLedL},
-  [MINUS]              =   { 140,  120,  120,          prefixNud,    infixLedL},
-  [MULTIPLY]           =   { NIL,  130,  130,          prefixNud,    infixLedL},
-  [DIVIDE]             =   { NIL,  130,  130,           errorNud,    infixLedL},
-  [MODULUS]            =   { NIL,  130,  130,           errorNud,    infixLedL},
-  [INC]                =   { 140,  NIL,  150,          prefixNud,    suffixLed},
-  [DEC]                =   { 140,  NIL,  150,          prefixNud,    suffixLed},
+  [ADD]                =   { 140,  120,  120,   {PLUS_SIGN,  0},          prefixNud,    infixLedL},
+  [SUBTRACT]           =   { 140,  120,  120,   {MINUS_SIGN, 0},          prefixNud,    infixLedL},
+  [MULTIPLY]           =   { NIL,  130,  130,   {0,          0},           errorNud,    infixLedL},
+  [DIVIDE]             =   { NIL,  130,  130,   {0,          0},           errorNud,    infixLedL},
+  [MODULUS]            =   { NIL,  130,  130,   {0,          0},           errorNud,    infixLedL},
+  [INC_BEFORE]         =   { 140,  NIL,  150,   {0,  INC_AFTER},          prefixNud,    suffixLed},
+  [DEC_BEFORE]         =   { 140,  NIL,  150,   {0,  DEC_AFTER},          prefixNud,    suffixLed},
   //Bitwise
-  [BIT_AND]            =   { NIL,   80,   80,           errorNud,    infixLedL},
-  [BIT_XOR]            =   { NIL,   70,   70,           errorNud,    infixLedL},
-  [BIT_OR]             =   { NIL,   60,   60,           errorNud,    infixLedL},
-  [BIT_NOT]            =   { 140,  NIL,  NIL,          prefixNud,     errorLed},
-  [L_SHIFT]            =   { NIL,  110,  110,           errorNud,    infixLedL},
-  [R_SHIFT]            =   { NIL,  110,  110,           errorNud,    infixLedL},
+  [BIT_AND]            =   { NIL,   80,   80,   {0,          0},           errorNud,    infixLedL},
+  [BIT_XOR]            =   { NIL,   70,   70,   {0,          0},           errorNud,    infixLedL},
+  [BIT_OR]             =   { NIL,   60,   60,   {0,          0},           errorNud,    infixLedL},
+  [BIT_NOT]            =   { 140,  NIL,  NIL,   {0,          0},          prefixNud,     errorLed},
+  [L_SHIFT]            =   { NIL,  110,  110,   {0,          0},           errorNud,    infixLedL},
+  [R_SHIFT]            =   { NIL,  110,  110,   {0,          0},           errorNud,    infixLedL},
   //Logical
-  [LOGI_NOT]           =   { 140,  NIL,  NIL,          prefixNud,     errorLed},
-  [LOGI_AND]           =   { NIL,   50,   50,           errorNud,    infixLedL},
-  [LOGI_OR]            =   { NIL,   40,   40,           errorNud,    infixLedL},
+  [LOGI_NOT]           =   { 140,  NIL,  NIL,   {0,          0},          prefixNud,     errorLed},
+  [LOGI_AND]           =   { NIL,   50,   50,   {0,          0},           errorNud,    infixLedL},
+  [LOGI_OR]            =   { NIL,   40,   40,   {0,          0},           errorNud,    infixLedL},
   //Relational
-  [LESSER]             =   { NIL,  100,  100,           errorNud,    infixLedL},
-  [GREATER]            =   { NIL,  100,  100,           errorNud,    infixLedL},
-  [LESS_OR_EQUAL]      =   { NIL,  100,  100,           errorNud,    infixLedL},
-  [GREATER_OR_EQUAL]   =   { NIL,  100,  100,           errorNud,    infixLedL},
-  [EQUALITY]           =   { NIL,   90,   90,           errorNud,    infixLedL},
-  [NOT_EQUAL]          =   { NIL,   90,   90,           errorNud,    infixLedL},
+  [LESSER]             =   { NIL,  100,  100,   {0,          0},           errorNud,    infixLedL},
+  [GREATER]            =   { NIL,  100,  100,   {0,          0},           errorNud,    infixLedL},
+  [LESS_OR_EQUAL]      =   { NIL,  100,  100,   {0,          0},           errorNud,    infixLedL},
+  [GREATER_OR_EQUAL]   =   { NIL,  100,  100,   {0,          0},           errorNud,    infixLedL},
+  [EQUALITY]           =   { NIL,   90,   90,   {0,          0},           errorNud,    infixLedL},
+  [NOT_EQUAL]          =   { NIL,   90,   90,   {0,          0},           errorNud,    infixLedL},
   //Assignment
-  [ASSIGNMENT]         =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_ADD]             =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_MINUS]           =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_MUL]             =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_DIV]             =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_MOD]             =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_BIT_AND]         =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_BIT_OR]          =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_BIT_XOR]         =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_L_SHIFT]         =   { NIL,   20,   20,           errorNud,    infixLedR},
-  [SH_R_SHIFT]         =   { NIL,   20,   20,           errorNud,    infixLedR},
+  [ASSIGNMENT]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [ADD_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [MINUS_ASSIGN]       =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [MUL_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [DIV_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [MOD_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [AND_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [OR_ASSIGN]          =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [XOR_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [L_SHIFT_ASSIGN]     =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [R_SHIFT_ASSIGN]     =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
   //Misc.
-  [OPEN_PARENT]        =   {  0,   NIL,  NIL,          parentNud,     errorLed},
-  [CLOSE_PARENT]       =   {  0,     0,    0,           errorNud,     errorLed},
-  [EOL]                =   {  0,     0,    0,  missingOperandNud,         NULL},
+  [OPEN_PARENT]        =   {  0,   NIL,  NIL,   {0,          0},          parentNud,     errorLed},
+  [CLOSE_PARENT]       =   {  0,     0,    0,   {0,          0},           errorNud,     errorLed},
+  [EOL]                =   {  0,     0,    0,   {0,          0},  missingOperandNud,         NULL},
 };
 
 Tokenizer *tokenizer;
@@ -55,8 +55,11 @@ Tokenizer *tokenizer;
 //handles prefix
 //unary, inc, dec etc
 Symbol *prefixNud(Symbol *symbol) {
+  int newSymbolId = symbolTable[symbol->id].idType[0];
   symbol->arity = PREFIX;
   symbol->child[0] = expression(getPrefixRBP(symbol));
+  if(newSymbolId)
+    symbol->id = newSymbolId;
   return symbol;
 }
 
@@ -80,12 +83,16 @@ Symbol *infixLedR(Symbol *symbol, Symbol *left) {
 
 //postfix, eg: "++", "--"
 Symbol *suffixLed(Symbol *symbol, Symbol *left) {
+  int newSymbolId = symbolTable[symbol->id].idType[1];
   /*
   if(!(isIdentifierToken(left->token)))
     throwException(ERR_SYNTAX, token, 0,
     "Does not expect suffix %s here", token->str);
   */
   symbol->arity = SUFFIX;
+  //if suffixLed is called, meaning it is not xxx_BEFORE, but is xxx_AFTER instead
+  if(newSymbolId)
+    symbol->id = newSymbolId;
   symbol->child[0] = left;
   return symbol;
 }

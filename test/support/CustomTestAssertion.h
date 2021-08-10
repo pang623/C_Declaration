@@ -15,12 +15,17 @@
 #define   IDENTIFIER_TYPE     12
 
 //TEST_ASSERT MACROS
-#define   TEST_ASSERT_INFIX(expectedSymbolId, expectedSymbolChar, childZero, childOne, root)      \
-          testAssertInfix(expectedSymbolId, expectedSymbolChar, childZero, childOne, root, __LINE__)
-#define   TEST_ASSERT_PREFIX(expectedSymbolId, expectedSymbolChar, childZero, root)               \
-          testAssertSingleOperand(expectedSymbolId, expectedSymbolChar, PREFIX, childZero, root, __LINE__)
-#define   TEST_ASSERT_SUFFIX(expectedSymbolId, expectedSymbolChar, childZero, root)               \
-          testAssertSingleOperand(expectedSymbolId, expectedSymbolChar, SUFFIX, childZero, root, __LINE__)
+#define   TEST_ASSERT_SYMBOL(expectedSymbolId, expectedSymbolChar, childZero, childOne, root)      \
+            testAssertSymbol(expectedSymbolId, expectedSymbolChar, childZero, childOne, root, __LINE__)
+            
+#define   isOperatorNotMatch(testChild, child)   \
+            ((child == NULL) || (stricmp(((TestOperator *)testChild)->_operator, child->token->str)))
+            
+#define   isNumberNotMatch(testChild, child)   \
+            ((child == NULL) || (stricmp(((TestNumber *)testChild)->value, child->token->str)))
+
+#define   isIdentifierNotMatch(testChild, child)   \
+            ((child == NULL) || (stricmp(((TestIdentifier *)testChild)->str, child->token->str)))
 
 typedef struct TestSymbolType TestSymbolType;
 typedef struct TestOperator TestOperator;
@@ -47,8 +52,7 @@ struct TestNumber {
 };
 
 char *createMessage(char *message, ...);
-void testAssertInfix(int symbolId, char *symbol, TestSymbolType *childZero, TestSymbolType *childOne, Symbol *root, int lineNum);
-void testAssertSingleOperand(int symbolId, char *symbol, int arity, TestSymbolType *childZero, Symbol *root, int lineNum);
+void testAssertSymbol(int symbolId, char *symbol, TestSymbolType *childZero, TestSymbolType *childOne, Symbol *root, int lineNum);
 TestSymbolType *Number(char *value);
 TestSymbolType *Identifier(char *str);
 TestSymbolType *Operator(char *_operator);

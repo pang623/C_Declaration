@@ -46,22 +46,8 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
   Try {
     symbol = parse(0);
     
-    TEST_ASSERT_INFIX(ADD, "+", Number("3"), Operator("("), symbol);
-    TEST_ASSERT_INFIX(MULTIPLY, "*", Number("2"), Number("4"), symbol->child[1]->child[0]);
-    /*
-    TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
-    TEST_ASSERT_EQUAL_STRING("3", symbol->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("(", symbol->child[1]->token->str);
-    TEST_ASSERT_NULL(symbol->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->child[1]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL_STRING("4", symbol->child[1]->child[0]->child[1]->token->str);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[0]->child[1]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]->child[0]);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]->child[1]);
-    */
+    TEST_ASSERT_SYMBOL(ADD, "+", Number("3"), Operator("("), symbol);
+    TEST_ASSERT_SYMBOL(MULTIPLY, "*", Number("2"), Number("4"), symbol->child[1]->child[0]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -71,6 +57,16 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
   freeTokenizer(tokenizer);
 }
 
+/*
+          -
+         / \
+        -   *
+       /   / \
+      3   +   -
+         /   /
+        2   4
+*/
+
 void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("-3 -+2 *-   4");
@@ -78,24 +74,11 @@ void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void)
   Try {
     symbol = parse(0);
     //Test tree created is correct in order
-    TEST_ASSERT_EQUAL_STRING("-", symbol->token->str);
-    TEST_ASSERT_EQUAL(INFIX, symbol->arity);
-    TEST_ASSERT_EQUAL_STRING("-", symbol->child[0]->token->str);
-    TEST_ASSERT_EQUAL(PREFIX, symbol->child[0]->arity);
-    TEST_ASSERT_EQUAL_STRING("3", symbol->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL(IDENTITY, symbol->child[0]->child[0]->arity);
-    TEST_ASSERT_EQUAL_STRING("*", symbol->child[1]->token->str);
-    TEST_ASSERT_EQUAL(INFIX, symbol->child[1]->arity);
-    TEST_ASSERT_EQUAL_STRING("+", symbol->child[1]->child[0]->token->str);
-    TEST_ASSERT_EQUAL(PREFIX, symbol->child[1]->child[0]->arity);
-    TEST_ASSERT_NULL(symbol->child[1]->child[0]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("2", symbol->child[1]->child[0]->child[0]->token->str);
-    TEST_ASSERT_EQUAL(IDENTITY, symbol->child[1]->child[0]->child[0]->arity);
-    TEST_ASSERT_EQUAL_STRING("-", symbol->child[1]->child[1]->token->str);
-    TEST_ASSERT_EQUAL(PREFIX, symbol->child[1]->child[1]->arity);
-    TEST_ASSERT_NULL(symbol->child[1]->child[1]->child[1]);
-    TEST_ASSERT_EQUAL_STRING("4", symbol->child[1]->child[1]->child[0]->token->str);
-    TEST_ASSERT_EQUAL(IDENTITY, symbol->child[1]->child[1]->child[0]->arity);
+    TEST_ASSERT_SYMBOL(SUBTRACT, "-", Operator("-"), Operator("*"), symbol);
+    TEST_ASSERT_SYMBOL(MINUS_SIGN, "-", Number("3"), NULL, symbol->child[0]);
+    TEST_ASSERT_SYMBOL(MULTIPLY, "*", Operator("+"), Operator("-"), symbol->child[1]);
+    TEST_ASSERT_SYMBOL(PLUS_SIGN, "+", Number("2"), NULL, symbol->child[1]->child[0]);
+    TEST_ASSERT_SYMBOL(MINUS_SIGN, "-", Number("4"), NULL, symbol->child[1]->child[1]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
