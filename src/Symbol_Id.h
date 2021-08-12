@@ -44,7 +44,7 @@
 //Assignment operators (shorthands)
 #define   ASSIGNMENT          50
 #define   ADD_ASSIGN          51
-#define   MINUS_ASSIGN        52
+#define   SUBT_ASSIGN         52
 #define   MUL_ASSIGN          53
 #define   DIV_ASSIGN          54
 #define   MOD_ASSIGN          55

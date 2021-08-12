@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 SymbolAttrTable symbolTable[] = {
-  //[SYMBOLID]           =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
+  //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
   [NUMBER]             =   { NIL,  NIL,  NIL,   {0,          0},        identityNud,  identityLed},
   [VARIABLE]           =   { NIL,  NIL,  NIL,   {0,          0},        identityNud,  identityLed},
   //Arithmetic
@@ -35,7 +35,7 @@ SymbolAttrTable symbolTable[] = {
   //Assignment
   [ASSIGNMENT]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
   [ADD_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
-  [MINUS_ASSIGN]       =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
+  [SUBT_ASSIGN]        =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
   [MUL_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
   [DIV_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
   [MOD_ASSIGN]         =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
@@ -46,7 +46,7 @@ SymbolAttrTable symbolTable[] = {
   [R_SHIFT_ASSIGN]     =   { NIL,   20,   20,   {0,          0},           errorNud,    infixLedR},
   //Misc.
   [OPEN_PARENT]        =   {  0,   NIL,  NIL,   {0,          0},          parentNud,     errorLed},
-  [CLOSE_PARENT]       =   {  0,     0,    0,   {0,          0},           errorNud,     errorLed},
+  [CLOSE_PARENT]       =   {  0,     0,    0,   {0,          0},           errorNud,         NULL},
   [EOL]                =   {  0,     0,    0,   {0,          0},  missingOperandNud,         NULL},
 };
 
@@ -60,6 +60,7 @@ Symbol *prefixNud(Symbol *symbol) {
   symbol->child[0] = expression(getPrefixRBP(symbol));
   if(newSymbolId)
     symbol->id = newSymbolId;
+  freeSymbol(symbol->child[1]);
   return symbol;
 }
 
@@ -94,6 +95,7 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
   if(newSymbolId)
     symbol->id = newSymbolId;
   symbol->child[0] = left;
+  freeSymbol(symbol->child[1]);
   return symbol;
 }
 
@@ -102,12 +104,15 @@ Symbol *parentNud(Symbol *symbol) {
   left->child[0] = expression(0);
   Symbol *_symbol = peekSymbol(tokenizer);
   verifyIsSymbolThenConsume(")", _symbol);
+  freeSymbol(left->child[1]);
   return left;
 }
 
 //just returns the symbol (numbers, var)
 Symbol *identityNud(Symbol *symbol) {
   symbol->arity = IDENTITY;
+  freeSymbol(symbol->child[0]);
+  freeSymbol(symbol->child[1]);
   return symbol;
 }
 

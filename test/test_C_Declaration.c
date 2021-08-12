@@ -69,7 +69,7 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
 
 void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void) {
   Symbol *symbol;
-  tokenizer = createTokenizer("-3 -+2 *-   4");
+  tokenizer = createTokenizer("-3 - + 2 * -   4");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
@@ -128,51 +128,13 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
 //parsed as ((~2)-(a++))+((--8)*b)
 void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
   Symbol *symbol;
-  tokenizer = createTokenizer("~2-a+++--8*b");
+  tokenizer = createTokenizer("~ 2 - a++ +  --  8 *  b");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(ADD, "+", Operator("-"), Operator("*"), symbol);
     TEST_ASSERT_SYMBOL(SUBTRACT, "-", Operator("~"), Operator("++"), symbol->child[0]);
-    TEST_ASSERT_SYMBOL(MULTIPLY, "*", Operator("--"), Identifier("b"), symbol->child[1]);
-    TEST_ASSERT_SYMBOL(BIT_NOT, "~", Number("2"), NULL, symbol->child[0]->child[0]);
-    TEST_ASSERT_SYMBOL(INC_AFTER, "++", Identifier("a"), NULL, symbol->child[0]->child[1]);
-    TEST_ASSERT_SYMBOL(DEC_BEFORE, "--", Number("8"), NULL, symbol->child[1]->child[0]);
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
-  }
-  linkedListFreeList(symbolStack, freeSymbol);
-  freeSymbol(symbol);
-  freeTokenizer(tokenizer);
-}
-
-/*
-                   +
-               /       \
-              (         (
-             /          /
-            -          *
-           / \        / \
-          (   (      (   b
-         /     \    /   
-        ~      ++  --   
-       /        \   /
-      2          a  8
-*/
-
-//parsed as ((~2)-(a++))+((--8)*b)
-void test_expression_given_mix_of_prefixes_and_suffixes_with_parentheses_expect_correctly_parsed(void) {
-  TEST_IGNORE_MESSAGE("To be tested");
-  Symbol *symbol;
-  tokenizer = createTokenizer("((~2)-(a++))+((--8)*b)");
-  symbolStack = linkedListCreateList();
-  Try {
-    symbol = parse(0);
-    //Test tree created is correct in order
-    TEST_ASSERT_SYMBOL(ADD, "+", Operator("("), Operator("("), symbol);
-    TEST_ASSERT_SYMBOL(SUBTRACT, "-", Operator("("), Operator("("), symbol->child[0]);
     TEST_ASSERT_SYMBOL(MULTIPLY, "*", Operator("--"), Identifier("b"), symbol->child[1]);
     TEST_ASSERT_SYMBOL(BIT_NOT, "~", Number("2"), NULL, symbol->child[0]->child[0]);
     TEST_ASSERT_SYMBOL(INC_AFTER, "++", Identifier("a"), NULL, symbol->child[0]->child[1]);

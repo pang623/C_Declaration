@@ -2,7 +2,7 @@
 
 OperatorAttrTable operatorIdTable[] = {
   ['+'] = {{ADD, INC_BEFORE, ADD_ASSIGN, 0}                        , checkDoubleSameChar},
-  ['-'] = {{SUBTRACT, DEC_BEFORE, MINUS_ASSIGN, 0}                 , checkDoubleSameChar},
+  ['-'] = {{SUBTRACT, DEC_BEFORE, SUBT_ASSIGN, 0}                 , checkDoubleSameChar},
   ['*'] = {{MULTIPLY, 0, MUL_ASSIGN, 0}                            , checkEqualAsLastChar},
   ['/'] = {{DIVIDE, 0, DIV_ASSIGN, 0}                              , checkEqualAsLastChar},
   ['%'] = {{MODULUS, 0, MOD_ASSIGN, 0}                             , checkEqualAsLastChar},
