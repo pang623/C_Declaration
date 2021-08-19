@@ -7,7 +7,7 @@
 #include "DoubleLinkedList.h"
 #include "Errors.h"
 #include "TokenizerExceptionThrowing.h"
-#include "C_Declaration.h"
+#include "ExpressionParser.h"
 #include "CDecl_Errors.h"
 #include "Symbol.h"
 #include "Symbol_Id.h"
@@ -41,7 +41,7 @@ extern DoubleLinkedList *symbolStack;
 
 void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
   Symbol *symbol;
-  tokenizer = createTokenizer("3 +(2 *   4)");
+  tokenizer = createTokenizer("3 + (2 *   4)");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
@@ -69,7 +69,7 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
 
 void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void) {
   Symbol *symbol;
-  tokenizer = createTokenizer("-3 - + 2 * -   4");
+  tokenizer = createTokenizer("- 3 - + 2 * -   4");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
@@ -128,7 +128,7 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
 //parsed as ((~2)-(a++))+((--8)*b)
 void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
   Symbol *symbol;
-  tokenizer = createTokenizer("~ 2 - a++ +  --  8 *  b");
+  tokenizer = createTokenizer("~ 2 - a++ +  --  8 *  b; expression ends after ;");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
@@ -159,7 +159,7 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
 void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(void) {
   Symbol *symbol;
   //parsed as i + (++j), not (i++) + j
-  tokenizer = createTokenizer("i+ ++j");
+  tokenizer = createTokenizer("i + ++ j");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
@@ -188,7 +188,7 @@ void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(v
 void test_expression_given_minus_minus_but_not_adjacent_expect_not_parsed_as_dec(void) {
   Symbol *symbol;
   //parsed as i - (-(+j)), not (i--) + j
-  tokenizer = createTokenizer("i- -+j");
+  tokenizer = createTokenizer("i - - + j");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
@@ -222,7 +222,7 @@ void test_expression_given_expression_with_assignment_operator_expect_ast_create
   Symbol *symbol;
   //parsed as a + (b <<= (c * d))
   //which means, a + (b = (b << (c * d)))
-  tokenizer = createTokenizer("a + (b<<= c*d)");
+  tokenizer = createTokenizer("a + ( b <<= c * d )");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
@@ -376,7 +376,7 @@ void test_expression_given_a_closing_parent_but_missing_opening_parent_expect_er
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_PARSE_ERROR, e->errorCode);
+    TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
   }
   linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);
@@ -398,10 +398,10 @@ void test_expression_given_a_shorthand_left_shift_but_used_as_prefix_expect_erro
   freeTokenizer(tokenizer);
 }
 
-void test_expression_given_a_shorthand_right_shift_but_used_as_suffix_expect_error_syntax_is_thrown(void) {
+void test_expression_given_a_shorthand_right_shift_but_right_operand_is_not_a_number_or_identifier_expect_error_syntax_is_thrown(void) {
   Symbol *symbol;
-  //">>=" used as suffix, invalid
-  tokenizer = createTokenizer(" (a>>=) + 3");
+  //symbol ")" is used as right operand for ">>=", and it is also not an unary operator, thus is invalid
+  tokenizer = createTokenizer(" (a>>=) + 3; ");
   symbolStack = linkedListCreateList();
   Try {
     symbol = parse(0);
@@ -409,6 +409,22 @@ void test_expression_given_a_shorthand_right_shift_but_used_as_suffix_expect_err
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+  }
+  linkedListFreeList(symbolStack, freeSymbol);
+  freeTokenizer(tokenizer);
+}
+
+void test_expression_given_an_EOL_but_with_no_operands_in_front_of_it_expect_error_missing_operand_is_thrown(void) {
+  Symbol *symbol;
+  //";" is expected to have operands in front of it
+  tokenizer = createTokenizer(" ;a+ b");
+  symbolStack = linkedListCreateList();
+  Try {
+    symbol = parse(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
   }
   linkedListFreeList(symbolStack, freeSymbol);
   freeTokenizer(tokenizer);

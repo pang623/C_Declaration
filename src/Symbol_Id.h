@@ -5,7 +5,7 @@
 
 //Identity
 #define   NUMBER              0
-#define   VARIABLE            1
+#define   IDENTIFIER          1
 
 //Arithmetic Operators
 #define   ADD                 10
@@ -58,6 +58,7 @@
 #define   EOL                 70
 #define   OPEN_PARENT         71
 #define   CLOSE_PARENT        72
+#define   COMMA               73
 
 
 #endif // SYMBOL_ID_H

@@ -1,11 +1,11 @@
-#include "C_Declaration.h"
+#include "ExpressionParser.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 SymbolAttrTable symbolTable[] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
   [NUMBER]             =   { NIL,  NIL,  NIL,   {0,          0},        identityNud,  identityLed},
-  [VARIABLE]           =   { NIL,  NIL,  NIL,   {0,          0},        identityNud,  identityLed},
+  [IDENTIFIER]         =   { NIL,  NIL,  NIL,   {0,          0},        identityNud,  identityLed},
   //Arithmetic
   [ADD]                =   { 140,  120,  120,   {PLUS_SIGN,  0},          prefixNud,    infixLedL},
   [SUBTRACT]           =   { 140,  120,  120,   {MINUS_SIGN, 0},          prefixNud,    infixLedL},
@@ -49,7 +49,14 @@ SymbolAttrTable symbolTable[] = {
   [CLOSE_PARENT]       =   {  0,     0,    0,   {0,          0},           errorNud,         NULL},
   [EOL]                =   {  0,     0,    0,   {0,          0},  missingOperandNud,         NULL},
 };
-
+/*-
+StatementKeywordTable keywordTable[] = {
+  {"int", fud},
+  {"char", fud},
+  {"float", fud},
+  {"double", fud},
+};
+*/
 Tokenizer *tokenizer;
 
 //handles prefix
@@ -103,17 +110,23 @@ Symbol *parentNud(Symbol *symbol) {
   Symbol *left = symbol;
   left->child[0] = expression(0);
   Symbol *_symbol = peekSymbol(tokenizer);
-  verifyIsSymbolThenConsume(")", _symbol);
+  verifyIsNextSymbolThenConsume(tokenizer, CLOSE_PARENT, ")");
   freeSymbol(left->child[1]);
   return left;
 }
 
 //just returns the symbol (numbers, var)
 Symbol *identityNud(Symbol *symbol) {
-  symbol->arity = IDENTITY;
-  freeSymbol(symbol->child[0]);
-  freeSymbol(symbol->child[1]);
-  return symbol;
+  /*
+  if(isSymbolKeyword(symbol))
+    throwException(ERR_ILLEGAL_IDENTIFIER, symbol->token, 0,
+    "Keyword '%s' cannot be used here", symbol->token->str);
+  else {*/
+    symbol->arity = IDENTITY;
+    freeSymbol(symbol->child[0]);
+    freeSymbol(symbol->child[1]);
+    return symbol;
+  //}
 }
 
 //error handling for illegal prefix
@@ -153,17 +166,28 @@ Symbol *expression(int rbp) {
   return left;
 }
 
-void verifyExpressionFullyParsed(Tokenizer *tokenizer) {
-  Symbol *symbol = getSymbol(tokenizer);
-  if(isNULLToken(symbol->token) || isToken(";", symbol->token))
-    freeSymbol(symbol);
-  else
-    throwException(ERR_PARSE_ERROR, symbol->token, 0,
-    "An error has occured here, please check if there is missing pair of parentheses", symbol->token->str);
-}
-
 Symbol *parse(int rbp) {
   Symbol *left = expression(rbp);
-  verifyExpressionFullyParsed(tokenizer);
+  verifyIsNextSymbolThenConsume(tokenizer, EOL, ";");
   return left;
 }
+/*
+Symbol *statement() {
+  Symbol *symbol;
+  if(isSymbolKeyword(peekSymbol(tokenizer))) {
+    symbol = getSymbol(tokenizer);
+    return fudOf(symbol)(symbol);
+  }
+  Symbol *left = expression(0);
+  verifyIsNextSymbolThenConsume(tokenizer, EOL, ";");
+  return left;
+}
+
+//for while, if.. etc
+Symbol *conditionFud() {
+  
+  verifyIsNextSymbolThenConsume("(", peekSymbol(tokenizer));
+  left->child[0] = expression(0);
+  verifyIsNextSymbolThenConsume(")", peekSymbol(tokenizer));
+  return left;
+}*/

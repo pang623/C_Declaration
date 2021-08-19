@@ -1,8 +1,9 @@
 #include "Symbol.h"
 
+//detect unknown symbols : '@', '_' etc
 OperatorAttrTable operatorIdTable[] = {
   ['+'] = {{ADD, INC_BEFORE, ADD_ASSIGN, 0}                        , checkDoubleSameChar},
-  ['-'] = {{SUBTRACT, DEC_BEFORE, SUBT_ASSIGN, 0}                 , checkDoubleSameChar},
+  ['-'] = {{SUBTRACT, DEC_BEFORE, SUBT_ASSIGN, 0}                  , checkDoubleSameChar},
   ['*'] = {{MULTIPLY, 0, MUL_ASSIGN, 0}                            , checkEqualAsLastChar},
   ['/'] = {{DIVIDE, 0, DIV_ASSIGN, 0}                              , checkEqualAsLastChar},
   ['%'] = {{MODULUS, 0, MOD_ASSIGN, 0}                             , checkEqualAsLastChar},
@@ -16,6 +17,7 @@ OperatorAttrTable operatorIdTable[] = {
   ['>'] = {{GREATER, R_SHIFT, GREATER_OR_EQUAL, R_SHIFT_ASSIGN}    , checkDoubleSameCharWithEqual}, 
   ['('] = {{OPEN_PARENT, 0, 0, 0}                                  , NULL},
   [')'] = {{CLOSE_PARENT, 0, 0, 0}                                 , NULL},
+  [','] = {{COMMA, 0, 0, 0}                                        , NULL},
   [';'] = {{EOL, 0, 0, 0}                                          , NULL},
 };
 
@@ -133,7 +135,7 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
   if(isNULLToken(symbol))
     return createSymbol(&symbolInfo);
   else if(isIdentifierToken(symbol))
-    symbolInfo.id = VARIABLE;
+    symbolInfo.id = IDENTIFIER;
   else if(isIntegerToken(symbol))
     symbolInfo.id = NUMBER;
   else if(!(hasSymbolVariations(symbol)))
@@ -169,11 +171,11 @@ Symbol *peekStack(DoubleLinkedList *stack) {
   return stack->head->data;
 }
 
-void verifyIsSymbolThenConsume(char *symToCheck, Symbol *symbol) {
-  if(isNULLToken(symbol->token) || !(isToken(symToCheck, symbol->token))) {
-    throwException(ERR_WRONG_SYMBOL, symbol->token, 0,
-    "Expecting a %s here, but received %s instead", symToCheck, symbol->token->str);
-  }
+void verifyIsNextSymbolThenConsume(Tokenizer *tokenizer, int symbolId, char *expectedSym) {
+  Symbol *symbol = getSymbol(tokenizer);
+  if(symbol->id == symbolId)
+    freeSymbol(symbol);
   else
-    freeSymbol(getSymbol(tokenizer));
+    throwException(ERR_WRONG_SYMBOL, symbol->token, 0,
+    "Expecting a %s here, but received %s instead", expectedSym, symbol->token->str);
 }

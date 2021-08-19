@@ -55,7 +55,7 @@ char *createString(char *str);
 Symbol *peekStack(DoubleLinkedList *stack);
 void pushStack(DoubleLinkedList *stack, Symbol *symbol);
 Symbol *popStack(DoubleLinkedList *stack);
-void verifyIsSymbolThenConsume(char *symToCheck, Symbol *symbol);
+void verifyIsNextSymbolThenConsume(Tokenizer *tokenizer, int symbolId, char *expectedSym);
 Token *processToken(Token *symbol, int option);
 Symbol *processSymbol(Token *symbol, int *flag, int option, int type);
 int isCorrectSymbolAndAdjacent(Token *symbol, Token *nextSymbol, char *symToCheck);
