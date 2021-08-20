@@ -1,7 +1,6 @@
 #include "Symbol.h"
 
-//detect unknown symbols : '@', '_' etc
-OperatorAttrTable operatorIdTable[] = {
+OperatorAttrTable operatorIdTable[256] = {
   ['+'] = {{ADD, INC_BEFORE, ADD_ASSIGN, 0}                        , checkDoubleSameChar},
   ['-'] = {{SUBTRACT, DEC_BEFORE, SUBT_ASSIGN, 0}                  , checkDoubleSameChar},
   ['*'] = {{MULTIPLY, 0, MUL_ASSIGN, 0}                            , checkEqualAsLastChar},
@@ -142,6 +141,10 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
     symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[0];
   else
     return operatorIdTable[(symbol->str)[0]].func(symbol, flag);
+  
+  if(symbolInfo.id == UNKNOWN)
+    throwException(ERR_INVALID_SYMBOL, symbolInfo.token, 0,
+    "Symbol %s is invalid", (symbolInfo.token)->str);
   return createSymbol(&symbolInfo);
 }
 

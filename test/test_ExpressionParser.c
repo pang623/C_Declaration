@@ -430,6 +430,23 @@ void test_expression_given_an_EOL_but_with_no_operands_in_front_of_it_expect_err
   freeTokenizer(tokenizer);
 }
 
+void test_expression_given_an_expression_but_with_unknown_symbol_expect_error_invalid_symbol_is_thrown(void) {
+  Symbol *symbol;
+  //"#" is an invlaid symbol in expression
+  tokenizer = createTokenizer(" 3# 2");
+  symbolStack = linkedListCreateList();
+  Try {
+    symbol = parse(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
+  }
+  linkedListFreeList(symbolStack, freeSymbol);
+  freeTokenizer(tokenizer);
+}
+
+//Extra tests
 /*
 //this is evaluated to (3++)++ + 2, which is invalid
 void test_expression_given_3_doublepostincrement_plus_2_expect_ERR_SYNTAX_thrown(void) {

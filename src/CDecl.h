@@ -1,5 +1,5 @@
-#ifndef EXPRESSIONPARSER_H
-#define EXPRESSIONPARSER_H
+#ifndef CDECL_H
+#define CDECL_H
 
 #include "Symbol.h"
 #include "Exception.h"
@@ -28,17 +28,4 @@ struct SymbolAttrTable {
   LedFuncPtr led;
 };
 
-Symbol *expression(int rbp);
-Symbol *prefixNud(Symbol *symbol);
-Symbol *infixLedL(Symbol *symbol, Symbol *left);
-Symbol *infixLedR(Symbol *symbol, Symbol *left);
-Symbol *suffixLed(Symbol *symbol, Symbol *left);
-Symbol *identityNud(Symbol *symbol);
-Symbol *errorNud(Symbol *symbol);
-Symbol *missingOperandNud(Symbol *symbol);
-Symbol *errorLed(Symbol *symbol, Symbol *left);
-Symbol *identityLed(Symbol *symbol, Symbol *left);
-Symbol *parentNud(Symbol *symbol);
-Symbol *parse(int rbp);
-
-#endif // EXPRESSIONPARSER_H
+#endif // CDECL_H

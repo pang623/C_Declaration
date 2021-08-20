@@ -4,8 +4,9 @@
 /*-------------Symbol IDs---------------*/
 
 //Identity
-#define   NUMBER              0
+#define   UNKNOWN             0
 #define   IDENTIFIER          1
+#define   NUMBER              2
 
 //Arithmetic Operators
 #define   ADD                 10
@@ -58,7 +59,8 @@
 #define   EOL                 70
 #define   OPEN_PARENT         71
 #define   CLOSE_PARENT        72
-#define   COMMA               73
-
+#define   OPEN_SQR            73
+#define   CLOSE_SQR           74
+#define   COMMA               75
 
 #endif // SYMBOL_ID_H
