@@ -1,32 +1,23 @@
 #ifndef EXPRESSIONPARSER_H
 #define EXPRESSIONPARSER_H
 
-#include "Symbol.h"
 #include "Exception.h"
 #include "CDecl_Errors.h"
 #include "Arity.h"
+#include "Symbol.h"
+#include "SymbolTable.h"
 
 #define   NIL   1000
 
 //Macros
-#define   getInfixLBP(symbol)         (symbolTable[symbol->id].infixLBP)
-#define   getInfixRBP(symbol)         (symbolTable[symbol->id].infixRBP)
-#define   getPrefixRBP(symbol)        (symbolTable[symbol->id].prefixRBP)
+#define   getInfixLBP(symbol)         ((symbolParser->symbolTable)[symbol->id].infixLBP)
+#define   getInfixRBP(symbol)         ((symbolParser->symbolTable)[symbol->id].infixRBP)
+#define   getPrefixRBP(symbol)        ((symbolParser->symbolTable)[symbol->id].prefixRBP)
 
-#define   nudOf(symbol)               (symbolTable[(symbol)->id]).nud
-#define   ledOf(symbol)               (symbolTable[(symbol)->id]).led
+#define   nudOf(symbol)               ((symbolParser->symbolTable)[(symbol)->id]).nud
+#define   ledOf(symbol)               ((symbolParser->symbolTable)[(symbol)->id]).led
 
-typedef struct SymbolAttrTable SymbolAttrTable;
-typedef Symbol *(*NudFuncPtr)(Symbol *symbol);
-typedef Symbol *(*LedFuncPtr)(Symbol *symbol, Symbol *left);
-
-struct SymbolAttrTable {
-  int prefixRBP;
-  int infixRBP;
-  int infixLBP;
-  NudFuncPtr nud;
-  LedFuncPtr led;
-};
+extern SymbolParser *symbolParser;
 
 Symbol *expression(int rbp);
 Symbol *prefixNud(Symbol *symbol);

@@ -9,13 +9,12 @@
 #include "Exception.h"
 #include "CDecl_Errors.h"
 #include "SymbolCombination.h"
+#include "SymbolTable.h"
 
-extern Tokenizer *tokenizer;
-
-typedef struct Symbol Symbol;
 typedef struct OperatorAttrTable OperatorAttrTable;
 typedef struct ArityMemory ArityMemory;
 typedef struct SymbolCombination SymbolCombination;
+typedef struct SymbolParser SymbolParser;
 typedef Symbol *(*FuncPtr)(Token *, int *);
 
 #define   isIntegerToken(token)                      (token->type == TOKEN_INTEGER_TYPE)
@@ -24,12 +23,7 @@ typedef Symbol *(*FuncPtr)(Token *, int *);
 #define   hasSymbolVariations(symbol)                (operatorIdTable[(symbol->str)[0]].func != NULL)
 #define   isToken(symToCheck, symbol)                !(stricmp(symToCheck, symbol->str))
 
-struct Symbol {
-  int arity;
-  int id;
-  Token *token;
-  Symbol *child[0];
-};
+extern SymbolParser *symbolParser;
 
 struct OperatorAttrTable {
   int type[4];
@@ -46,8 +40,17 @@ struct ArityMemory {
   int extraMemory;
 };
 
+struct SymbolParser {
+  Tokenizer *tokenizer;
+  DoubleLinkedList *symbolStack;
+  SymbolAttrTable *symbolTable;
+};
+
 Symbol *createSymbol(Symbol *symbolInfo);
-Symbol *getSymbol(Tokenizer *tokenizer);
+SymbolParser *createSymbolParser(Tokenizer *tokenizer);
+void freeSymbolParser(SymbolParser *symbolParser);
+void setSymbolTable(SymbolParser *symbolParser, SymbolAttrTable *table);
+Symbol *getSymbol(SymbolParser *symbolParser);
 Symbol *_getSymbol(Tokenizer *tokenizer);
 Symbol *peekSymbol(Tokenizer *tokenizer);
 void freeSymbol(void *symbol);

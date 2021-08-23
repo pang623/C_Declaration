@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-SymbolAttrTable symbolTable[] = {
+SymbolAttrTable expressionSymbolTable[] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
   [NUMBER]             =   { NIL,  NIL,  NIL,        identityNud,  identityLed},
   [IDENTIFIER]         =   { NIL,  NIL,  NIL,        identityNud,  identityLed},
@@ -47,12 +47,11 @@ SymbolAttrTable symbolTable[] = {
   //Misc.
   [OPEN_PARENT]        =   {  0,   NIL,  NIL,          parentNud,     errorLed},
   [CLOSE_PARENT]       =   {  0,     0,    0,           errorNud,         NULL},
-  //[OPEN_SQR]           =   {NIL,     0,  170,         errorNud,  sqrBracketLed},
-  //[CLOSE_SQR]          =   {  0,     0,    0,         errorNud,  sqrBracketLed},
   [EOL]                =   {  0,     0,    0,  missingOperandNud,         NULL},
 };
 
-Tokenizer *tokenizer;
+//implement square bracket for expression if have time 
+//eg: a[2] = 4 * 3;
 
 //handles prefix
 //unary, inc, dec etc
@@ -102,8 +101,8 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
 Symbol *parentNud(Symbol *symbol) {
   Symbol *left = symbol;
   left->child[0] = expression(0);
-  Symbol *_symbol = peekSymbol(tokenizer);
-  verifyIsNextSymbolThenConsume(tokenizer, CLOSE_PARENT, ")");
+  Symbol *_symbol = peekSymbol(symbolParser->tokenizer);
+  verifyIsNextSymbolThenConsume(symbolParser->tokenizer, CLOSE_PARENT, ")");
   freeSymbol(left->child[1]);
   return left;
 }
@@ -144,10 +143,11 @@ Symbol *identityLed(Symbol *symbol, Symbol *left) {
 //main parser
 Symbol *expression(int rbp) {
   Symbol *left, *symbol;
-  symbol = getSymbol(tokenizer);
+  setSymbolTable(symbolParser, expressionSymbolTable);
+  symbol = getSymbol(symbolParser);
   left = nudOf(symbol)(symbol);
-  while(rbp < getInfixLBP(peekSymbol(tokenizer))) {
-    symbol = getSymbol(tokenizer);
+  while(rbp < getInfixLBP(peekSymbol(symbolParser->tokenizer))) {
+    symbol = getSymbol(symbolParser);
     left = ledOf(symbol)(symbol, left);
   }
   return left;
@@ -155,6 +155,6 @@ Symbol *expression(int rbp) {
 
 Symbol *parse(int rbp) {
   Symbol *left = expression(rbp);
-  verifyIsNextSymbolThenConsume(tokenizer, EOL, ";");
+  verifyIsNextSymbolThenConsume(symbolParser->tokenizer, EOL, ";");
   return left;
 }

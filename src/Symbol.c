@@ -16,6 +16,8 @@ OperatorAttrTable operatorIdTable[256] = {
   ['>'] = {{GREATER, R_SHIFT, GREATER_OR_EQUAL, R_SHIFT_ASSIGN}    , checkDoubleSameCharWithEqual}, 
   ['('] = {{OPEN_PARENT, 0, 0, 0}                                  , NULL},
   [')'] = {{CLOSE_PARENT, 0, 0, 0}                                 , NULL},
+  ['['] = {{OPEN_SQR, 0, 0, 0}                                     , NULL},
+  [']'] = {{CLOSE_SQR, 0, 0, 0}                                    , NULL},
   [','] = {{COMMA, 0, 0, 0}                                        , NULL},
   [';'] = {{EOL, 0, 0, 0}                                          , NULL},
 };
@@ -32,8 +34,28 @@ ArityMemory arityMemoryTable[] = {
   [SUFFIX]      =  1,
   [IDENTITY]    =  0,
 };
-  
-DoubleLinkedList *symbolStack;
+
+SymbolParser *createSymbolParser(Tokenizer *tokenizer) {
+  SymbolParser *parser = (SymbolParser *)malloc(sizeof(SymbolParser));
+  parser->tokenizer = tokenizer;
+  parser->symbolStack = linkedListCreateList();
+  parser->symbolTable = NULL;
+  return parser;
+}
+
+void freeSymbolParser(SymbolParser *symbolParser) {
+  if(symbolParser == NULL)
+    return;
+  if(symbolParser->tokenizer)
+    freeTokenizer(symbolParser->tokenizer);
+  if(symbolParser->symbolStack)
+    linkedListFreeList(symbolParser->symbolStack, freeSymbol);
+  free(symbolParser);
+}
+
+void setSymbolTable(SymbolParser *symbolParser, SymbolAttrTable *table) {
+  symbolParser->symbolTable = table;
+}
 
 //create data structure for Symbol
 Symbol *createSymbol(Symbol *symbolInfo) {
@@ -85,10 +107,10 @@ Token *processToken(Token *symbol, int option) {
 }
 
 Symbol *processSymbol(Token *symbol, int *flag, int option, int type) {
-  Token *nextSymbol = getToken(tokenizer);
+  Token *nextSymbol = getToken(symbolParser->tokenizer);
   Symbol symbolInfo = {INFIX, operatorIdTable[(symbol->str)[0]].type[type], symbol};
   if(isNULLToken(nextSymbol) || !(isCorrectSymbolAndAdjacent(symbol, nextSymbol, SymbolCombiTable[option].symbol)))
-    pushBackToken(tokenizer, nextSymbol);
+    pushBackToken(symbolParser->tokenizer, nextSymbol);
   else {
     if(flag)
       *flag = SymbolCombiTable[option].flag;
@@ -144,21 +166,21 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
   
   if(symbolInfo.id == UNKNOWN)
     throwException(ERR_INVALID_SYMBOL, symbolInfo.token, 0,
-    "Symbol %s is invalid", (symbolInfo.token)->str);
+    "Symbol %s is not supported", (symbolInfo.token)->str);
   return createSymbol(&symbolInfo);
 }
 
-Symbol *getSymbol(Tokenizer *tokenizer) {
-  if(symbolStack->count == 0)
-    return _getSymbol(tokenizer);
+Symbol *getSymbol(SymbolParser *symbolParser) {
+  if(symbolParser->symbolStack->count == 0)
+    return _getSymbol(symbolParser->tokenizer);
   else
-    return popStack(symbolStack);
+    return popStack(symbolParser->symbolStack);
 }
 
 Symbol *peekSymbol(Tokenizer *tokenizer) {
-  if(symbolStack->count == 0)
-    pushStack(symbolStack, _getSymbol(tokenizer));
-  return peekStack(symbolStack);
+  if(symbolParser->symbolStack->count == 0)
+    pushStack(symbolParser->symbolStack, _getSymbol(symbolParser->tokenizer));
+  return peekStack(symbolParser->symbolStack);
 }
 
 Symbol *popStack(DoubleLinkedList *stack) {
@@ -175,7 +197,7 @@ Symbol *peekStack(DoubleLinkedList *stack) {
 }
 
 void verifyIsNextSymbolThenConsume(Tokenizer *tokenizer, int symbolId, char *expectedSym) {
-  Symbol *symbol = getSymbol(tokenizer);
+  Symbol *symbol = getSymbol(symbolParser);
   if(symbol->id == symbolId)
     freeSymbol(symbol);
   else

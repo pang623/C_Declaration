@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include "Arity.h"
 #include "Symbol.h"
+#include "SymbolTable.h"
 
 //TestSymbol Types
 #define   OPERATOR_TYPE       10
