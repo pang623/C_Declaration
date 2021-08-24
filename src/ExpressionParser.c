@@ -47,11 +47,27 @@ SymbolAttrTable expressionSymbolTable[] = {
   //Misc.
   [OPEN_PARENT]        =   {  0,   NIL,  NIL,          parentNud,     errorLed},
   [CLOSE_PARENT]       =   {  0,     0,    0,           errorNud,         NULL},
+  [OPEN_SQR]           =   {NIL,     0,  150,              errorNud,  sqrBracketLed},
+  [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,  NULL},
   [EOL]                =   {  0,     0,    0,  missingOperandNud,         NULL},
 };
 
-//implement square bracket for expression if have time 
-//eg: a[2] = 4 * 3;
+StatementKeywordTable expKeywordTable[] = {
+  {"int"        , TYPE,    NULL},
+  {"char"       , TYPE,    NULL},
+  {"float"      , TYPE,    NULL},
+  {"double"     , TYPE,    NULL},
+  {"if"         , FLOW,    NULL},
+  {"else"       , FLOW,    NULL},
+  {"while"      , FLOW,    NULL},
+  {"for"        , FLOW,    NULL},
+  {"do"         , FLOW,    NULL},
+  {"switch"     , FLOW,    NULL},
+  {"case"       , FLOW,    NULL},
+  {"continue"   , FLOW,    NULL},
+  {"break"      , FLOW,    NULL},
+  {NULL         , TYPE,    NULL},
+};
 
 //handles prefix
 //unary, inc, dec etc
@@ -84,6 +100,17 @@ Symbol *infixLedR(Symbol *symbol, Symbol *left) {
   return symbol;
 }
 
+Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
+  if(!(isIdentifierToken(left->token)))
+    throwException(ERR_WRONG_SYMBOL, left->token, 0,
+    "Array name should be declared with identifier, %s is not identifier", left->token->str);
+  symbol->arity = INFIX;
+  symbol->child[0] = left;
+  symbol->child[1] = expression(0);
+  verifyIsNextSymbolThenConsume(symbolParser->tokenizer, CLOSE_SQR, "]");
+  return symbol;
+}
+
 //postfix, eg: "++", "--"
 Symbol *suffixLed(Symbol *symbol, Symbol *left) {
   /*
@@ -99,16 +126,40 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
 }
 
 Symbol *parentNud(Symbol *symbol) {
-  Symbol *left = symbol;
-  left->child[0] = expression(0);
-  Symbol *_symbol = peekSymbol(symbolParser->tokenizer);
+  symbol->child[0] = expression(0);
   verifyIsNextSymbolThenConsume(symbolParser->tokenizer, CLOSE_PARENT, ")");
-  freeSymbol(left->child[1]);
-  return left;
+  freeSymbol(symbol->child[1]);
+  return symbol;
+}
+
+int isSymbolKeywordType(Symbol *symbol, int keywordType, int *index) {
+  if(!isIdentifierToken(symbol->token))
+    return 0;
+  int i = 0;
+  while(strcmp(symbol->token->str, expKeywordTable[i].keyword)) {
+    i++;
+    if(expKeywordTable[i].keyword == NULL && keywordType == TYPE) {
+      *index = i;
+      return 1;
+    }
+    else
+      return 0;
+  }
+  if(keywordType != ALL && expKeywordTable[i].type != keywordType)
+    return 0;
+  else {
+    *index = i;
+    return 1;
+  }
 }
 
 //just returns the symbol (numbers, var)
 Symbol *identityNud(Symbol *symbol) {
+  int temp = 0;
+  int *index = &temp;
+  if(isSymbolKeywordType(symbol, ALL, index))
+    throwException(ERR_ILLEGAL_KEYWORD_USAGE, symbol->token, 0,
+    "Keyword %s cannot be used here", symbol->token->str);
   symbol->arity = IDENTITY;
   freeSymbol(symbol->child[0]);
   freeSymbol(symbol->child[1]);

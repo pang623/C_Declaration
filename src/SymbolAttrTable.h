@@ -1,5 +1,8 @@
-#ifndef SYMBOLTABLE_H
-#define SYMBOLTABLE_H
+#ifndef SYMBOLATTRTABLE_H
+#define SYMBOLATTRTABLE_H
+
+#include "Token.h"
+#include "Tokenizer.h"
 
 typedef struct Symbol Symbol;
 typedef struct SymbolAttrTable SymbolAttrTable;
@@ -22,4 +25,4 @@ struct SymbolAttrTable {
   LedFuncPtr led;
 };
 
-#endif // SYMBOLTABLE_H
+#endif // SYMBOLATTRTABLE_H

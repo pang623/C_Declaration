@@ -9,7 +9,7 @@
 #include "Exception.h"
 #include "CDecl_Errors.h"
 #include "SymbolCombination.h"
-#include "SymbolTable.h"
+#include "SymbolAttrTable.h"
 
 typedef struct OperatorAttrTable OperatorAttrTable;
 typedef struct ArityMemory ArityMemory;

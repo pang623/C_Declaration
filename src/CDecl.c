@@ -36,26 +36,10 @@ char *errorStrings[] = {
   [FLOW] = "flow control",
 };
 
-int isSymbolKeywordType(Symbol *symbol, int keywordType, int *index) {
-  if(!isIdentifierToken(symbol->token))
-    return 0;
-  int i = 0;
-  while(strcmp(symbol->token->str, keywordTable[i++].keyword))
-    if(keywordTable[i].keyword == NULL) {
-      *index = i;
-      return 1;
-    }
-  if(keywordTable[i].type != keywordType)
-    return 0;
-  else {
-    *index = i;
-    return 1;
-  }
-}
-
 int verifyIsSymbolKeywordType(Symbol *symbol, int keywordType) {
-  int *index;
-  if(isSymbolKeywordType(symbol, keywordType, &index))
+  int num = 0;
+  int *index = &num;
+  if(isSymbolKeywordType(symbol, keywordType, index))
     return *index;
   else
     throwException(ERR_KEYWORD, symbol->token, 0,
@@ -74,8 +58,8 @@ Symbol *cDecl(int rbp) {
   symbol = getSymbol(symbolParser);
   verifyIsSymbolInTable(symbolParser, symbol);
   left = nudOf(symbol)(symbol);
-  while(rbp < getInfixLBP(peekSymbol(tokenizer))) {
-    symbol = getSymbol(tokenizer);
+  while(rbp < getInfixLBP(peekSymbol(symbolParser->tokenizer))) {
+    symbol = getSymbol(symbolParser);
     verifyIsSymbolInTable(symbolParser, symbol);
     left = ledOf(symbol)(symbol, left);
   }
@@ -83,18 +67,9 @@ Symbol *cDecl(int rbp) {
 }
 
 Symbol *typeFud(Symbol *symbol) {
-  Symbol *left = symbol;
-  left->id = TYPE;
-  left->child[0] = cDecl(0);
-  return left;
-}
-
-Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
-  symbol->arity = INFIX;
-  symbol->child[0] = left;
-  symbol->child[1] = expression(0);
-  //verifyHasNoIdentifier(symbol->child[1]);
-  verifyIsNextSymbolThenConsume(symbolParser->tokenizer, CLOSE_SQR, "]");
+  symbol->id = TYPE;
+  symbol->arity = IDENTITY;
+  symbol->child[0] = cDecl(0);
   return symbol;
 }
 
@@ -106,15 +81,3 @@ Symbol *statement() {
   verifyIsNextSymbolThenConsume(symbolParser->tokenizer, EOL, ";");
   return left;
 }
-
-/*
-void verifyHasNoIdentifier(Symbol *symbol) {
-  if(symbol == NULL)
-    return;
-  if(symbol->id == IDENTIFIER)
-    throwException(ERR_ARRAY_SUBSCRIPT, symbol->token, 0,
-    "Variable cannot be used in array subscripting", symbol->token->str);
-  verifyHasNoIdentifier(symbol->child[0]);
-  verifyHasNoIdentifier(symbol->child[1]);
-}
-*/

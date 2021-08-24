@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include "Arity.h"
 #include "Symbol.h"
-#include "SymbolTable.h"
+#include "SymbolAttrTable.h"
 
 //TestSymbol Types
 #define   OPERATOR_TYPE       10
@@ -26,7 +26,7 @@
             ((child == NULL) || (stricmp(((TestNumber *)testChild)->value, child->token->str)))
 
 #define   isIdentifierNotMatch(testChild, child)   \
-            ((child == NULL) || (stricmp(((TestIdentifier *)testChild)->str, child->token->str)))
+            ((child == NULL) || (strcmp(((TestIdentifier *)testChild)->str, child->token->str)))
 
 typedef struct TestSymbolType TestSymbolType;
 typedef struct TestOperator TestOperator;

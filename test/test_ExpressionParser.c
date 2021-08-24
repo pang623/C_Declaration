@@ -10,7 +10,8 @@
 #include "ExpressionParser.h"
 #include "CDecl_Errors.h"
 #include "Symbol.h"
-#include "SymbolTable.h"
+#include "SymbolAttrTable.h"
+#include "KeywordTable.h"
 #include "Symbol_Id.h"
 #include "Arity.h"
 #include "CustomTestAssertion.h"
@@ -223,6 +224,22 @@ void test_expression_given_expression_with_assignment_operator_expect_ast_create
     TEST_ASSERT_SYMBOL(ADD, "+", Identifier("a"), Operator("("), symbol);
     TEST_ASSERT_SYMBOL(L_SHIFT_ASSIGN, "<<=", Identifier("b"), Operator("*"), symbol->child[1]->child[0]);
     TEST_ASSERT_SYMBOL(MULTIPLY, "*", Identifier("c"), Identifier("d"), symbol->child[1]->child[0]->child[1]);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_with_single_number_expect_ast_created_correctly(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("3");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = parse(0);
+    //Test tree created is correct in order
+    TEST_ASSERT_SYMBOL(NUMBER, "3", NULL, NULL, symbol);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");

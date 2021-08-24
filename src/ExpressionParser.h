@@ -5,7 +5,9 @@
 #include "CDecl_Errors.h"
 #include "Arity.h"
 #include "Symbol.h"
-#include "SymbolTable.h"
+#include "SymbolAttrTable.h"
+#include "KeywordTable.h"
+#include "KeywordType.h"
 
 #define   NIL   1000
 
@@ -30,6 +32,8 @@ Symbol *missingOperandNud(Symbol *symbol);
 Symbol *errorLed(Symbol *symbol, Symbol *left);
 Symbol *identityLed(Symbol *symbol, Symbol *left);
 Symbol *parentNud(Symbol *symbol);
+Symbol *sqrBracketLed(Symbol *symbol, Symbol *left);
 Symbol *parse(int rbp);
+int isSymbolKeywordType(Symbol *symbol, int keywordType, int *index);
 
 #endif // EXPRESSIONPARSER_H
