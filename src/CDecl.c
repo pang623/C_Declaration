@@ -53,16 +53,17 @@ void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol) {
 }
 
 Symbol *cDecl(int rbp) {
-  Symbol *left, *symbol;
+  Symbol *left, *symbol, *symbolCheck;
   setSymbolTable(symbolParser, CDeclSymbolTable);
   symbol = getSymbol(symbolParser);
   verifyIsSymbolInTable(symbolParser, symbol);
   left = nudOf(symbol)(symbol);
-  while(rbp < getInfixLBP(peekSymbol(symbolParser->tokenizer))) {
+  while(rbp < getInfixLBP((symbolCheck = peekSymbol(symbolParser->tokenizer)))) {
     symbol = getSymbol(symbolParser);
     verifyIsSymbolInTable(symbolParser, symbol);
     left = ledOf(symbol)(symbol, left);
   }
+  verifyIsSymbolInTable(symbolParser, symbolCheck);
   return left;
 }
 

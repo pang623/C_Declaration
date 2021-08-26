@@ -40,7 +40,7 @@ SymbolParser *symbolParser;
      arr  3
 */
 
-void test_expression_given_an_array_declaration_expect_correctly_parsed(void) {
+void test_expression_given_an_array_C_declaration_expect_correctly_parsed(void) {
   Symbol *symbol;
   Tokenizer *tokenizer = createTokenizer("int arr[3];");
   symbolParser = createSymbolParser(tokenizer);
@@ -53,6 +53,62 @@ void test_expression_given_an_array_declaration_expect_correctly_parsed(void) {
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
   }
   freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_but_variable_is_a_number_expect_error_invalid_symbol_is_thrown(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("int 3;");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_is_variable_but_mixed_with_operators_expect_error_invalid_symbol_is_thrown(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("int a +3;");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_but_keyword_is_not_data_type_expect_ERR_KEYWORD_is_thrown(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("while var;");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_KEYWORD, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_but_keyword_is_used_as_variable_name_expect_ERR_ILLEGAL_KEYWORD_USAGE_is_thrown(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("char if;");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_ILLEGAL_KEYWORD_USAGE, e->errorCode);
+  }
   freeSymbolParser(symbolParser);
 }
 

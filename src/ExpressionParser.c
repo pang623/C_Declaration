@@ -138,12 +138,10 @@ int isSymbolKeywordType(Symbol *symbol, int keywordType, int *index) {
   int i = 0;
   while(strcmp(symbol->token->str, expKeywordTable[i].keyword)) {
     i++;
-    if(expKeywordTable[i].keyword == NULL && keywordType == TYPE) {
+    if(expKeywordTable[i].keyword == NULL) {
       *index = i;
-      return 1;
+      return (keywordType == TYPE);
     }
-    else
-      return 0;
   }
   if(keywordType != ALL && expKeywordTable[i].type != keywordType)
     return 0;
