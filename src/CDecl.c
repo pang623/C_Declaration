@@ -9,9 +9,9 @@ SymbolAttrTable CDeclSymbolTable[256] = {
   //[OPEN_PARENT]        =   {  0,   NIL,  NIL,             parentNud,     errorLed},
   //[CLOSE_PARENT]       =   {  0,     0,    0,              errorNud,         NULL},
   [OPEN_SQR]           =   {NIL,     0,  150,              errorNud,  sqrBracketLed},
-  [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,  NULL},
+  [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,         NULL},
   [EOL]                =   {  0,     0,    0,     missingOperandNud,         NULL},
-};
+};//
 
 StatementKeywordTable keywordTable[] = {
   //{"KEYWORD"  , KEYWORD_TYPE, fud}
@@ -35,6 +35,36 @@ char *errorStrings[] = {
   [TYPE] = "data",
   [FLOW] = "flow control",
 };
+
+char *ASTtable[] = {
+  [IDENTIFIER] = "is",
+  [OPEN_SQR] = "array of",
+  [NUMBER] = "of",
+  //[POINTER] = "pointer to",
+  [TYPE] = "",
+};
+/*
+Symbol *pointerNud(Symbol *symbol) {
+  
+}
+*/
+char *readSymbol(Symbol *symbol) {
+  char *src;
+  if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE) {
+    src = createString(symbol->token->str);
+    return strcat(src, createString(ASTtable[symbol->id]));
+  }else
+    return createString(ASTtable[symbol->id]);
+}
+
+char *readAST(Symbol *AST, char *str) {
+  if(AST == NULL)
+    return strcat(str, createString(""));
+  str = readAST(AST->child[0], str);
+  str = strcat(str, readSymbol(AST));
+  str = readAST(AST->child[1], str);
+  return str;
+}
 
 int verifyIsSymbolKeywordType(Symbol *symbol, int keywordType) {
   int num = 0;
@@ -81,4 +111,14 @@ Symbol *statement() {
   left = fudOf(index)(symbol);
   verifyIsNextSymbolThenConsume(symbolParser->tokenizer, EOL, ";");
   return left;
+}
+
+char *translate(char *cDecl) {
+  Tokenizer *tokenizer = createTokenizer(cDecl);
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *AST = statement();
+  char *newStr = readAST(AST, createString(""));
+  freeSymbol(AST);
+  freeSymbolParser(symbolParser);
+  return newStr;
 }

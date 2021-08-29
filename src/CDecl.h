@@ -19,5 +19,8 @@ Symbol *cDecl(int rbp);
 Symbol *typeFud(Symbol *symbol);
 void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol);
 int verifyIsSymbolKeywordType(Symbol *symbol, int keywordType);
+char *readAST(Symbol *AST, char *str);
+char *readSymbol(Symbol *symbol);
+char *translate(char *cDecl);
 
 #endif // CDECL_H

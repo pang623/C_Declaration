@@ -56,6 +56,107 @@ void test_expression_given_an_array_C_declaration_expect_correctly_parsed(void) 
   freeSymbolParser(symbolParser);
 }
 
+void test_expression_given_an_array_C_declaration_expect_read_out_correctly(void) {
+  char *str;
+  Try {
+    str = translate("int a[3];");
+    printf("%s", str);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  free(str);
+}
+
+/*
+          DOUBLE
+         /
+        [   
+       / \
+      [   3
+     / \
+    a   2
+*/
+
+void test_expression_given_an_twoD_array_C_declaration_expect_correctly_parsed(void) {
+  Symbol *symbol;
+  //In this case DOUBLE is seen as a user defined data type, not the 'double' type, so will be accepted as well
+  Tokenizer *tokenizer = createTokenizer("DOUBLE a[2][3];");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_ASSERT_SYMBOL(TYPE, "DOUBLE", Operator("["), NULL, symbol);
+    TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Operator("["), Number("3"), symbol->child[0]);
+    TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Identifier("a"), Number("2"), symbol->child[0]->child[0]);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+/*
+          float
+         /
+        [   
+       / \
+    arr   +
+         / \
+        3   *
+           / \
+          a   4
+*/
+
+void test_expression_given_an_array_C_declaration_and_array_subscripted_with_expression_expect_correctly_parsed(void) {
+  Symbol *symbol;
+  //In this case DOUBLE is seen as a user defined data type, not the 'double' type, so will be accepted as well
+  Tokenizer *tokenizer = createTokenizer("float arr[3+a*4];");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_ASSERT_SYMBOL(TYPE, "float", Operator("["), NULL, symbol);
+    TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Identifier("arr"), Operator("+"), symbol->child[0]);
+    TEST_ASSERT_SYMBOL(ADD, "+", Number("3"), Operator("*"), symbol->child[0]->child[1]);
+    TEST_ASSERT_SYMBOL(MULTIPLY, "*", Identifier("a"), Number("4"), symbol->child[0]->child[1]->child[1]);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_but_two_separate_variable_names_expect_ERR_SYNTAX_is_thrown(void) {
+  Symbol *symbol;
+  //'a' and 'b' separated, both are names, invalid, variable name can only be one
+  Tokenizer *tokenizer = createTokenizer("Symbol a b;");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_but_extra_variable_name_expect_ERR_SYNTAX_is_thrown(void) {
+  Symbol *symbol;
+  //two names declared, invalid, can only have one name
+  Tokenizer *tokenizer = createTokenizer("Symbol a[3]extra;");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
 void test_expression_given_c_declaration_but_variable_is_a_number_expect_error_invalid_symbol_is_thrown(void) {
   Symbol *symbol;
   Tokenizer *tokenizer = createTokenizer("int 3;");

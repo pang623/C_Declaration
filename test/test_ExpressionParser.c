@@ -248,7 +248,7 @@ void test_expression_with_single_number_expect_ast_created_correctly(void) {
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_3_and_2_expect_error_expected_operator_is_thrown(void) {
+void test_expression_given_3_and_2_expect_ERR_SYNTAX_is_thrown(void) {
   Symbol *symbol;
   Tokenizer *tokenizer = createTokenizer("3 2");
   symbolParser = createSymbolParser(tokenizer);
@@ -257,12 +257,12 @@ void test_expression_given_3_and_2_expect_error_expected_operator_is_thrown(void
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_EXPECTED_OPERATOR, e->errorCode);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
   }
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_expression_with_missing_operator_expect_error_expected_operator_is_thrown(void) {
+void test_expression_given_expression_with_missing_operator_expect_ERR_SYNTAX_is_thrown(void) {
   Symbol *symbol;
   //parsed as (a++)b, missing operator before b
   Tokenizer *tokenizer = createTokenizer("a++b");
@@ -272,7 +272,7 @@ void test_expression_given_expression_with_missing_operator_expect_error_expecte
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_EXPECTED_OPERATOR, e->errorCode);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
   }
   freeSymbolParser(symbolParser);
 }

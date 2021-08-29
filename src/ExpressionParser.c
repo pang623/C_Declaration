@@ -101,9 +101,6 @@ Symbol *infixLedR(Symbol *symbol, Symbol *left) {
 }
 
 Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
-  if(!(isIdentifierToken(left->token)))
-    throwException(ERR_WRONG_SYMBOL, left->token, 0,
-    "Array name should be declared with identifier, %s is not identifier", left->token->str);
   symbol->arity = INFIX;
   symbol->child[0] = left;
   symbol->child[1] = expression(0);
@@ -185,8 +182,8 @@ Symbol *errorLed(Symbol *symbol, Symbol *left) {
 //error handling for numbers and variables 
 //they cannot be infix, thus if led is called an error is thrown
 Symbol *identityLed(Symbol *symbol, Symbol *left) {
-  throwException(ERR_EXPECTED_OPERATOR, symbol->token, 0,
-  "Expected an operator here, but received %s instead", symbol->token->str);
+  throwException(ERR_SYNTAX, symbol->token, 0,
+  "Identifiers and numbers cannot be used here, but received %s here", symbol->token->str);
 }
 
 //main parser
