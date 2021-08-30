@@ -57,7 +57,7 @@ void test_expression_given_an_array_C_declaration_expect_correctly_parsed(void) 
 }
 
 void test_expression_given_an_array_C_declaration_expect_read_out_correctly(void) {
-  char *str;
+  char *str = NULL;
   Try {
     str = translate("int a[3];");
     printf("%s", str);
@@ -97,9 +97,48 @@ void test_expression_given_an_twoD_array_C_declaration_expect_correctly_parsed(v
 }
 
 void test_expression_given_an_twoD_array_C_declaration_expect_read_out_correctly(void) {
-  char *str;
+  char *str = NULL;
   Try {
     str = translate("DOUBLE a[2][3];");
+    printf("%s", str);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  free(str);
+}
+
+/*
+          char
+         /
+        *   
+       /
+      [
+     / \
+    b   10
+*/
+
+void test_expression_given_an_array_of_char_ptr_C_declaration_expect_correctly_parsed(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("char   * b[10]  ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_ASSERT_SYMBOL(TYPE, "char", Operator("*"), NULL, symbol);
+    TEST_ASSERT_SYMBOL(POINTER, "*", Operator("["), NULL, symbol->child[0]);
+    TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Identifier("b"), Number("10"), symbol->child[0]->child[0]);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_an_array_of_char_ptr_C_declaration_expect_read_out_correctly(void) {
+  char *str = NULL;
+  Try {
+    str = translate("char   * b[10]  ");
     printf("%s", str);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);

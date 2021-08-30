@@ -1,6 +1,7 @@
 #include "CDecl.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 SymbolAttrTable CDeclSymbolTable[256] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
@@ -38,16 +39,15 @@ char *errorStrings[] = {
 
 char *ASTtable[] = {
   [IDENTIFIER] = "is",
-  [OPEN_SQR] = "array of",
   [NUMBER] = "of",
-  //[POINTER] = "pointer to",
+  [OPEN_SQR] = "array of",
+  [POINTER] = "pointer to",
   [TYPE] = "",
 };
 
 Symbol *pointerLed(Symbol *symbol, Symbol *left) {
-  
-  
-  
+  throwException(ERR_SYNTAX, symbol->token, 0,
+  "Pointer cannot be used here");
 }
 
 Symbol *pointerNud(Symbol *symbol) {
@@ -60,7 +60,7 @@ Symbol *pointerNud(Symbol *symbol) {
 char *readSymbol(Symbol *symbol) {
   char *src;
   if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE) {
-    src = strcat(createString(symbol->token->str), " ");
+    src = strcat(createString(symbol->token->str), createString(" "));
     return strcat(src, createString(ASTtable[symbol->id]));
   }else
     return createString(ASTtable[symbol->id]);
@@ -69,7 +69,7 @@ char *readSymbol(Symbol *symbol) {
 char *readAST(Symbol *AST, char *str) {
   if(AST == NULL)
     return strcat(str, createString(""));
-  str = strcat(readAST(AST->child[0], str), " ");
+  str = strcat(readAST(AST->child[0], str), createString(" "));
   str = strcat(str, readSymbol(AST));
   str = readAST(AST->child[1], str);
   return str;
@@ -126,7 +126,7 @@ char *translate(char *cDecl) {
   Tokenizer *tokenizer = createTokenizer(cDecl);
   symbolParser = createSymbolParser(tokenizer);
   Symbol *AST = statement();
-  char *newStr = readAST(AST, createString(""));
+  char *newStr = readAST(AST, malloc(256));
   freeSymbol(AST);
   freeSymbolParser(symbolParser);
   return newStr;

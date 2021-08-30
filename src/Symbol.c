@@ -1,4 +1,5 @@
 #include "Symbol.h"
+#include <string.h>
 
 OperatorAttrTable operatorIdTable[256] = {
   ['+'] = {{ADD, INC_BEFORE, ADD_ASSIGN, 0}                        , checkDoubleSameChar},
