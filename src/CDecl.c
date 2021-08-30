@@ -5,7 +5,7 @@
 SymbolAttrTable CDeclSymbolTable[256] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
   [IDENTIFIER]         =   { NIL,  NIL,  NIL,           identityNud,  identityLed},
-  //[MULTIPLY]           =   { 140,  NIL,  NIL,             pointerNud,    pointerLed},
+  [MULTIPLY]           =   { 140,  NIL,  NIL,             pointerNud,    pointerLed},
   //[OPEN_PARENT]        =   {  0,   NIL,  NIL,             parentNud,     errorLed},
   //[CLOSE_PARENT]       =   {  0,     0,    0,              errorNud,         NULL},
   [OPEN_SQR]           =   {NIL,     0,  150,              errorNud,  sqrBracketLed},
@@ -43,15 +43,24 @@ char *ASTtable[] = {
   //[POINTER] = "pointer to",
   [TYPE] = "",
 };
-/*
-Symbol *pointerNud(Symbol *symbol) {
+
+Symbol *pointerLed(Symbol *symbol, Symbol *left) {
+  
+  
   
 }
-*/
+
+Symbol *pointerNud(Symbol *symbol) {
+  symbol->id = POINTER;
+  symbol->child[0] = cDecl(getPrefixRBP(symbol));
+  freeSymbol(symbol->child[1]);
+  return symbol;
+}
+
 char *readSymbol(Symbol *symbol) {
   char *src;
   if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE) {
-    src = createString(symbol->token->str);
+    src = strcat(createString(symbol->token->str), " ");
     return strcat(src, createString(ASTtable[symbol->id]));
   }else
     return createString(ASTtable[symbol->id]);
@@ -60,7 +69,7 @@ char *readSymbol(Symbol *symbol) {
 char *readAST(Symbol *AST, char *str) {
   if(AST == NULL)
     return strcat(str, createString(""));
-  str = readAST(AST->child[0], str);
+  str = strcat(readAST(AST->child[0], str), " ");
   str = strcat(str, readSymbol(AST));
   str = readAST(AST->child[1], str);
   return str;

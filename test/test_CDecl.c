@@ -96,6 +96,18 @@ void test_expression_given_an_twoD_array_C_declaration_expect_correctly_parsed(v
   freeSymbolParser(symbolParser);
 }
 
+void test_expression_given_an_twoD_array_C_declaration_expect_read_out_correctly(void) {
+  char *str;
+  Try {
+    str = translate("DOUBLE a[2][3];");
+    printf("%s", str);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  free(str);
+}
+
 /*
           float
          /

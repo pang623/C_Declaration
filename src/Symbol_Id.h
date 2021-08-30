@@ -62,5 +62,6 @@
 #define   OPEN_SQR            73
 #define   CLOSE_SQR           74
 #define   COMMA               75
+#define   POINTER             76
 
 #endif // SYMBOL_ID_H
