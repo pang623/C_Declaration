@@ -23,6 +23,7 @@ void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol);
 int verifyIsSymbolKeywordType(Symbol *symbol, int keywordType);
 char *readAST(Symbol *AST, char *str);
 char *readSymbol(Symbol *symbol);
+char *concat(char *s1, char *s2);
 char *translate(char *cDecl);
 
 #endif // CDECL_H

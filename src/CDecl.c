@@ -38,10 +38,10 @@ char *errorStrings[] = {
 };
 
 char *ASTtable[] = {
-  [IDENTIFIER] = "is",
-  [NUMBER] = "of",
-  [OPEN_SQR] = "array of",
-  [POINTER] = "pointer to",
+  [IDENTIFIER] = "is ",
+  [NUMBER] = "of ",
+  [OPEN_SQR] = "array of ",
+  [POINTER] = "pointer to ",
   [TYPE] = "",
 };
 
@@ -55,24 +55,6 @@ Symbol *pointerNud(Symbol *symbol) {
   symbol->child[0] = cDecl(getPrefixRBP(symbol));
   freeSymbol(symbol->child[1]);
   return symbol;
-}
-
-char *readSymbol(Symbol *symbol) {
-  char *src;
-  if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE) {
-    src = strcat(createString(symbol->token->str), createString(" "));
-    return strcat(src, createString(ASTtable[symbol->id]));
-  }else
-    return createString(ASTtable[symbol->id]);
-}
-
-char *readAST(Symbol *AST, char *str) {
-  if(AST == NULL)
-    return strcat(str, createString(""));
-  str = strcat(readAST(AST->child[0], str), createString(" "));
-  str = strcat(str, readSymbol(AST));
-  str = readAST(AST->child[1], str);
-  return str;
 }
 
 int verifyIsSymbolKeywordType(Symbol *symbol, int keywordType) {
@@ -122,11 +104,35 @@ Symbol *statement() {
   return left;
 }
 
+char *concat(char *s1, char *s2) {
+  char *result = realloc(s1, strlen(s1) + strlen(s2) + 1);
+  strcat(result, s2);
+  return result;
+}
+
+char *readSymbol(Symbol *symbol) {
+  char *src;
+  if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE) {
+    src = strcat(createString(symbol->token->str), createString(" "));
+    return strcat(src, createString(ASTtable[symbol->id]));
+  }else
+    return createString(ASTtable[symbol->id]);
+}
+
+char *readAST(Symbol *AST, char *str) {
+  if(AST == NULL)
+    return str;
+  str = concat(readAST(AST->child[0], str), createString(""));
+  str = concat(str, readSymbol(AST));
+  str = readAST(AST->child[1], str);
+  return str;
+}
+
 char *translate(char *cDecl) {
   Tokenizer *tokenizer = createTokenizer(cDecl);
   symbolParser = createSymbolParser(tokenizer);
   Symbol *AST = statement();
-  char *newStr = readAST(AST, malloc(256));
+  char *newStr = readAST(AST, createString(""));
   freeSymbol(AST);
   freeSymbolParser(symbolParser);
   return newStr;
