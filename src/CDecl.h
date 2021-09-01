@@ -15,10 +15,13 @@
 extern SymbolParser *symbolParser;
 
 Symbol *statement();
+Symbol *statements();
 Symbol *cDecl(int rbp);
 Symbol *typeFud(Symbol *symbol);
 Symbol *pointerNud(Symbol *symbol);
 Symbol *pointerLed(Symbol *symbol, Symbol *left);
+Symbol *funcLed(Symbol *symbol, Symbol *left);
+Symbol *commaLed(Symbol *symbol, Symbol *left);
 void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol);
 int verifyIsSymbolKeywordType(Symbol *symbol, int keywordType);
 char *readAST(Symbol *AST, char *str);

@@ -4,15 +4,22 @@
 #include <string.h>
 
 SymbolAttrTable CDeclSymbolTable[256] = {
-  //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
-  [IDENTIFIER]         =   { NIL,  NIL,  NIL,           identityNud,  identityLed},
-  [MULTIPLY]           =   { 140,  NIL,  NIL,           pointerNud,    pointerLed},
-  //[OPEN_PARENT]        =   {  0,   0,  150,             parentNud,     funcLed},
-  //[CLOSE_PARENT]       =   {  0,     0,    0,              errorNud,         NULL},
-  [OPEN_SQR]           =   {NIL,     0,  150,              errorNud,  sqrBracketLed},
-  [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,         NULL},
-  //[COMMA]            =   {  0,     0,    0,     missingOperandNud,         NULL},
-  [EOL]                =   {  0,     0,    0,     missingOperandNud,         NULL},
+  //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,      nud,           led}
+  [IDENTIFIER]         =   { NIL,  NIL,  NIL,           identityNud,   identityLed},
+  [MULTIPLY]           =   { 140,  NIL,  NIL,            pointerNud,    pointerLed},
+  [OPEN_PARENT]        =   {   0,    0,  150,             parentNud,       funcLed},
+  [CLOSE_PARENT]       =   {   0,    0,    0,              errorNud,          NULL},
+  [OPEN_SQR]           =   {NIL,     0,  150,              errorNud, sqrBracketLed},
+  [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,          NULL},
+  [EOL]                =   {  0,     0,    0,     missingOperandNud,          NULL},
+};
+
+SymbolAttrTable MultiCDeclSymbolTable[256] = {
+  //COMMA indicates there's still C declaration to be read
+  [COMMA]              =   {  0,    0,    0,      missingOperandNud,      commaLed},
+  //CLOSE_PARENT acts as terminator, no C declaration after this
+  [CLOSE_PARENT]       =   {  0,     0,    0,                  NULL,          NULL},
+  [EOL]                =   {  0,     0,    0,                  NULL,          NULL},
 };
 
 StatementKeywordTable keywordTable[] = {
@@ -45,20 +52,42 @@ char *ASTtable[] = {
   [POINTER] = "pointer to ",
   [TYPE] = "",
 };
-/*
+
 Symbol *funcLed(Symbol *symbol, Symbol *left) {
   symbol->id = FUNCTION;
   symbol->child[0] = left;
-  symbol->child[1] = statement();
-  isNextSymbolThenConsume
+  symbol->child[1] = statements();
+  verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
+  return symbol;
 }
-*/
+
+Symbol *commaLed(Symbol *symbol, Symbol *left) {
+  symbol->child[0] = left;
+  symbol->child[1] = statement();
+  return symbol;
+}
+
+Symbol *statements() {
+  Symbol *symbol;
+  setSymbolTable(symbolParser, MultiCDeclSymbolTable);
+  Symbol *left = statement();
+  Symbol *next = peekSymbol(symbolParser->tokenizer);
+  verifyIsSymbolInTable(symbolParser, next);
+  while(next->id == COMMA) {
+    symbol = getSymbol(symbolParser);
+    left = ledOf(symbol)(symbol, left);
+    verifyIsSymbolInTable(symbolParser, next = peekSymbol(symbolParser->tokenizer));
+  }
+  return left;
+}
+
 Symbol *pointerLed(Symbol *symbol, Symbol *left) {
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Pointer cannot be used here");
 }
 
 Symbol *pointerNud(Symbol *symbol) {
+  symbol->arity = PREFIX;
   symbol->id = POINTER;
   symbol->child[0] = cDecl(getPrefixRBP(symbol));
   freeSymbol(symbol->child[1]);

@@ -185,6 +185,33 @@ void test_expression_given_an_array_of_char_ptr_C_declaration_expect_read_out_co
 }
 
 /*
+         int
+         /
+        (   
+       / \
+   func   char
+          /
+         a
+*/
+  
+void test_expression_given_a_function_declaration_expect_correctly_parsed(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("int func(char a); ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_ASSERT_SYMBOL(TYPE, "int", Operator("("), NULL, symbol);
+    TEST_ASSERT_SYMBOL(FUNCTION, "(", Identifier("func"), Identifier("char"), symbol->child[0]);
+    TEST_ASSERT_SYMBOL(TYPE, "char", Identifier("a"), NULL, symbol->child[0]->child[1]);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+/*
           float
          /
         [   
