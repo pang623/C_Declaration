@@ -62,6 +62,10 @@
 #define   OPEN_SQR            73
 #define   CLOSE_SQR           74
 #define   COMMA               75
+
+//For CDecl
 #define   POINTER             76
+#define   GROUPING            77
+#define   FUNCTION            78
 
 #endif // SYMBOL_ID_H

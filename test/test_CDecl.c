@@ -109,6 +109,43 @@ void test_expression_given_an_twoD_array_C_declaration_expect_read_out_correctly
 }
 
 /*
+          float
+         /
+        *   
+       /
+      f
+*/
+
+
+void test_expression_given_an_float_ptr_C_declaration_expect_correctly_parsed(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("float *f  ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_ASSERT_SYMBOL(TYPE, "float", Operator("*"), NULL, symbol);
+    TEST_ASSERT_SYMBOL(POINTER, "*", Identifier("f"), NULL, symbol->child[0]);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_an_float_ptr_C_declaration_expect_read_out_correctly(void) {
+  char *str = NULL;
+  Try {
+    str = translate("float *f   ");
+    printf("%s", str);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+  }
+  free(str);
+}
+
+/*
           char
          /
         *   
@@ -260,6 +297,34 @@ void test_expression_given_c_declaration_but_keyword_is_used_as_variable_name_ex
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_ILLEGAL_KEYWORD_USAGE, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_pointer_symbol_comes_after_variable_expect_ERR_SYNTAX_is_thrown(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("double a*[3];");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_but_no_name_expect_ERR_MISSING_OPERAND_is_thrown(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("int *");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
   }
   freeSymbolParser(symbolParser);
 }

@@ -28,13 +28,13 @@ SymbolCombination SymbolCombiTable[] = {
   [EQUAL]      = {"=",  2, EQUAL_AS_LAST_CHAR},
   [DWITHEQUAL] = {"=",  3, DOUBLE_SAME_CHAR | EQUAL_AS_LAST_CHAR},
 };
-
+/*
 ArityMemory arityMemoryTable[] = {
   [PREFIX]      =  1,
   [INFIX]       =  2,
   [SUFFIX]      =  1,
   [IDENTITY]    =  0,
-};
+};*/
 
 SymbolParser *createSymbolParser(Tokenizer *tokenizer) {
   SymbolParser *parser = (SymbolParser *)malloc(sizeof(SymbolParser));
@@ -60,13 +60,15 @@ void setSymbolTable(SymbolParser *symbolParser, SymbolAttrTable *table) {
 
 //create data structure for Symbol
 Symbol *createSymbol(Symbol *symbolInfo) {
-  Symbol *symbol = (Symbol *)malloc(sizeof(Symbol) + 
-                                    (arityMemoryTable[symbolInfo->arity].extraMemory)*sizeof(Symbol *));
+  Symbol *symbol = (Symbol *)malloc(sizeof(Symbol)); //+ 
+                                    //(arityMemoryTable[symbolInfo->arity].extraMemory)*sizeof(Symbol *));
   symbol->token = symbolInfo->token;
   symbol->arity = symbolInfo->arity;
   symbol->id = symbolInfo->id;
-  for(int i = 0; i < arityMemoryTable[symbolInfo->arity].extraMemory; i++)
-    symbol->child[i] = NULL;
+  symbol->child[0] = NULL;
+  symbol->child[1] = NULL;
+  //for(int i = 0; i < arityMemoryTable[symbolInfo->arity].extraMemory; i++)
+    //symbol->child[i] = NULL;
   return symbol;
 }
 
@@ -158,7 +160,7 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
     return createSymbol(&symbolInfo);
   else if(isIdentifierToken(symbol))
     symbolInfo.id = IDENTIFIER;
-  else if(isIntegerToken(symbol))
+  else if(isIntegerToken(symbol) || isFloatToken(symbol))
     symbolInfo.id = NUMBER;
   else if(!(hasSymbolVariations(symbol)))
     symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[0];

@@ -6,13 +6,14 @@
 SymbolAttrTable CDeclSymbolTable[256] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,     nud,     led}
   [IDENTIFIER]         =   { NIL,  NIL,  NIL,           identityNud,  identityLed},
-  [MULTIPLY]           =   { 140,  NIL,  NIL,             pointerNud,    pointerLed},
-  //[OPEN_PARENT]        =   {  0,   NIL,  NIL,             parentNud,     errorLed},
+  [MULTIPLY]           =   { 140,  NIL,  NIL,           pointerNud,    pointerLed},
+  //[OPEN_PARENT]        =   {  0,   0,  150,             parentNud,     funcLed},
   //[CLOSE_PARENT]       =   {  0,     0,    0,              errorNud,         NULL},
   [OPEN_SQR]           =   {NIL,     0,  150,              errorNud,  sqrBracketLed},
   [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,         NULL},
+  //[COMMA]              =
   [EOL]                =   {  0,     0,    0,     missingOperandNud,         NULL},
-};//
+};
 
 StatementKeywordTable keywordTable[] = {
   //{"KEYWORD"  , KEYWORD_TYPE, fud}
@@ -38,13 +39,20 @@ char *errorStrings[] = {
 };
 
 char *ASTtable[] = {
-  [IDENTIFIER] = "is ",
-  [NUMBER] = "of ",
+  [IDENTIFIER] = " is ",
+  [NUMBER] = " of ",
   [OPEN_SQR] = "array of ",
   [POINTER] = "pointer to ",
   [TYPE] = "",
 };
-
+/*
+Symbol *funcLed(Symbol *symbol, Symbol *left) {
+  symbol->id = FUNCTION;
+  symbol->child[0] = left;
+  symbol->child[1] = cDecl(getInfixRBP(symbol));
+  
+}
+*/
 Symbol *pointerLed(Symbol *symbol, Symbol *left) {
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Pointer cannot be used here");
@@ -111,10 +119,10 @@ char *concat(char *s1, char *s2) {
 }
 
 char *readSymbol(Symbol *symbol) {
-  char *src;
+  //char *src;
   if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE) {
-    src = strcat(createString(symbol->token->str), createString(" "));
-    return strcat(src, createString(ASTtable[symbol->id]));
+    //src = concat(createString(symbol->token->str), createString(" "));
+    return concat(createString(symbol->token->str), createString(ASTtable[symbol->id]));
   }else
     return createString(ASTtable[symbol->id]);
 }
@@ -122,7 +130,7 @@ char *readSymbol(Symbol *symbol) {
 char *readAST(Symbol *AST, char *str) {
   if(AST == NULL)
     return str;
-  str = concat(readAST(AST->child[0], str), createString(""));
+  str = readAST(AST->child[0], str);
   str = concat(str, readSymbol(AST));
   str = readAST(AST->child[1], str);
   return str;

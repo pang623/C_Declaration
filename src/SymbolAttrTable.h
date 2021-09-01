@@ -14,7 +14,7 @@ struct Symbol {
   int arity;
   int id;
   Token *token;
-  Symbol *child[0];
+  Symbol *child[2];
 };
 
 struct SymbolAttrTable {

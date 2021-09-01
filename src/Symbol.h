@@ -18,6 +18,7 @@ typedef struct SymbolParser SymbolParser;
 typedef Symbol *(*FuncPtr)(Token *, int *);
 
 #define   isIntegerToken(token)                      (token->type == TOKEN_INTEGER_TYPE)
+#define   isFloatToken(token)                        (token->type == TOKEN_FLOAT_TYPE)
 #define   isIdentifierToken(token)                   (token->type == TOKEN_IDENTIFIER_TYPE)
 #define   isNULLToken(token)                         (token->type == TOKEN_NULL_TYPE)
 #define   hasSymbolVariations(symbol)                (operatorIdTable[(symbol->str)[0]].func != NULL)
@@ -35,10 +36,10 @@ struct SymbolCombination {
   int type;
   int flag;
 };
-
+/*
 struct ArityMemory {
   int extraMemory;
-};
+};*/
 
 struct SymbolParser {
   Tokenizer *tokenizer;
