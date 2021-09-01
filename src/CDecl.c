@@ -11,7 +11,7 @@ SymbolAttrTable CDeclSymbolTable[256] = {
   //[CLOSE_PARENT]       =   {  0,     0,    0,              errorNud,         NULL},
   [OPEN_SQR]           =   {NIL,     0,  150,              errorNud,  sqrBracketLed},
   [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,         NULL},
-  //[COMMA]              =
+  //[COMMA]            =   {  0,     0,    0,     missingOperandNud,         NULL},
   [EOL]                =   {  0,     0,    0,     missingOperandNud,         NULL},
 };
 
@@ -49,8 +49,8 @@ char *ASTtable[] = {
 Symbol *funcLed(Symbol *symbol, Symbol *left) {
   symbol->id = FUNCTION;
   symbol->child[0] = left;
-  symbol->child[1] = cDecl(getInfixRBP(symbol));
-  
+  symbol->child[1] = statement();
+  isNextSymbolThenConsume
 }
 */
 Symbol *pointerLed(Symbol *symbol, Symbol *left) {
@@ -108,7 +108,7 @@ Symbol *statement() {
   Symbol *symbol = getSymbol(symbolParser);
   int index = verifyIsSymbolKeywordType(symbol, TYPE);
   left = fudOf(index)(symbol);
-  verifyIsNextSymbolThenConsume(symbolParser->tokenizer, EOL, ";");
+  isNextSymbolThenConsume(EOL);
   return left;
 }
 

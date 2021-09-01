@@ -199,11 +199,21 @@ Symbol *peekStack(DoubleLinkedList *stack) {
   return stack->head->data;
 }
 
-void verifyIsNextSymbolThenConsume(Tokenizer *tokenizer, int symbolId, char *expectedSym) {
+int isNextSymbolThenConsume(int symbolId) {
   Symbol *symbol = getSymbol(symbolParser);
-  if(symbol->id == symbolId)
+  if(symbol->id == symbolId) {
     freeSymbol(symbol);
-  else
+    return 1;
+  }else {
+    pushStack(symbolParser->symbolStack, symbol);
+    return 0;
+  }
+}
+
+void verifyIsNextSymbolThenConsume(int symbolId, char *expectedSym) {
+  if(!(isNextSymbolThenConsume(symbolId))) {
+    Symbol *symbol = getSymbol(symbolParser);
     throwException(ERR_WRONG_SYMBOL, symbol->token, 0,
     "Expecting a %s here, but received %s instead", expectedSym, symbol->token->str);
+  }
 }

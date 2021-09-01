@@ -104,7 +104,7 @@ Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
   symbol->arity = INFIX;
   symbol->child[0] = left;
   symbol->child[1] = expression(0);
-  verifyIsNextSymbolThenConsume(symbolParser->tokenizer, CLOSE_SQR, "]");
+  verifyIsNextSymbolThenConsume(CLOSE_SQR, "]");
   return symbol;
 }
 
@@ -124,7 +124,7 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
 
 Symbol *parentNud(Symbol *symbol) {
   symbol->child[0] = expression(0);
-  verifyIsNextSymbolThenConsume(symbolParser->tokenizer, CLOSE_PARENT, ")");
+  verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
   freeSymbol(symbol->child[1]);
   return symbol;
 }
@@ -201,6 +201,6 @@ Symbol *expression(int rbp) {
 
 Symbol *parse(int rbp) {
   Symbol *left = expression(rbp);
-  verifyIsNextSymbolThenConsume(symbolParser->tokenizer, EOL, ";");
+  verifyIsNextSymbolThenConsume(EOL, ";");
   return left;
 }
