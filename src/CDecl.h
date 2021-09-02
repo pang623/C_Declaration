@@ -18,6 +18,7 @@ Symbol *statement();
 Symbol *statements();
 Symbol *cDecl(int rbp);
 Symbol *typeFud(Symbol *symbol);
+Symbol *groupingNud(Symbol *symbol);
 Symbol *pointerNud(Symbol *symbol);
 Symbol *pointerLed(Symbol *symbol, Symbol *left);
 Symbol *funcLed(Symbol *symbol, Symbol *left);

@@ -7,7 +7,7 @@ SymbolAttrTable CDeclSymbolTable[256] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,      nud,           led}
   [IDENTIFIER]         =   { NIL,  NIL,  NIL,           identityNud,   identityLed},
   [MULTIPLY]           =   { 140,  NIL,  NIL,            pointerNud,    pointerLed},
-  [OPEN_PARENT]        =   {   0,    0,  150,             parentNud,       funcLed},
+  [OPEN_PARENT]        =   {   0,    0,  150,           groupingNud,       funcLed},
   [CLOSE_PARENT]       =   {   0,    0,    0,              errorNud,          NULL},
   [OPEN_SQR]           =   {NIL,     0,  150,              errorNud, sqrBracketLed},
   [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,          NULL},
@@ -16,10 +16,10 @@ SymbolAttrTable CDeclSymbolTable[256] = {
 
 SymbolAttrTable MultiCDeclSymbolTable[256] = {
   //COMMA indicates there's still C declaration to be read
-  [COMMA]              =   {  0,    0,    0,      missingOperandNud,      commaLed},
+  [COMMA]              =   {  0,     0,    0,     missingOperandNud,      commaLed},
   //CLOSE_PARENT acts as terminator, no C declaration after this
-  [CLOSE_PARENT]       =   {  0,     0,    0,                  NULL,          NULL},
-  [EOL]                =   {  0,     0,    0,                  NULL,          NULL},
+  [CLOSE_PARENT]       =   {  0,     0,    0,              errorNud,          NULL},
+  [EOL]                =   {  0,     0,    0,     missingOperandNud,          NULL},
 };
 
 StatementKeywordTable keywordTable[] = {
@@ -46,12 +46,64 @@ char *errorStrings[] = {
 };
 
 char *ASTtable[] = {
-  [IDENTIFIER] = " is ",
-  [NUMBER] = " of ",
-  [OPEN_SQR] = "array of ",
-  [POINTER] = "pointer to ",
-  [TYPE] = "",
+  [IDENTIFIER]      = " is ",
+  [NUMBER]          = " of ",
+  [OPEN_SQR]        = "array of ",
+  //[FUNCTION]        = "function taking in",
+  [POINTER]         = "pointer to ",
+  [COMMA]           = "",
+  [TYPE]            = "",
+  [OPEN_PARENT]     = "",
 };
+
+int multipleDecl = 0;
+/*
+char *functionRead(Symbol *symbol) {
+  char *str;
+  //if no function parameters
+  if(symbol->child[1] == NULL)
+    str = createString("function ");
+  else
+    str = createString("function taking in ");
+  concat(str, createString(symbol->token->str));
+  str = readAST(symbol->child[1], str);
+  return concat(str, createString(") returning "));
+}
+
+char *ptrRead(Symbol *symbol) {
+  char *str = createString("pointer to ");
+  return str;
+}
+
+char *identifierRead(Symbol *symbol) {
+  char *str = createString(symbol->token->str);
+  concat(str, createString(" is ");
+  return str;
+}
+
+char *generalRead(Symbol *symbol) {
+  char *str = createString(symbol->token->str);
+  return str;
+}
+
+char *ignoreRead(Symbol *symbol) {
+  return createString("");
+}
+
+char *arrayRead(Symbol *symbol) {
+  char *str = createString("array of ");
+  str = readAST(symbol->child[1], str);
+  concat(str, createString(" of "));
+  return str;
+}
+*/
+
+Symbol *groupingNud(Symbol *symbol) {
+  symbol->child[0] = cDecl(0);
+  verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
+  freeSymbol(symbol->child[1]);
+  return symbol;
+}
 
 Symbol *funcLed(Symbol *symbol, Symbol *left) {
   symbol->id = FUNCTION;
@@ -65,20 +117,6 @@ Symbol *commaLed(Symbol *symbol, Symbol *left) {
   symbol->child[0] = left;
   symbol->child[1] = statement();
   return symbol;
-}
-
-Symbol *statements() {
-  Symbol *symbol;
-  setSymbolTable(symbolParser, MultiCDeclSymbolTable);
-  Symbol *left = statement();
-  Symbol *next = peekSymbol(symbolParser->tokenizer);
-  verifyIsSymbolInTable(symbolParser, next);
-  while(next->id == COMMA) {
-    symbol = getSymbol(symbolParser);
-    left = ledOf(symbol)(symbol, left);
-    verifyIsSymbolInTable(symbolParser, next = peekSymbol(symbolParser->tokenizer));
-  }
-  return left;
 }
 
 Symbol *pointerLed(Symbol *symbol, Symbol *left) {
@@ -111,17 +149,23 @@ void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol) {
 }
 
 Symbol *cDecl(int rbp) {
+  SymbolParser *parser = symbolParser;
   Symbol *left, *symbol, *symbolCheck;
-  setSymbolTable(symbolParser, CDeclSymbolTable);
-  symbol = getSymbol(symbolParser);
-  verifyIsSymbolInTable(symbolParser, symbol);
+  setSymbolTable(parser, CDeclSymbolTable);
+  symbol = getSymbol(parser);
+  verifyIsSymbolInTable(parser, symbol);
   left = nudOf(symbol)(symbol);
-  while(rbp < getInfixLBP((symbolCheck = peekSymbol(symbolParser->tokenizer)))) {
-    symbol = getSymbol(symbolParser);
-    verifyIsSymbolInTable(symbolParser, symbol);
+  while(rbp < getInfixLBP((symbolCheck = peekSymbol(parser->tokenizer)))) {
+    setSymbolTable(parser, CDeclSymbolTable);
+    symbol = getSymbol(parser);
+    verifyIsSymbolInTable(parser, symbol);
     left = ledOf(symbol)(symbol, left);
   }
-  verifyIsSymbolInTable(symbolParser, symbolCheck);
+  if(multipleDecl)
+    setSymbolTable(parser, MultiCDeclSymbolTable);
+  else
+    setSymbolTable(parser, CDeclSymbolTable);
+  verifyIsSymbolInTable(parser, symbolCheck);
   return left;
 }
 
@@ -130,6 +174,26 @@ Symbol *typeFud(Symbol *symbol) {
   symbol->arity = IDENTITY;
   symbol->child[0] = cDecl(0);
   return symbol;
+}
+
+Symbol *statements() {
+  Symbol *symbol;
+  multipleDecl = 1;
+  setSymbolTable(symbolParser, MultiCDeclSymbolTable);
+  if((peekSymbol(symbolParser->tokenizer))->id == CLOSE_PARENT) {
+    multipleDecl = 0;
+    return NULL;
+  }
+  Symbol *left = statement();
+  Symbol *next = peekSymbol(symbolParser->tokenizer);
+  verifyIsSymbolInTable(symbolParser, next);
+  while(next->id == COMMA) {
+    symbol = getSymbol(symbolParser);
+    left = ledOf(symbol)(symbol, left);
+    verifyIsSymbolInTable(symbolParser, next = peekSymbol(symbolParser->tokenizer));
+  }
+  multipleDecl = 0;
+  return left;
 }
 
 Symbol *statement() {
@@ -148,11 +212,9 @@ char *concat(char *s1, char *s2) {
 }
 
 char *readSymbol(Symbol *symbol) {
-  //char *src;
-  if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE) {
-    //src = concat(createString(symbol->token->str), createString(" "));
+  if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE)
     return concat(createString(symbol->token->str), createString(ASTtable[symbol->id]));
-  }else
+  else
     return createString(ASTtable[symbol->id]);
 }
 
