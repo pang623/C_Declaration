@@ -23,18 +23,50 @@ OperatorAttrTable operatorIdTable[256] = {
   [';'] = {{EOL, 0, 0, 0}                                          , NULL},
 };
 
+KeywordAttrTable keywordIdTable[] = {
+  {"int"        , TYPE},
+  {"char"       , TYPE},
+  {"float"      , TYPE},
+  {"double"     , TYPE},
+  {"if"         , IF},
+  {"else"       , IF},
+  {"while"      , WHILE},
+  {"for"        , FOR},
+  {"do"         , WHILE},
+  {"switch"     , CASE},
+  {"case"       , CASE},
+  {"continue"   , CONTINUE},
+  {"break"      , BREAK},
+  {NULL         , TYPE},
+};
+
 SymbolCombination SymbolCombiTable[] = {
   [DOUBLE]     = {NULL, 1, DOUBLE_SAME_CHAR},
   [EQUAL]      = {"=",  2, EQUAL_AS_LAST_CHAR},
   [DWITHEQUAL] = {"=",  3, DOUBLE_SAME_CHAR | EQUAL_AS_LAST_CHAR},
 };
-/*
-ArityMemory arityMemoryTable[] = {
-  [PREFIX]      =  1,
-  [INFIX]       =  2,
-  [SUFFIX]      =  1,
-  [IDENTITY]    =  0,
-};*/
+
+int isSymbolKeyword(Symbol *symbol, int identifierIsSeenAsKeyword) {
+  int i;
+  int *type = &i;
+  return isSymbolKeywordThenGetType(symbol, type, identifierIsSeenAsKeyword);
+}
+
+int isSymbolKeywordThenGetType(Symbol *symbol, int *type, int identifierIsSeenAsKeyword) {
+  if(!isIdentifierToken(symbol->token))
+    return 0;
+  int i = 0;
+  while(strcmp(symbol->token->str, keywordIdTable[i].keyword)) {
+    i++;
+    if(keywordIdTable[i].keyword == NULL) {
+      if(!identifierIsSeenAsKeyword)
+        return 0;
+      break;
+    }
+  }
+  *type = keywordIdTable[i].type;
+  return 1;
+}
 
 SymbolParser *createSymbolParser(Tokenizer *tokenizer) {
   SymbolParser *parser = (SymbolParser *)malloc(sizeof(SymbolParser));
@@ -60,15 +92,12 @@ void setSymbolTable(SymbolParser *symbolParser, SymbolAttrTable *table) {
 
 //create data structure for Symbol
 Symbol *createSymbol(Symbol *symbolInfo) {
-  Symbol *symbol = (Symbol *)malloc(sizeof(Symbol)); //+ 
-                                    //(arityMemoryTable[symbolInfo->arity].extraMemory)*sizeof(Symbol *));
+  Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
   symbol->token = symbolInfo->token;
   symbol->arity = symbolInfo->arity;
   symbol->id = symbolInfo->id;
   symbol->child[0] = NULL;
   symbol->child[1] = NULL;
-  //for(int i = 0; i < arityMemoryTable[symbolInfo->arity].extraMemory; i++)
-    //symbol->child[i] = NULL;
   return symbol;
 }
 
@@ -169,7 +198,7 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
   
   if(symbolInfo.id == UNKNOWN)
     throwException(ERR_INVALID_SYMBOL, symbolInfo.token, 0,
-    "Symbol %s is not supported", (symbolInfo.token)->str);
+    "Symbol %s is not supported in C", (symbolInfo.token)->str);
   return createSymbol(&symbolInfo);
 }
 
@@ -180,7 +209,7 @@ Symbol *getSymbol(SymbolParser *symbolParser) {
     return popStack(symbolParser->symbolStack);
 }
 
-Symbol *peekSymbol(Tokenizer *tokenizer) {
+Symbol *peekSymbol(SymbolParser *symbolParser) {
   if(symbolParser->symbolStack->count == 0)
     pushStack(symbolParser->symbolStack, _getSymbol(symbolParser->tokenizer));
   return peekStack(symbolParser->symbolStack);

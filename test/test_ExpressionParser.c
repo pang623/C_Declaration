@@ -11,10 +11,10 @@
 #include "CDecl_Errors.h"
 #include "Symbol.h"
 #include "SymbolAttrTable.h"
-#include "KeywordTable.h"
 #include "Symbol_Id.h"
 #include "Arity.h"
 #include "CustomTestAssertion.h"
+#include "Tdop.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -45,7 +45,7 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
   Tokenizer *tokenizer = createTokenizer("3 + (2 *   4)");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_ASSERT_SYMBOL(ADD, "+", Number("3"), Operator("("), symbol);
     TEST_ASSERT_SYMBOL(MULTIPLY, "*", Number("2"), Number("4"), symbol->child[1]->child[0]);
   } Catch(e){
@@ -71,7 +71,7 @@ void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void)
   Tokenizer *tokenizer = createTokenizer("- 3 - + 2 * -   4");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(SUBTRACT, "-", Operator("-"), Operator("*"), symbol);
     TEST_ASSERT_SYMBOL(MINUS_SIGN, "-", Number("3"), NULL, symbol->child[0]);
@@ -100,7 +100,7 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
   Tokenizer *tokenizer = createTokenizer("3+++2;");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(ADD, "+", Operator("++"), Number("2"), symbol);
     TEST_ASSERT_SYMBOL(INC_AFTER, "++", Number("3"), NULL, symbol->child[0]);
@@ -128,7 +128,7 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
   Tokenizer *tokenizer = createTokenizer("~ 2 - a++ +  --  8 *  b; expression ends after ;");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(ADD, "+", Operator("-"), Operator("*"), symbol);
     TEST_ASSERT_SYMBOL(SUBTRACT, "-", Operator("~"), Operator("++"), symbol->child[0]);
@@ -158,7 +158,7 @@ void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(v
   Tokenizer *tokenizer = createTokenizer("i + ++ j");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(ADD, "+", Identifier("i"), Operator("++"), symbol);
     TEST_ASSERT_SYMBOL(INC_BEFORE, "++", Identifier("j"), NULL, symbol->child[1]);
@@ -186,7 +186,7 @@ void test_expression_given_minus_minus_but_not_adjacent_expect_not_parsed_as_dec
   Tokenizer *tokenizer = createTokenizer("i - - + j");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(SUBTRACT, "-", Identifier("i"), Operator("-"), symbol);
     TEST_ASSERT_SYMBOL(MINUS_SIGN, "-", Operator("+"), NULL, symbol->child[1]);
@@ -219,7 +219,7 @@ void test_expression_given_expression_with_assignment_operator_expect_ast_create
   Tokenizer *tokenizer = createTokenizer("a + ( b <<= c * d )");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(ADD, "+", Identifier("a"), Operator("("), symbol);
     TEST_ASSERT_SYMBOL(L_SHIFT_ASSIGN, "<<=", Identifier("b"), Operator("*"), symbol->child[1]->child[0]);
@@ -237,7 +237,7 @@ void test_expression_with_single_number_expect_ast_created_correctly(void) {
   Tokenizer *tokenizer = createTokenizer("3");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(NUMBER, "3", NULL, NULL, symbol);
   } Catch(e){
@@ -253,7 +253,7 @@ void test_expression_given_3_and_2_expect_ERR_SYNTAX_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("3 2");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -268,7 +268,7 @@ void test_expression_given_expression_with_missing_operator_expect_ERR_SYNTAX_is
   Tokenizer *tokenizer = createTokenizer("a++b");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -283,7 +283,7 @@ void test_expression_given_binary_only_operator_used_as_unary_expect_error_synta
   Tokenizer *tokenizer = createTokenizer("5+ /6");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -298,7 +298,7 @@ void test_expression_given_unary_only_operator_used_as_binary_expect_error_synta
   Tokenizer *tokenizer = createTokenizer("5%6 + 3~9");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -313,7 +313,7 @@ void test_expression_given_missing_operand_for_binary_operator_expect_error_miss
   Tokenizer *tokenizer = createTokenizer("a+-b>>= ");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -328,7 +328,7 @@ void test_expression_given_missing_operand_for_unary_operator_expect_error_missi
   Tokenizer *tokenizer = createTokenizer("3+5 * -");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -343,7 +343,7 @@ void test_expression_given_open_parent_used_as_infix_expect_error_syntax_is_thro
   Tokenizer *tokenizer = createTokenizer("3 (a");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -358,22 +358,7 @@ void test_expression_given_missing_closing_parent_expect_error_wrong_symbol_is_t
   Tokenizer *tokenizer = createTokenizer("a*(3+2");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
-    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
-  }
-  freeSymbolParser(symbolParser);
-}
-
-void test_expression_given_a_closing_parent_but_missing_opening_parent_expect_error_parse_error_is_thrown(void) {
-  Symbol *symbol;
-  //missing open parent
-  Tokenizer *tokenizer = createTokenizer(" 5 * 3) -1");
-  symbolParser = createSymbolParser(tokenizer);
-  Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -388,7 +373,7 @@ void test_expression_given_a_shorthand_left_shift_but_used_as_prefix_expect_erro
   Tokenizer *tokenizer = createTokenizer(" 5 *<<=3");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -403,7 +388,7 @@ void test_expression_given_a_shorthand_right_shift_but_right_operand_is_not_a_nu
   Tokenizer *tokenizer = createTokenizer(" (a>>=) + 3; ");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -418,7 +403,7 @@ void test_expression_given_an_EOL_but_with_no_operands_in_front_of_it_expect_err
   Tokenizer *tokenizer = createTokenizer(" ;a+ b");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -433,7 +418,7 @@ void test_expression_given_an_expression_but_with_unknown_symbol_expect_error_in
   Tokenizer *tokenizer = createTokenizer(" 3# 2");
   symbolParser = createSymbolParser(tokenizer);
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -449,7 +434,7 @@ void test_expression_given_3_doublepostincrement_plus_2_expect_ERR_SYNTAX_thrown
   Symbol *symbol;
   tokenizer = createTokenizer("3+++++2");
   Try{
-    symbol = parse(0);
+    symbol = expression(0);
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -464,7 +449,7 @@ void test_expression_given_predecrement_3_plus_2_expect_correctly_parsed(void) {
   Symbol *symbol;
   tokenizer = createTokenizer("--3+++2");
   Try {
-    symbol = parse(0);
+    symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_EQUAL_STRING("+", symbol->token->str);
     TEST_ASSERT_EQUAL(INFIX, symbol->arity);

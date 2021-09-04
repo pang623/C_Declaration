@@ -6,18 +6,9 @@
 #include "Arity.h"
 #include "Symbol.h"
 #include "SymbolAttrTable.h"
-#include "KeywordTable.h"
-#include "KeywordType.h"
+#include "Tdop.h"
 
 #define   NIL   1000
-
-//Macros
-#define   getInfixLBP(symbol)         ((symbolParser->symbolTable)[symbol->id].infixLBP)
-#define   getInfixRBP(symbol)         ((symbolParser->symbolTable)[symbol->id].infixRBP)
-#define   getPrefixRBP(symbol)        ((symbolParser->symbolTable)[symbol->id].prefixRBP)
-
-#define   nudOf(symbol)               ((symbolParser->symbolTable)[(symbol)->id]).nud
-#define   ledOf(symbol)               ((symbolParser->symbolTable)[(symbol)->id]).led
 
 extern SymbolParser *symbolParser;
 
@@ -33,7 +24,5 @@ Symbol *errorLed(Symbol *symbol, Symbol *left);
 Symbol *identityLed(Symbol *symbol, Symbol *left);
 Symbol *parentNud(Symbol *symbol);
 Symbol *sqrBracketLed(Symbol *symbol, Symbol *left);
-Symbol *parse(int rbp);
-int isSymbolKeywordType(Symbol *symbol, int keywordType, int *index);
 
 #endif // EXPRESSIONPARSER_H

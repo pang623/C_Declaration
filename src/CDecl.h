@@ -7,27 +7,22 @@
 #include "ExpressionParser.h"
 #include "Arity.h"
 #include "SymbolAttrTable.h"
-#include "KeywordTable.h"
+#include "Tdop.h"
 #include "KeywordType.h"
 
-#define   fudOf(index)                (keywordTable[index]).fud
+#define   fudOf(type)                (keywordTable[type])
+
+typedef Symbol *(*FudFuncPtr)(int rbp);
 
 extern SymbolParser *symbolParser;
 
 Symbol *statement();
-Symbol *statements();
 Symbol *cDecl(int rbp);
-Symbol *typeFud(Symbol *symbol);
+Symbol *forFud(int rbp);
 Symbol *groupingNud(Symbol *symbol);
+Symbol *funcLed(Symbol *symbol, Symbol *left);
 Symbol *pointerNud(Symbol *symbol);
 Symbol *pointerLed(Symbol *symbol, Symbol *left);
-Symbol *funcLed(Symbol *symbol, Symbol *left);
-Symbol *commaLed(Symbol *symbol, Symbol *left);
-void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol);
-int verifyIsSymbolKeywordType(Symbol *symbol, int keywordType);
-char *readAST(Symbol *AST, char *str);
-char *readSymbol(Symbol *symbol);
-char *concat(char *s1, char *s2);
-char *translate(char *cDecl);
+Symbol *combineAST(Symbol *AST, Symbol *oldAST);
 
 #endif // CDECL_H

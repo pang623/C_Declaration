@@ -10,10 +10,11 @@
 #include "CDecl_Errors.h"
 #include "SymbolCombination.h"
 #include "SymbolAttrTable.h"
+#include "KeywordType.h"
 
 typedef struct OperatorAttrTable OperatorAttrTable;
-typedef struct ArityMemory ArityMemory;
 typedef struct SymbolCombination SymbolCombination;
+typedef struct KeywordAttrTable KeywordAttrTable;
 typedef struct SymbolParser SymbolParser;
 typedef Symbol *(*FuncPtr)(Token *, int *);
 
@@ -36,10 +37,11 @@ struct SymbolCombination {
   int type;
   int flag;
 };
-/*
-struct ArityMemory {
-  int extraMemory;
-};*/
+
+struct KeywordAttrTable {
+  char *keyword;
+  int type;
+};
 
 struct SymbolParser {
   Tokenizer *tokenizer;
@@ -51,9 +53,9 @@ Symbol *createSymbol(Symbol *symbolInfo);
 SymbolParser *createSymbolParser(Tokenizer *tokenizer);
 void freeSymbolParser(SymbolParser *symbolParser);
 void setSymbolTable(SymbolParser *symbolParser, SymbolAttrTable *table);
+Symbol *peekSymbol(SymbolParser *symbolParser);
 Symbol *getSymbol(SymbolParser *symbolParser);
 Symbol *_getSymbol(Tokenizer *tokenizer);
-Symbol *peekSymbol(Tokenizer *tokenizer);
 void freeSymbol(void *symbol);
 char *createString(char *str);
 Symbol *peekStack(DoubleLinkedList *stack);
@@ -67,5 +69,7 @@ int isCorrectSymbolAndAdjacent(Token *symbol, Token *nextSymbol, char *symToChec
 Symbol *checkEqualAsLastChar(Token *symbol, int *flag);
 Symbol *checkDoubleSameChar(Token *symbol, int *flag);
 Symbol *checkDoubleSameCharWithEqual(Token *symbol, int *flag);
+int isSymbolKeyword(Symbol *symbol, int identifierIsSeenAsKeyword);
+int isSymbolKeywordThenGetType(Symbol *symbol, int *type, int identifierIsSeenAsKeyword);
 
 #endif // SYMBOL_H

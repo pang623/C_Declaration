@@ -12,11 +12,11 @@
 #include "CDecl_Errors.h"
 #include "Symbol.h"
 #include "SymbolAttrTable.h"
-#include "KeywordTable.h"
 #include "Symbol_Id.h"
 #include "KeywordType.h"
 #include "Arity.h"
 #include "CustomTestAssertion.h"
+#include "Tdop.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -56,18 +56,6 @@ void test_expression_given_an_array_C_declaration_expect_correctly_parsed(void) 
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_an_array_C_declaration_expect_read_out_correctly(void) {
-  char *str = NULL;
-  Try {
-    str = translate("int a[3];");
-    printf("%s", str);
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
-  }
-  free(str);
-}
-
 /*
           DOUBLE
          /
@@ -96,18 +84,6 @@ void test_expression_given_an_twoD_array_C_declaration_expect_correctly_parsed(v
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_an_twoD_array_C_declaration_expect_read_out_correctly(void) {
-  char *str = NULL;
-  Try {
-    str = translate("DOUBLE a[2][3];");
-    printf("%s", str);
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
-  }
-  free(str);
-}
-
 /*
           float
          /
@@ -115,7 +91,6 @@ void test_expression_given_an_twoD_array_C_declaration_expect_read_out_correctly
        /
       f
 */
-
 
 void test_expression_given_an_float_ptr_C_declaration_expect_correctly_parsed(void) {
   Symbol *symbol;
@@ -131,18 +106,6 @@ void test_expression_given_an_float_ptr_C_declaration_expect_correctly_parsed(vo
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
-}
-
-void test_expression_given_an_float_ptr_C_declaration_expect_read_out_correctly(void) {
-  char *str = NULL;
-  Try {
-    str = translate("float *f   ");
-    printf("%s", str);
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
-  }
-  free(str);
 }
 
 /*
@@ -170,18 +133,6 @@ void test_expression_given_an_array_of_char_ptr_C_declaration_expect_correctly_p
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
-}
-
-void test_expression_given_an_array_of_char_ptr_C_declaration_expect_read_out_correctly(void) {
-  char *str = NULL;
-  Try {
-    str = translate("char   * b[10]  ");
-    printf("%s", str);
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
-  }
-  free(str);
 }
 
 /*
@@ -280,17 +231,19 @@ void test_expression_given_a_function_declaration_with_two_parameters_expect_cor
              /
             ( 
            / \
-     asgard   ,
-            /   \
-           ,     God
-          / \     /
-       God  God   *
-       /    /    /
-      *    *    [
-     /    /    / \
-  Loki  Thor  [   5
-             / \
- evilCharacter  2
+     asgard   ,     
+             / \    
+          God   , 
+          /    / \ 
+         *   God  God
+        /     /    / 
+      Loki   *    *
+            /    /
+          Thor  [  
+               / \ 
+              [   5
+             /  \
+  evilCharacter  2
 */
   
 void test_expression_given_a_function_declaration_with_multiple_parameters_expect_correctly_parsed(void) {
@@ -302,16 +255,16 @@ void test_expression_given_a_function_declaration_with_multiple_parameters_expec
     TEST_ASSERT_SYMBOL(TYPE, "Avengers", Operator("*"), NULL, symbol);
     TEST_ASSERT_SYMBOL(POINTER, "*", Operator("("), NULL, symbol->child[0]);
     TEST_ASSERT_SYMBOL(FUNCTION, "(", Identifier("asgard"), Operator(","), symbol->child[0]->child[0]);
-    TEST_ASSERT_SYMBOL(COMMA, ",", Operator(","), Identifier("God"), symbol->child[0]->child[0]->child[1]);
-    TEST_ASSERT_SYMBOL(COMMA, ",", Identifier("God"), Identifier("God"), symbol->child[0]->child[0]->child[1]->child[0]);
-    TEST_ASSERT_SYMBOL(TYPE, "God", Operator("*"), NULL, symbol->child[0]->child[0]->child[1]->child[0]->child[0]);
-    TEST_ASSERT_SYMBOL(TYPE, "God", Operator("*"), NULL, symbol->child[0]->child[0]->child[1]->child[0]->child[1]);
-    TEST_ASSERT_SYMBOL(POINTER, "*", Identifier("Loki"), NULL, symbol->child[0]->child[0]->child[1]->child[0]->child[0]->child[0]);
-    TEST_ASSERT_SYMBOL(POINTER, "*", Identifier("Thor"), NULL, symbol->child[0]->child[0]->child[1]->child[0]->child[1]->child[0]);
-    TEST_ASSERT_SYMBOL(TYPE, "God", Operator("*"), NULL, symbol->child[0]->child[0]->child[1]->child[1]);
-    TEST_ASSERT_SYMBOL(POINTER, "*", Operator("["), NULL, symbol->child[0]->child[0]->child[1]->child[1]->child[0]);
-    TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Operator("["), Number("5"), symbol->child[0]->child[0]->child[1]->child[1]->child[0]->child[0]);
-    TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Identifier("evilCharacter"), Number("2"), symbol->child[0]->child[0]->child[1]->child[1]->child[0]->child[0]->child[0]);
+    TEST_ASSERT_SYMBOL(COMMA, ",", Identifier("God"), Operator(","), symbol->child[0]->child[0]->child[1]);
+    TEST_ASSERT_SYMBOL(COMMA, ",", Identifier("God"), Identifier("God"), symbol->child[0]->child[0]->child[1]->child[1]);
+    TEST_ASSERT_SYMBOL(TYPE, "God", Operator("*"), NULL, symbol->child[0]->child[0]->child[1]->child[0]);
+    TEST_ASSERT_SYMBOL(TYPE, "God", Operator("*"), NULL, symbol->child[0]->child[0]->child[1]->child[1]->child[0]);
+    TEST_ASSERT_SYMBOL(TYPE, "God", Operator("*"), NULL, symbol->child[0]->child[0]->child[1]->child[1]->child[1]);
+    TEST_ASSERT_SYMBOL(POINTER, "*", Identifier("Loki"), NULL, symbol->child[0]->child[0]->child[1]->child[0]->child[0]);
+    TEST_ASSERT_SYMBOL(POINTER, "*", Identifier("Thor"), NULL, symbol->child[0]->child[0]->child[1]->child[1]->child[0]->child[0]);
+    TEST_ASSERT_SYMBOL(POINTER, "*", Operator("["), NULL, symbol->child[0]->child[0]->child[1]->child[1]->child[1]->child[0]);
+    TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Operator("["), Number("5"), symbol->child[0]->child[0]->child[1]->child[1]->child[1]->child[0]->child[0]);
+    TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Identifier("evilCharacter"), Number("2"), symbol->child[0]->child[0]->child[1]->child[1]->child[1]->child[0]->child[0]->child[0]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -431,7 +384,7 @@ void test_expression_given_c_declaration_is_variable_but_mixed_with_operators_ex
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_keyword_is_not_data_type_expect_ERR_KEYWORD_is_thrown(void) {
+void test_expression_given_c_declaration_but_keyword_is_not_data_type_expect_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
   Symbol *symbol;
   Tokenizer *tokenizer = createTokenizer("while var;");
   symbolParser = createSymbolParser(tokenizer);
@@ -440,7 +393,7 @@ void test_expression_given_c_declaration_but_keyword_is_not_data_type_expect_ERR
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_KEYWORD, e->errorCode);
+    TEST_ASSERT_EQUAL(ERR_KEYWORD_DATA_TYPE, e->errorCode);
   }
   freeSymbolParser(symbolParser);
 }
@@ -487,7 +440,7 @@ void test_expression_given_c_declaration_but_no_name_expect_ERR_MISSING_OPERAND_
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_no_name_expect_ERR_KEYWORD_is_thrown(void) {
+void test_expression_given_c_declaration_but_no_name_expect_ERR_EXPECING_CDECL_is_thrown(void) {
   Symbol *symbol;
   Tokenizer *tokenizer = createTokenizer("Token *getToken(Tokenizer *tokenizer, );");
   symbolParser = createSymbolParser(tokenizer);
@@ -496,7 +449,52 @@ void test_expression_given_c_declaration_but_no_name_expect_ERR_KEYWORD_is_throw
     TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_KEYWORD, e->errorCode);
+    TEST_ASSERT_EQUAL(ERR_EXPECING_CDECL, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_but_expression_in_array_subscript_is_erroneous_ERR_WRONG_SYMBOL_is_thrown(void) {
+  Symbol *symbol;
+  //expression terminates at ")", expression by right should terminate at "]" in this case, thus error is thrown
+  Tokenizer *tokenizer = createTokenizer("int a[c+d)*4]");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_function_decl_but_parameters_passed_in_is_not_CDecl_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
+  Symbol *symbol;
+  //expression terminates at "]", thus the 
+  Tokenizer *tokenizer = createTokenizer("int a(char b, 32)");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_KEYWORD_DATA_TYPE, e->errorCode);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_function_decl_but_parameters_are_not_separated_with_comma_ERR_SYNTAX_is_thrown(void) {
+  Symbol *symbol;
+  //separated by "]", throw error
+  Tokenizer *tokenizer = createTokenizer("int a(char b ] int a)");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
   }
   freeSymbolParser(symbolParser);
 }

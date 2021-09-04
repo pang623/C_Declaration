@@ -52,23 +52,6 @@ SymbolAttrTable expressionSymbolTable[] = {
   [EOL]                =   {  0,     0,    0,  missingOperandNud,         NULL},
 };
 
-StatementKeywordTable expKeywordTable[] = {
-  {"int"        , TYPE,    NULL},
-  {"char"       , TYPE,    NULL},
-  {"float"      , TYPE,    NULL},
-  {"double"     , TYPE,    NULL},
-  {"if"         , FLOW,    NULL},
-  {"else"       , FLOW,    NULL},
-  {"while"      , FLOW,    NULL},
-  {"for"        , FLOW,    NULL},
-  {"do"         , FLOW,    NULL},
-  {"switch"     , FLOW,    NULL},
-  {"case"       , FLOW,    NULL},
-  {"continue"   , FLOW,    NULL},
-  {"break"      , FLOW,    NULL},
-  {NULL         , TYPE,    NULL},
-};
-
 //handles prefix
 //unary, inc, dec etc
 Symbol *prefixNud(Symbol *symbol) {
@@ -78,7 +61,6 @@ Symbol *prefixNud(Symbol *symbol) {
     symbol->id = PLUS_SIGN;
   if(symbol->id == SUBTRACT)
     symbol->id = MINUS_SIGN;
-  freeSymbol(symbol->child[1]);
   return symbol;
 }
 
@@ -110,54 +92,26 @@ Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
 
 //postfix, eg: "++", "--"
 Symbol *suffixLed(Symbol *symbol, Symbol *left) {
-  /*
-  if(!(isIdentifierToken(left->token)))
-    throwException(ERR_SYNTAX, token, 0,
-    "Does not expect suffix %s here", token->str);
-  */
   symbol->arity = SUFFIX;
   symbol->id += 1;
   symbol->child[0] = left;
-  freeSymbol(symbol->child[1]);
   return symbol;
 }
 
 Symbol *parentNud(Symbol *symbol) {
   symbol->child[0] = expression(0);
   verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
-  freeSymbol(symbol->child[1]);
   return symbol;
-}
-
-int isSymbolKeywordType(Symbol *symbol, int keywordType, int *index) {
-  if(!isIdentifierToken(symbol->token))
-    return 0;
-  int i = 0;
-  while(strcmp(symbol->token->str, expKeywordTable[i].keyword)) {
-    i++;
-    if(expKeywordTable[i].keyword == NULL) {
-      *index = i;
-      return (keywordType == TYPE);
-    }
-  }
-  if(keywordType != ALL && expKeywordTable[i].type != keywordType)
-    return 0;
-  else {
-    *index = i;
-    return 1;
-  }
 }
 
 //just returns the symbol (numbers, var)
 Symbol *identityNud(Symbol *symbol) {
-  int temp = 0;
-  int *index = &temp;
-  if(isSymbolKeywordType(symbol, ALL, index))
+  int i;
+  int *type = &i;
+  if(isSymbolKeyword(symbol, 0))
     throwException(ERR_ILLEGAL_KEYWORD_USAGE, symbol->token, 0,
     "Keyword %s cannot be used here", symbol->token->str);
   symbol->arity = IDENTITY;
-  freeSymbol(symbol->child[0]);
-  freeSymbol(symbol->child[1]);
   return symbol;
 }
 
@@ -186,21 +140,6 @@ Symbol *identityLed(Symbol *symbol, Symbol *left) {
   "Identifiers and numbers cannot be used here, but received %s here", symbol->token->str);
 }
 
-//main parser
 Symbol *expression(int rbp) {
-  Symbol *left, *symbol;
-  setSymbolTable(symbolParser, expressionSymbolTable);
-  symbol = getSymbol(symbolParser);
-  left = nudOf(symbol)(symbol);
-  while(rbp < getInfixLBP(peekSymbol(symbolParser->tokenizer))) {
-    symbol = getSymbol(symbolParser);
-    left = ledOf(symbol)(symbol, left);
-  }
-  return left;
-}
-
-Symbol *parse(int rbp) {
-  Symbol *left = expression(rbp);
-  verifyIsNextSymbolThenConsume(EOL, ";");
-  return left;
+  return tdop(rbp, expressionSymbolTable);
 }

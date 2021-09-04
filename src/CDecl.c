@@ -9,114 +9,84 @@ SymbolAttrTable CDeclSymbolTable[256] = {
   [MULTIPLY]           =   { 140,  NIL,  NIL,            pointerNud,    pointerLed},
   [OPEN_PARENT]        =   {   0,    0,  150,           groupingNud,       funcLed},
   [CLOSE_PARENT]       =   {   0,    0,    0,              errorNud,          NULL},
-  [OPEN_SQR]           =   {NIL,     0,  150,              errorNud, sqrBracketLed},
+  [OPEN_SQR]           =   { NIL,    0,  150,              errorNud, sqrBracketLed},
   [CLOSE_SQR]          =   {  0,     0,    0,              errorNud,          NULL},
+  [COMMA]              =   {  0,     0,    0,              errorNud,          NULL},
   [EOL]                =   {  0,     0,    0,     missingOperandNud,          NULL},
 };
 
-SymbolAttrTable MultiCDeclSymbolTable[256] = {
-  //COMMA indicates there's still C declaration to be read
-  [COMMA]              =   {  0,     0,    0,     missingOperandNud,      commaLed},
-  //CLOSE_PARENT acts as terminator, no C declaration after this
-  [CLOSE_PARENT]       =   {  0,     0,    0,              errorNud,          NULL},
-  [EOL]                =   {  0,     0,    0,     missingOperandNud,          NULL},
+FudFuncPtr keywordTable[] = {
+  //[KEYWORD_TYPE] = function pointer
+  [TYPE] = cDecl,
+  [FOR]  = forFud,
+  [WHILE] = forFud,
+  [IF] = forFud,
+  [CASE] = forFud,
+  [CONTINUE] = forFud,
+  [BREAK] = forFud,
 };
 
-StatementKeywordTable keywordTable[] = {
-  //{"KEYWORD"  , KEYWORD_TYPE, fud}
-  {"int"        , TYPE, typeFud},
-  {"char"       , TYPE, typeFud},
-  {"float"      , TYPE, typeFud},
-  {"double"     , TYPE, typeFud},
-  {"if"         , FLOW,    NULL},
-  {"else"       , FLOW,    NULL},
-  {"while"      , FLOW,    NULL},
-  {"for"        , FLOW,    NULL},
-  {"do"         , FLOW,    NULL},
-  {"switch"     , FLOW,    NULL},
-  {"case"       , FLOW,    NULL},
-  {"continue"   , FLOW,    NULL},
-  {"break"      , FLOW,    NULL},
-  {NULL         , TYPE, typeFud},
-};
-
-char *errorStrings[] = {
-  [TYPE] = "data",
-  [FLOW] = "flow control",
-};
-
-char *ASTtable[] = {
-  [IDENTIFIER]      = " is ",
-  [NUMBER]          = " of ",
-  [OPEN_SQR]        = "array of ",
-  //[FUNCTION]        = "function taking in",
-  [POINTER]         = "pointer to ",
-  [COMMA]           = "",
-  [TYPE]            = "",
-  [OPEN_PARENT]     = "",
-};
-
-int multipleDecl = 0;
+Symbol *forFud(int rbp) {
+  Symbol *symbol = getSymbol(symbolParser);
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
+  "Expecting a data type keyword here", symbol->token->str);
+}
 /*
-char *functionRead(Symbol *symbol) {
-  char *str;
-  //if no function parameters
-  if(symbol->child[1] == NULL)
-    str = createString("function ");
-  else
-    str = createString("function taking in ");
-  concat(str, createString(symbol->token->str));
-  str = readAST(symbol->child[1], str);
-  return concat(str, createString(") returning "));
+Symbol *whileFud(int rbp) {
+  
 }
 
-char *ptrRead(Symbol *symbol) {
-  char *str = createString("pointer to ");
-  return str;
+Symbol *ifFud(int rbp) {
+  
 }
 
-char *identifierRead(Symbol *symbol) {
-  char *str = createString(symbol->token->str);
-  concat(str, createString(" is ");
-  return str;
-}
-
-char *generalRead(Symbol *symbol) {
-  char *str = createString(symbol->token->str);
-  return str;
-}
-
-char *ignoreRead(Symbol *symbol) {
-  return createString("");
-}
-
-char *arrayRead(Symbol *symbol) {
-  char *str = createString("array of ");
-  str = readAST(symbol->child[1], str);
-  concat(str, createString(" of "));
-  return str;
+Symbol *caseFud(int rbp) {
+  
 }
 */
 
 Symbol *groupingNud(Symbol *symbol) {
-  symbol->child[0] = cDecl(0);
+  symbol->arity = PREFIX;
+  symbol->child[0] = tdop(0, CDeclSymbolTable);
   verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
   freeSymbol(symbol->child[1]);
   return symbol;
 }
 
 Symbol *funcLed(Symbol *symbol, Symbol *left) {
+  Symbol *AST, *temp, *newAST, *next;
+  newAST = next = AST = temp = NULL;
   symbol->id = FUNCTION;
   symbol->child[0] = left;
-  symbol->child[1] = statements();
+  while(1) {
+    if((peekSymbol(symbolParser))->id == CLOSE_PARENT) {
+      if(next != NULL && next->id == COMMA)
+        throwException(ERR_EXPECING_CDECL, peekSymbol(symbolParser)->token, 0,
+        "Expecting a C declaration here");
+      break;
+    }
+    AST = cDecl(0);
+    if((next = peekSymbol(symbolParser))->id == COMMA) {
+      temp = getSymbol(symbolParser);
+      temp->child[0] = AST;
+      newAST = combineAST(temp, newAST);
+    }else if(next->id == CLOSE_PARENT) {
+      newAST = combineAST(AST, newAST);
+      break;
+    }else
+      throwException(ERR_SYNTAX, next->token, 0,
+      "Must be a ',' or ')' here");
+  }
   verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
+  symbol->child[1] = newAST;
   return symbol;
 }
 
-Symbol *commaLed(Symbol *symbol, Symbol *left) {
-  symbol->child[0] = left;
-  symbol->child[1] = statement();
-  return symbol;
+Symbol *combineAST(Symbol *AST, Symbol *oldAST) {
+  if(oldAST == NULL)
+    return oldAST = AST;
+  oldAST->child[1] = combineAST(AST, oldAST->child[1]);
+  return oldAST;
 }
 
 Symbol *pointerLed(Symbol *symbol, Symbol *left) {
@@ -127,112 +97,32 @@ Symbol *pointerLed(Symbol *symbol, Symbol *left) {
 Symbol *pointerNud(Symbol *symbol) {
   symbol->arity = PREFIX;
   symbol->id = POINTER;
-  symbol->child[0] = cDecl(getPrefixRBP(symbol));
-  freeSymbol(symbol->child[1]);
+  symbol->child[0] = tdop(getPrefixRBP(symbol), CDeclSymbolTable);
   return symbol;
-}
-
-int verifyIsSymbolKeywordType(Symbol *symbol, int keywordType) {
-  int num = 0;
-  int *index = &num;
-  if(isSymbolKeywordType(symbol, keywordType, index))
-    return *index;
-  else
-    throwException(ERR_KEYWORD, symbol->token, 0,
-    "Expecting a keyword of %s type here", errorStrings[keywordType]);
-}
-
-void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol) {
-  if(nudOf(symbol) == NULL && ledOf(symbol) == NULL)
-    throwException(ERR_INVALID_SYMBOL, symbol->token, 0,
-    "Symbol %s is not supported here", symbol->token->str);
 }
 
 Symbol *cDecl(int rbp) {
-  SymbolParser *parser = symbolParser;
-  Symbol *left, *symbol, *symbolCheck;
-  setSymbolTable(parser, CDeclSymbolTable);
-  symbol = getSymbol(parser);
-  verifyIsSymbolInTable(parser, symbol);
-  left = nudOf(symbol)(symbol);
-  while(rbp < getInfixLBP((symbolCheck = peekSymbol(parser->tokenizer)))) {
-    setSymbolTable(parser, CDeclSymbolTable);
-    symbol = getSymbol(parser);
-    verifyIsSymbolInTable(parser, symbol);
-    left = ledOf(symbol)(symbol, left);
-  }
-  if(multipleDecl)
-    setSymbolTable(parser, MultiCDeclSymbolTable);
-  else
-    setSymbolTable(parser, CDeclSymbolTable);
-  verifyIsSymbolInTable(parser, symbolCheck);
-  return left;
-}
-
-Symbol *typeFud(Symbol *symbol) {
+  int i;
+  int *type = &i;
+  Symbol *symbol = getSymbol(symbolParser);
+  if((!isSymbolKeywordThenGetType(symbol, type, 1)) || (*type != TYPE))
+    throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
+    "Expecting a data type keyword here", symbol->token->str);
   symbol->id = TYPE;
   symbol->arity = IDENTITY;
-  symbol->child[0] = cDecl(0);
+  symbol->child[0] = tdop(rbp, CDeclSymbolTable);
   return symbol;
 }
 
-Symbol *statements() {
-  Symbol *symbol;
-  multipleDecl = 1;
-  setSymbolTable(symbolParser, MultiCDeclSymbolTable);
-  if((peekSymbol(symbolParser->tokenizer))->id == CLOSE_PARENT) {
-    multipleDecl = 0;
-    return NULL;
-  }
-  Symbol *left = statement();
-  Symbol *next = peekSymbol(symbolParser->tokenizer);
-  verifyIsSymbolInTable(symbolParser, next);
-  while(next->id == COMMA) {
-    symbol = getSymbol(symbolParser);
-    left = ledOf(symbol)(symbol, left);
-    verifyIsSymbolInTable(symbolParser, next = peekSymbol(symbolParser->tokenizer));
-  }
-  multipleDecl = 0;
-  return left;
-}
-
 Symbol *statement() {
+  int i;
+  int *type = &i;
   Symbol *left;
-  Symbol *symbol = getSymbol(symbolParser);
-  int index = verifyIsSymbolKeywordType(symbol, TYPE);
-  left = fudOf(index)(symbol);
-  isNextSymbolThenConsume(EOL);
-  return left;
-}
-
-char *concat(char *s1, char *s2) {
-  char *result = realloc(s1, strlen(s1) + strlen(s2) + 1);
-  strcat(result, s2);
-  return result;
-}
-
-char *readSymbol(Symbol *symbol) {
-  if(symbol->id == IDENTIFIER || symbol->id == NUMBER || symbol->id == TYPE)
-    return concat(createString(symbol->token->str), createString(ASTtable[symbol->id]));
+  Symbol *symbol = peekSymbol(symbolParser);
+  if(isSymbolKeywordThenGetType(symbol, type, 1))
+    left = fudOf(*type)(0);
   else
-    return createString(ASTtable[symbol->id]);
-}
-
-char *readAST(Symbol *AST, char *str) {
-  if(AST == NULL)
-    return str;
-  str = readAST(AST->child[0], str);
-  str = concat(str, readSymbol(AST));
-  str = readAST(AST->child[1], str);
-  return str;
-}
-
-char *translate(char *cDecl) {
-  Tokenizer *tokenizer = createTokenizer(cDecl);
-  symbolParser = createSymbolParser(tokenizer);
-  Symbol *AST = statement();
-  char *newStr = readAST(AST, createString(""));
-  freeSymbol(AST);
-  freeSymbolParser(symbolParser);
-  return newStr;
+    left = expression(0);
+  verifyIsNextSymbolThenConsume(EOL, ";");
+  return left;
 }

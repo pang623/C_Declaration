@@ -2,8 +2,11 @@
 #define KEYWORDTYPE_H
 
 #define TYPE        500
-#define FLOW        501
-#define ALL         502     //When keywordType is ALL, keyword type is not checked
-                            //the function returns true whenever its a keyword regardless of its type
+#define IF          501
+#define FOR         502
+#define WHILE       503
+#define CASE        504
+#define CONTINUE    505
+#define BREAK       506
 
 #endif // KEYWORDTYPE_H
