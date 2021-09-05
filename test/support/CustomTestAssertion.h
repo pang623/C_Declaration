@@ -3,7 +3,6 @@
 
 #include "unity.h"
 #include <stdio.h>
-#include <malloc.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
