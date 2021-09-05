@@ -6,6 +6,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include "Arity.h"
 #include "Symbol.h"
 #include "SymbolAttrTable.h"

@@ -1,6 +1,7 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
+#include <string.h>
 #include "Token.h"
 #include "Tokenizer.h"
 #include "DoubleLinkedList.h"
