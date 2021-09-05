@@ -24,7 +24,7 @@ typedef Symbol *(*FuncPtr)(Token *, int *);
 #define   isIdentifierToken(token)                   (token->type == TOKEN_IDENTIFIER_TYPE)
 #define   isNULLToken(token)                         (token->type == TOKEN_NULL_TYPE)
 #define   hasSymbolVariations(symbol)                (operatorIdTable[(symbol->str)[0]].func != NULL)
-#define   isToken(symToCheck, symbol)                !(stricmp(symToCheck, symbol->str))
+#define   isToken(symToCheck, symbol)                !(strcmp(symToCheck, symbol->str))
 
 extern SymbolParser *symbolParser;
 
