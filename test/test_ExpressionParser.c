@@ -41,7 +41,7 @@ SymbolParser *symbolParser;
 */
 
 void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("3 + (2 *   4)");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -68,7 +68,7 @@ void test_expression_given_3_plus_2_times_4_expect_correctly_parsed(void) {
 */
 
 void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("- 3 - + 2 * -   4");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -97,7 +97,7 @@ void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void)
 */
 
 void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //parser should just consume the semicolon
   Tokenizer *tokenizer = createTokenizer("3+++2;");
   symbolParser = createSymbolParser(tokenizer);
@@ -127,7 +127,7 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
 
 //parsed as ((~2)-(a++))+((--8)*b)
 void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("~ 2 - a++ +  --  8 *  b; expression ends after ;");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -157,7 +157,7 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
 */
 
 void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //parsed as i + (++j), not (i++) + j
   Tokenizer *tokenizer = createTokenizer("i + ++ j");
   symbolParser = createSymbolParser(tokenizer);
@@ -186,7 +186,7 @@ void test_expression_given_plus_plus_but_not_adjacent_expect_not_parsed_as_inc(v
 */
 
 void test_expression_given_minus_minus_but_not_adjacent_expect_not_parsed_as_dec(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //parsed as i - (-(+j)), not (i--) + j
   Tokenizer *tokenizer = createTokenizer("i - - + j");
   symbolParser = createSymbolParser(tokenizer);
@@ -219,7 +219,7 @@ void test_expression_given_minus_minus_but_not_adjacent_expect_not_parsed_as_dec
 
 //testing right associativity (assignment operators are of right assc.)
 void test_expression_given_expression_with_assignment_operator_expect_ast_created_correctly(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //parsed as a + (b <<= (c * d))
   //which means, a + (b = (b << (c * d)))
   Tokenizer *tokenizer = createTokenizer("a + ( b <<= c * d )");
@@ -249,7 +249,7 @@ void test_expression_given_expression_with_assignment_operator_expect_ast_create
 
 //testing right associativity (assignment operators are of right assc.)
 void test_expression_given_expression_with_array_expect_ast_created_correctly(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("arr[10] = 10+b");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -268,7 +268,7 @@ void test_expression_given_expression_with_array_expect_ast_created_correctly(vo
 }
 
 void test_expression_with_single_number_expect_ast_created_correctly(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("3");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -283,9 +283,9 @@ void test_expression_with_single_number_expect_ast_created_correctly(void) {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_expression_given_3_and_2_expect_ERR_SYNTAX_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("3 2");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -296,11 +296,12 @@ void test_expression_given_3_and_2_expect_ERR_SYNTAX_is_thrown(void) {
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
 void test_expression_given_expression_with_missing_operator_expect_ERR_SYNTAX_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //parsed as (a++)b, missing operator before b
   Tokenizer *tokenizer = createTokenizer("a++b");
   symbolParser = createSymbolParser(tokenizer);
@@ -312,11 +313,12 @@ void test_expression_given_expression_with_missing_operator_expect_ERR_SYNTAX_is
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
 void test_expression_given_binary_only_operator_used_as_unary_expect_error_syntax_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //"/" cannot be used as unary operator
   Tokenizer *tokenizer = createTokenizer("5+ /6");
   symbolParser = createSymbolParser(tokenizer);
@@ -328,11 +330,12 @@ void test_expression_given_binary_only_operator_used_as_unary_expect_error_synta
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
 void test_expression_given_unary_only_operator_used_as_binary_expect_error_syntax_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //"~" cannot be used as binary operator
   Tokenizer *tokenizer = createTokenizer("5%6 + 3~9");
   symbolParser = createSymbolParser(tokenizer);
@@ -344,11 +347,12 @@ void test_expression_given_unary_only_operator_used_as_binary_expect_error_synta
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_expression_given_missing_operand_for_binary_operator_expect_error_missing_operand_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //binary ">>=" is missing an operand
   Tokenizer *tokenizer = createTokenizer("a+-b>>= ");
   symbolParser = createSymbolParser(tokenizer);
@@ -360,11 +364,12 @@ void test_expression_given_missing_operand_for_binary_operator_expect_error_miss
     TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+*/
 void test_expression_given_missing_operand_for_unary_operator_expect_error_missing_operand_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //unary "-" is missing an operand
   Tokenizer *tokenizer = createTokenizer("3+5 * -");
   symbolParser = createSymbolParser(tokenizer);
@@ -376,11 +381,12 @@ void test_expression_given_missing_operand_for_unary_operator_expect_error_missi
     TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
 void test_expression_given_open_parent_used_as_infix_expect_error_syntax_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //"(" used as infix, invalid
   Tokenizer *tokenizer = createTokenizer("3 (a");
   symbolParser = createSymbolParser(tokenizer);
@@ -392,11 +398,12 @@ void test_expression_given_open_parent_used_as_infix_expect_error_syntax_is_thro
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
 void test_expression_given_missing_closing_parent_expect_error_wrong_symbol_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //missing closing parent
   Tokenizer *tokenizer = createTokenizer("a*(3+2");
   symbolParser = createSymbolParser(tokenizer);
@@ -408,11 +415,12 @@ void test_expression_given_missing_closing_parent_expect_error_wrong_symbol_is_t
     TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_expression_given_a_shorthand_left_shift_but_used_as_prefix_expect_error_syntax_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //"<<=" used as prefix, invalid
   Tokenizer *tokenizer = createTokenizer(" 5 *<<=3");
   symbolParser = createSymbolParser(tokenizer);
@@ -424,11 +432,12 @@ void test_expression_given_a_shorthand_left_shift_but_used_as_prefix_expect_erro
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
 void test_expression_given_a_shorthand_right_shift_but_right_operand_is_not_a_number_or_identifier_expect_error_syntax_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //symbol ")" is used as right operand for ">>=", and it is also not an unary operator, thus is invalid
   Tokenizer *tokenizer = createTokenizer(" (a>>=) + 3; ");
   symbolParser = createSymbolParser(tokenizer);
@@ -440,11 +449,12 @@ void test_expression_given_a_shorthand_right_shift_but_right_operand_is_not_a_nu
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
 void test_expression_given_an_EOL_but_with_no_operands_in_front_of_it_expect_error_missing_operand_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //";" is expected to have operands in front of it
   Tokenizer *tokenizer = createTokenizer(" ;a+ b");
   symbolParser = createSymbolParser(tokenizer);
@@ -456,11 +466,12 @@ void test_expression_given_an_EOL_but_with_no_operands_in_front_of_it_expect_err
     TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+*/
 void test_expression_given_an_expression_but_with_unknown_symbol_expect_error_invalid_symbol_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //"#" is an invlaid symbol in expression
   Tokenizer *tokenizer = createTokenizer(" 3# 2");
   symbolParser = createSymbolParser(tokenizer);
@@ -472,11 +483,12 @@ void test_expression_given_an_expression_but_with_unknown_symbol_expect_error_in
     TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
 void test_expression_given_an_expression_but_unsupported_symbol_expect_error_invalid_symbol_is_thrown(void) {
-  Symbol *symbol;
+  Symbol *symbol = NULL;
   //"#" is an invlaid symbol in expression
   Tokenizer *tokenizer = createTokenizer(" a*b,c");
   symbolParser = createSymbolParser(tokenizer);
@@ -488,7 +500,8 @@ void test_expression_given_an_expression_but_unsupported_symbol_expect_error_inv
     TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
     free(e);
   }
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 #endif // TEST
