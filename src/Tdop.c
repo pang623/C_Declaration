@@ -3,7 +3,7 @@
 void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol) {
   if(nudOf(symbol) == NULL && ledOf(symbol) == NULL)
     throwException(ERR_INVALID_SYMBOL, symbol->token, 0,
-    "%s is not supported here", symbol->token->str);
+    "'%s' is not supported here", symbol->token->str);
 }
 
 Symbol *tdop(int rbp, SymbolAttrTable *table) {

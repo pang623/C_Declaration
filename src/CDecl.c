@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-SymbolAttrTable CDeclSymbolTable[256] = {
+SymbolAttrTable CDeclSymbolTable[LAST_SYMBOL] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,      nud,           led}
   [IDENTIFIER]         =   { NIL,  NIL,  NIL,           identityNud,   identityLed},
   [MULTIPLY]           =   { 140,  NIL,  NIL,            pointerNud,    pointerLed},

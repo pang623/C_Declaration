@@ -3,6 +3,7 @@
 
 #include "Token.h"
 #include "Tokenizer.h"
+#include "Symbol_Id.h"
 
 typedef struct Symbol Symbol;
 typedef struct SymbolAttrTable SymbolAttrTable;
@@ -12,7 +13,7 @@ typedef Symbol *(*LedFuncPtr)(Symbol *symbol, Symbol *left);
 
 struct Symbol {
   int arity;
-  int id;
+  SymbolID id;
   Token *token;
   Symbol *child[2];
 };
