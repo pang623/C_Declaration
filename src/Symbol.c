@@ -106,9 +106,12 @@ void freeSymbol(void *symbol) {
     return;
   freeSymbol(((Symbol *)symbol)->child[0]);
   freeSymbol(((Symbol *)symbol)->child[1]);
-  if(((Symbol *)symbol)->token)
+  if(((Symbol *)symbol)->token) {
     freeToken(((Symbol *)symbol)->token);
+    ((Symbol *)symbol)->token = NULL;
+  }
   free((Symbol *)symbol);
+  symbol = NULL;
 }
 
 //return a malloc'ed string
@@ -138,7 +141,7 @@ Token *processToken(Token *symbol, int option) {
   return symbol;
 }
 
-Symbol *processSymbol(Token *symbol, int *flag, int option, int type) {
+Symbol processSymbol(Token *symbol, int *flag, int option, int type) {
   Token *nextSymbol = getToken(symbolParser->tokenizer);
   Symbol symbolInfo = {INFIX, operatorIdTable[(symbol->str)[0]].type[type], symbol};
   if(isNULLToken(nextSymbol) || !(isCorrectSymbolAndAdjacent(symbol, nextSymbol, SymbolCombiTable[option].symbol)))
@@ -150,7 +153,7 @@ Symbol *processSymbol(Token *symbol, int *flag, int option, int type) {
     symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[SymbolCombiTable[option].type];
     symbolInfo.token = processToken(symbol, option);
   }
-  return createSymbol(&symbolInfo);
+  return symbolInfo;
 }
 
 int isCorrectSymbolAndAdjacent(Token *symbol, Token *nextSymbol, char *symToCheck) {
@@ -159,20 +162,20 @@ int isCorrectSymbolAndAdjacent(Token *symbol, Token *nextSymbol, char *symToChec
   return (isToken(symToCheck, nextSymbol) && (nextSymbol->startColumn == (symbol->startColumn + symbol->length)));
 }
 
-Symbol *checkEqualAsLastChar(Token *symbol, int *flag) {
+Symbol checkEqualAsLastChar(Token *symbol, int *flag) {
   return processSymbol(symbol, flag, EQUAL, 0);
 }
 
-Symbol *checkDoubleSameChar(Token *symbol, int *flag) {
-  Symbol *newSymbol = checkEqualAsLastChar(symbol, flag);
+Symbol checkDoubleSameChar(Token *symbol, int *flag) {
+  Symbol newSymbol = checkEqualAsLastChar(symbol, flag);
   if(*flag != EQUAL_AS_LAST_CHAR)
     return processSymbol(symbol, flag, DOUBLE, 0);
   else
     return newSymbol;
 }
 
-Symbol *checkDoubleSameCharWithEqual(Token *symbol, int *flag) {
-  Symbol *newSymbol = checkDoubleSameChar(symbol, flag);
+Symbol checkDoubleSameCharWithEqual(Token *symbol, int *flag) {
+  Symbol newSymbol = checkDoubleSameChar(symbol, flag);
   if(*flag == DOUBLE_SAME_CHAR)
     return processSymbol(symbol, flag, DWITHEQUAL, 1);
   else
@@ -194,7 +197,7 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
   else if(!(hasSymbolVariations(symbol)))
     symbolInfo.id = operatorIdTable[(symbol->str)[0]].type[0];
   else
-    return operatorIdTable[(symbol->str)[0]].func(symbol, flag);
+    symbolInfo = operatorIdTable[(symbol->str)[0]].func(symbol, flag);
   
   if(symbolInfo.id == UNKNOWN)
     throwException(ERR_INVALID_SYMBOL, symbolInfo.token, 0,

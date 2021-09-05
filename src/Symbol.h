@@ -17,7 +17,7 @@ typedef struct OperatorAttrTable OperatorAttrTable;
 typedef struct SymbolCombination SymbolCombination;
 typedef struct KeywordAttrTable KeywordAttrTable;
 typedef struct SymbolParser SymbolParser;
-typedef Symbol *(*FuncPtr)(Token *, int *);
+typedef Symbol (*FuncPtr)(Token *, int *);
 
 #define   isIntegerToken(token)                      (token->type == TOKEN_INTEGER_TYPE)
 #define   isFloatToken(token)                        (token->type == TOKEN_FLOAT_TYPE)
@@ -65,11 +65,11 @@ Symbol *popStack(DoubleLinkedList *stack);
 int isNextSymbolThenConsume(int symbolId);
 void verifyIsNextSymbolThenConsume(int symbolId, char *expectedSym);
 Token *processToken(Token *symbol, int option);
-Symbol *processSymbol(Token *symbol, int *flag, int option, int type);
+Symbol processSymbol(Token *symbol, int *flag, int option, int type);
 int isCorrectSymbolAndAdjacent(Token *symbol, Token *nextSymbol, char *symToCheck);
-Symbol *checkEqualAsLastChar(Token *symbol, int *flag);
-Symbol *checkDoubleSameChar(Token *symbol, int *flag);
-Symbol *checkDoubleSameCharWithEqual(Token *symbol, int *flag);
+Symbol checkEqualAsLastChar(Token *symbol, int *flag);
+Symbol checkDoubleSameChar(Token *symbol, int *flag);
+Symbol checkDoubleSameCharWithEqual(Token *symbol, int *flag);
 int isSymbolKeyword(Symbol *symbol, int identifierIsSeenAsKeyword);
 int isSymbolKeywordThenGetType(Symbol *symbol, int *type, int identifierIsSeenAsKeyword);
 

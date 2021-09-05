@@ -326,7 +326,7 @@ void test_expression_given_an_mixed_C_declaration_expect_correctly_parsed(void) 
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_expression_given_c_declaration_but_two_separate_variable_names_expect_ERR_SYNTAX_is_thrown(void) {
   //'a' and 'b' separated, both are names, invalid, variable name can only be one
   Tokenizer *tokenizer = createTokenizer("Symbol a b;");
@@ -511,5 +511,5 @@ void test_expression_given_c_function_decl_but_parameters_are_not_separated_with
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 #endif // TEST
