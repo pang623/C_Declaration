@@ -1,0 +1,27 @@
+name: Ceedling Setup and Testrun
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+        compiler: [gcc-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with: ruby-version: 3.0.1
+    - name : Checkout submodules
+      shell: bash
+      run  : git submodule update --init --recursive
+    - name : Install ceedling
+      run  : gem install ceedling
+    - name : Testrun
+      run  : ceedling test:all
