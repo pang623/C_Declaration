@@ -21,10 +21,10 @@
             testAssertSymbol(expectedSymbolId, expectedSymbolChar, childZero, childOne, root, __LINE__)
             
 #define   isOperatorNotMatch(testChild, child)   \
-            (child->token->type == TOKEN_OPERATOR_TYPE && (stricmp(((TestOperator *)testChild)->_operator, child->token->str)))
+            (child->token->type == TOKEN_OPERATOR_TYPE && (strcmp(((TestOperator *)testChild)->_operator, child->token->str)))
             
 #define   isNumberNotMatch(testChild, child)   \
-            (child->token->type == TOKEN_INTEGER_TYPE && (stricmp(((TestNumber *)testChild)->value, child->token->str)))
+            (child->token->type == TOKEN_INTEGER_TYPE && (strcmp(((TestNumber *)testChild)->value, child->token->str)))
 
 #define   isIdentifierNotMatch(testChild, child)   \
             (child->token->type == TOKEN_IDENTIFIER_TYPE && (strcmp(((TestIdentifier *)testChild)->str, child->token->str)))

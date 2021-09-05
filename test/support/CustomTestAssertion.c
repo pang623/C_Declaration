@@ -38,7 +38,7 @@ TestSymbolType *Operator(char *_operator) {
 void testAssertSymbol(int symbolId, char *symbol, TestSymbolType *childZero, TestSymbolType *childOne, Symbol *root, int lineNum) {
   UNITY_TEST_ASSERT((symbolId == root->id), lineNum, 
                      createMessage("Expecting symbol ID %d, but is %d instead", symbolId, root->id));
-  UNITY_TEST_ASSERT(!(stricmp(symbol, root->token->str)), lineNum, 
+  UNITY_TEST_ASSERT(!(strcmp(symbol, root->token->str)), lineNum, 
                      createMessage("Expecting symbol %s at root, but is %s instead", symbol, root->token->str));
   
   char *actualStr;
