@@ -283,7 +283,7 @@ void test_expression_with_single_number_expect_ast_created_correctly(void) {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_expression_given_3_and_2_expect_ERR_SYNTAX_is_thrown(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("3 2");
@@ -350,7 +350,7 @@ void test_expression_given_unary_only_operator_used_as_binary_expect_error_synta
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_expression_given_missing_operand_for_binary_operator_expect_error_missing_operand_is_thrown(void) {
   Symbol *symbol = NULL;
   //binary ">>=" is missing an operand
@@ -367,7 +367,7 @@ void test_expression_given_missing_operand_for_binary_operator_expect_error_miss
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 void test_expression_given_missing_operand_for_unary_operator_expect_error_missing_operand_is_thrown(void) {
   Symbol *symbol = NULL;
   //unary "-" is missing an operand
@@ -418,7 +418,7 @@ void test_expression_given_missing_closing_parent_expect_error_wrong_symbol_is_t
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_expression_given_a_shorthand_left_shift_but_used_as_prefix_expect_error_syntax_is_thrown(void) {
   Symbol *symbol = NULL;
   //"<<=" used as prefix, invalid
@@ -452,7 +452,7 @@ void test_expression_given_a_shorthand_right_shift_but_right_operand_is_not_a_nu
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 void test_expression_given_an_EOL_but_with_no_operands_in_front_of_it_expect_error_missing_operand_is_thrown(void) {
   Symbol *symbol = NULL;
   //";" is expected to have operands in front of it
@@ -503,5 +503,5 @@ void test_expression_given_an_expression_but_unsupported_symbol_expect_error_inv
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+*/
 #endif // TEST
