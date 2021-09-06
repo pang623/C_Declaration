@@ -1,7 +1,13 @@
 #ifndef READAST_H
 #define READAST_H
 
+#include "Exception.h"
 #include "Symbol.h"
+#include "SymbolAttrTable.h"
+#include "CDecl.h"
+#include "ExpressionParser.h"
+#include "Tdop.h"
+#include "CDecl_Errors.h"
 
 typedef char *(*ReadFunction)(Symbol *symbol);
 
@@ -9,7 +15,7 @@ typedef char *(*ReadFunction)(Symbol *symbol);
 
 char *readAST(Symbol *AST, char *str);
 char *concat(char *s1, char *s2);
-char *translate(char *cDecl);
+//char *translate(char *cDecl);
 char *arrayRead(Symbol *symbol);
 char *ignoreRead(Symbol *symbol);
 char *generalRead(Symbol *symbol);

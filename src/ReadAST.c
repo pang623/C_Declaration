@@ -11,17 +11,29 @@ ReadFunction readSymbolTable[] = {
   [OPEN_PARENT]     = ignoreRead,//"",
 };
 
+int readRight = 0;
+
+/*
+ size_t len;
+  char *buffer;
+  
+  len = vsnprintf(NULL, 0, "%s%s", oldStr, newStr);
+  buffer = malloc(len + 1);
+  vsnprintf(buffer, len, "%s%s", oldStr, newStr);
+  free(oldStr);
+  free(newStr);
+*/
 char *functionRead(Symbol *symbol) {
-  char *str;
+  char *str, *newStr;
   //if no function parameters
   if(symbol->child[1] == NULL)
     str = createString("function ");
   else
     str = createString("function taking in ");
-  concat(str, createString(symbol->token->str));
-  str = readAST(symbol->child[1], str);
+  newStr = concat(str, createString(symbol->token->str));
+  newStr = readAST(symbol->child[1], newStr);
   readRight = 1;
-  return concat(str, createString(") returning "));
+  return concat(newStr, createString(") returning "));
 }
 
 char *pointerRead(Symbol *symbol) {
@@ -31,8 +43,7 @@ char *pointerRead(Symbol *symbol) {
 
 char *identifierRead(Symbol *symbol) {
   char *str = createString(symbol->token->str);
-  concat(str, createString(" is "));
-  return str;
+  return concat(str, createString(" is "));
 }
 
 char *generalRead(Symbol *symbol) {
@@ -48,8 +59,7 @@ char *arrayRead(Symbol *symbol) {
   char *str = createString("array of ");
   str = readAST(symbol->child[1], str);
   readRight = 1;
-  concat(str, createString(" of "));
-  return str;
+  return concat(str, createString(" of "));
 }
 
 char *concat(char *s1, char *s2) {
@@ -69,7 +79,7 @@ char *readAST(Symbol *AST, char *str) {
   return str;
 }
 
-
+/*
 //put to another module
 char *translate(char *cDecl) {
   Tokenizer *tokenizer = createTokenizer(cDecl);
@@ -79,4 +89,4 @@ char *translate(char *cDecl) {
   freeSymbol(AST);
   freeSymbolParser(symbolParser);
   return newStr;
-}
+}*/
