@@ -24,5 +24,9 @@ Symbol *funcLed(Symbol *symbol, Symbol *left);
 Symbol *pointerNud(Symbol *symbol);
 Symbol *pointerLed(Symbol *symbol, Symbol *left);
 Symbol *combineAST(Symbol *AST, Symbol *oldAST);
+Symbol *forFud(int rbp);
+Symbol *whileFud(int rbp);
+Symbol *ifFud(int rbp);
+Symbol *caseFud(int rbp);
 
 #endif // CDECL_H

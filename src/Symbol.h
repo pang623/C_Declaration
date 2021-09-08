@@ -26,6 +26,10 @@ typedef Symbol (*FuncPtr)(Token *, int *);
 #define   hasSymbolVariations(symbol)                (operatorIdTable[(symbol->str)[0]].func != NULL)
 #define   isToken(symToCheck, symbol)                !(strcmp(symToCheck, symbol->str))
 
+#define   popStack(stack)                            (linkedListRemoveItemFromHead(stack))->data
+#define   pushStack(stack, item)                     (linkedListAddItemToHead(item, stack))
+#define   peekStack(stack)                           (stack->head->data)
+
 extern SymbolParser *symbolParser;
 
 struct OperatorAttrTable {
@@ -59,17 +63,14 @@ Symbol *getSymbol(SymbolParser *symbolParser);
 Symbol *_getSymbol(Tokenizer *tokenizer);
 void freeSymbol(void *symbol);
 char *createString(char *str);
-Symbol *peekStack(DoubleLinkedList *stack);
-void pushStack(DoubleLinkedList *stack, Symbol *symbol);
-Symbol *popStack(DoubleLinkedList *stack);
-int isNextSymbolThenConsume(int symbolId);
-void verifyIsNextSymbolThenConsume(int symbolId, char *expectedSym);
+int isNextSymbolThenConsume(SymbolID symbolId);
+void verifyIsNextSymbolThenConsume(SymbolID symbolId, char *expectedSym);
 Token *processToken(Token *symbol, int option);
 Symbol processSymbol(Token *symbol, int *flag, int option, int type);
 int isCorrectSymbolAndAdjacent(Token *symbol, Token *nextSymbol, char *symToCheck);
-Symbol checkEqualAsLastChar(Token *symbol, int *flag);
-Symbol checkDoubleSameChar(Token *symbol, int *flag);
-Symbol checkDoubleSameCharWithEqual(Token *symbol, int *flag);
+Symbol handleEqualSymbol(Token *symbol, int *flag);
+Symbol handleRepeatedAndEqualSymbol(Token *symbol, int *flag);
+Symbol handleEqualRepeatedAndBothSymbol(Token *symbol, int *flag);
 int isSymbolKeyword(Symbol *symbol, int identifierIsSeenAsKeyword);
 int isSymbolKeywordThenGetType(Symbol *symbol, int *type, int identifierIsSeenAsKeyword);
 

@@ -2,25 +2,25 @@
 #include <string.h>
 
 OperatorAttrTable operatorIdTable[256] = {
-  ['+'] = {{ADD, INC_BEFORE, ADD_ASSIGN, 0}                        , checkDoubleSameChar},
-  ['-'] = {{SUBTRACT, DEC_BEFORE, SUBT_ASSIGN, 0}                  , checkDoubleSameChar},
-  ['*'] = {{MULTIPLY, 0, MUL_ASSIGN, 0}                            , checkEqualAsLastChar},
-  ['/'] = {{DIVIDE, 0, DIV_ASSIGN, 0}                              , checkEqualAsLastChar},
-  ['%'] = {{MODULUS, 0, MOD_ASSIGN, 0}                             , checkEqualAsLastChar},
-  ['~'] = {{BIT_NOT, 0, 0, 0}                                      , NULL},
-  ['!'] = {{LOGI_NOT, 0, NOT_EQUAL, 0}                             , checkEqualAsLastChar},
-  ['&'] = {{BIT_AND, LOGI_AND, AND_ASSIGN, 0}                      , checkDoubleSameChar},
-  ['|'] = {{BIT_OR, LOGI_OR, OR_ASSIGN, 0}                         , checkDoubleSameChar},
-  ['^'] = {{BIT_XOR, 0, XOR_ASSIGN, 0}                             , checkEqualAsLastChar},
-  ['='] = {{ASSIGNMENT, 0, EQUALITY, 0}                            , checkEqualAsLastChar},
-  ['<'] = {{LESSER, L_SHIFT, LESS_OR_EQUAL, L_SHIFT_ASSIGN}        , checkDoubleSameCharWithEqual},
-  ['>'] = {{GREATER, R_SHIFT, GREATER_OR_EQUAL, R_SHIFT_ASSIGN}    , checkDoubleSameCharWithEqual}, 
-  ['('] = {{OPEN_PARENT, 0, 0, 0}                                  , NULL},
-  [')'] = {{CLOSE_PARENT, 0, 0, 0}                                 , NULL},
-  ['['] = {{OPEN_SQR, 0, 0, 0}                                     , NULL},
-  [']'] = {{CLOSE_SQR, 0, 0, 0}                                    , NULL},
-  [','] = {{COMMA, 0, 0, 0}                                        , NULL},
-  [';'] = {{EOL, 0, 0, 0}                                          , NULL},
+  ['+'] = {{ADD, INC_BEFORE, ADD_ASSIGN, 0}                        ,     handleRepeatedAndEqualSymbol},
+  ['-'] = {{SUBTRACT, DEC_BEFORE, SUBT_ASSIGN, 0}                  ,     handleRepeatedAndEqualSymbol},
+  ['*'] = {{MULTIPLY, 0, MUL_ASSIGN, 0}                            ,                handleEqualSymbol},
+  ['/'] = {{DIVIDE, 0, DIV_ASSIGN, 0}                              ,                handleEqualSymbol},
+  ['%'] = {{MODULUS, 0, MOD_ASSIGN, 0}                             ,                handleEqualSymbol},
+  ['!'] = {{LOGI_NOT, 0, NOT_EQUAL, 0}                             ,                handleEqualSymbol},
+  ['&'] = {{BIT_AND, LOGI_AND, AND_ASSIGN, 0}                      ,     handleRepeatedAndEqualSymbol},
+  ['|'] = {{BIT_OR, LOGI_OR, OR_ASSIGN, 0}                         ,     handleRepeatedAndEqualSymbol},
+  ['^'] = {{BIT_XOR, 0, XOR_ASSIGN, 0}                             ,                handleEqualSymbol},
+  ['='] = {{ASSIGNMENT, 0, EQUALITY, 0}                            ,                handleEqualSymbol},
+  ['<'] = {{LESSER, L_SHIFT, LESS_OR_EQUAL, L_SHIFT_ASSIGN}        , handleEqualRepeatedAndBothSymbol},
+  ['>'] = {{GREATER, R_SHIFT, GREATER_OR_EQUAL, R_SHIFT_ASSIGN}    , handleEqualRepeatedAndBothSymbol}, 
+  ['~'] = {{BIT_NOT, 0, 0, 0}                                      ,                             NULL},
+  ['('] = {{OPEN_PARENT, 0, 0, 0}                                  ,                             NULL},
+  [')'] = {{CLOSE_PARENT, 0, 0, 0}                                 ,                             NULL},
+  ['['] = {{OPEN_SQR, 0, 0, 0}                                     ,                             NULL},
+  [']'] = {{CLOSE_SQR, 0, 0, 0}                                    ,                             NULL},
+  [','] = {{COMMA, 0, 0, 0}                                        ,                             NULL},
+  [';'] = {{EOL, 0, 0, 0}                                          ,                             NULL},
 };
 
 KeywordAttrTable keywordIdTable[] = {
@@ -162,20 +162,20 @@ int isCorrectSymbolAndAdjacent(Token *symbol, Token *nextSymbol, char *symToChec
   return (isToken(symToCheck, nextSymbol) && (nextSymbol->startColumn == (symbol->startColumn + symbol->length)));
 }
 
-Symbol checkEqualAsLastChar(Token *symbol, int *flag) {
+Symbol handleEqualSymbol(Token *symbol, int *flag) {
   return processSymbol(symbol, flag, EQUAL, 0);
 }
 
-Symbol checkDoubleSameChar(Token *symbol, int *flag) {
-  Symbol newSymbol = checkEqualAsLastChar(symbol, flag);
+Symbol handleRepeatedAndEqualSymbol(Token *symbol, int *flag) {
+  Symbol newSymbol = handleEqualSymbol(symbol, flag);
   if(*flag != EQUAL_AS_LAST_CHAR)
     return processSymbol(symbol, flag, DOUBLE, 0);
   else
     return newSymbol;
 }
 
-Symbol checkDoubleSameCharWithEqual(Token *symbol, int *flag) {
-  Symbol newSymbol = checkDoubleSameChar(symbol, flag);
+Symbol handleEqualRepeatedAndBothSymbol(Token *symbol, int *flag) {
+  Symbol newSymbol = handleRepeatedAndEqualSymbol(symbol, flag);
   if(*flag == DOUBLE_SAME_CHAR)
     return processSymbol(symbol, flag, DWITHEQUAL, 1);
   else
@@ -199,9 +199,10 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
   else
     symbolInfo = operatorIdTable[(symbol->str)[0]].func(symbol, flag);
   
+  //Symbols that are not defined in the table
   if(symbolInfo.id == UNKNOWN)
     throwException(ERR_INVALID_SYMBOL, symbolInfo.token, 0,
-    "Symbol %s is not supported in C", (symbolInfo.token)->str);
+    "Symbol %s is not supported in C Language", (symbolInfo.token)->str);
   return createSymbol(&symbolInfo);
 }
 
@@ -214,35 +215,22 @@ Symbol *getSymbol(SymbolParser *symbolParser) {
 
 Symbol *peekSymbol(SymbolParser *symbolParser) {
   if(symbolParser->symbolStack->count == 0)
-    pushStack(symbolParser->symbolStack, _getSymbol(symbolParser->tokenizer));
+    pushStack(symbolParser->symbolStack, linkedListCreateListItem((Symbol *)_getSymbol(symbolParser->tokenizer)));
   return peekStack(symbolParser->symbolStack);
 }
 
-Symbol *popStack(DoubleLinkedList *stack) {
-  return (linkedListRemoveItemFromHead(stack))->data;
-}
-
-void pushStack(DoubleLinkedList *stack, Symbol *symbol) {
-  ListItem *symbolPtr = linkedListCreateListItem(symbol);
-  linkedListAddItemToHead(symbolPtr, stack);
-}
-
-Symbol *peekStack(DoubleLinkedList *stack) {
-  return stack->head->data;
-}
-
-int isNextSymbolThenConsume(int symbolId) {
+int isNextSymbolThenConsume(SymbolID symbolId) {
   Symbol *symbol = getSymbol(symbolParser);
   if(symbol->id == symbolId) {
     freeSymbol(symbol);
     return 1;
   }else {
-    pushStack(symbolParser->symbolStack, symbol);
+    pushStack(symbolParser->symbolStack, linkedListCreateListItem((Symbol *)symbol));
     return 0;
   }
 }
 
-void verifyIsNextSymbolThenConsume(int symbolId, char *expectedSym) {
+void verifyIsNextSymbolThenConsume(SymbolID symbolId, char *expectedSym) {
   if(!(isNextSymbolThenConsume(symbolId))) {
     Symbol *symbol = getSymbol(symbolParser);
     throwException(ERR_WRONG_SYMBOL, symbol->token, 0,

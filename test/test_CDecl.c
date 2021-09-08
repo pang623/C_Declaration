@@ -326,6 +326,37 @@ void test_expression_given_an_mixed_C_declaration_expect_correctly_parsed(void) 
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
+
+void test_expression_given_not_c_declaration_name_expect_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
+  Tokenizer *tokenizer = createTokenizer("while a");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = NULL;
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_KEYWORD_DATA_TYPE, e->errorCode);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_c_declaration_but_terminated_with_comma_expect_ERR_WRONG_SYMBOL_is_thrown(void) {
+  Tokenizer *tokenizer = createTokenizer("int a(int b), ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = NULL;
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
 /*
 void test_expression_given_c_declaration_but_two_separate_variable_names_expect_ERR_SYNTAX_is_thrown(void) {
   //'a' and 'b' separated, both are names, invalid, variable name can only be one

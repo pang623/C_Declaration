@@ -409,4 +409,248 @@ void test_underscore_getSymbol_given_a_triple_char_symbol_but_adjacent_with_anot
   freeSymbolParser(symbolParser);
 }
 
+void test_underscore_getSymbol_given_unsupported_symbol_expect_ERR_INVALID_SYMBOL_is_thrown() {
+  Symbol *symbol = NULL;
+  Tokenizer *tokenizer = createTokenizer(" $ ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = _getSymbol(symbolParser->tokenizer);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
+    free(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_peek_symbol_given_an_empty_stack_expect_symbol_peeked_is_stored_in_stack() {
+  Tokenizer *tokenizer = createTokenizer(" |=   ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol;
+  
+  //Verify is empty stack
+  TEST_ASSERT_EQUAL(0, symbolParser->symbolStack->count);
+  TEST_ASSERT_NULL(symbolParser->symbolStack->head);
+  
+  //Peek the symbol, symbol peeked should be pushed to the stack
+  symbol = peekSymbol(symbolParser);
+  
+  //Check if the symbol is pushed to the stack
+  TEST_ASSERT_EQUAL(1, symbolParser->symbolStack->count);
+  TEST_ASSERT_EQUAL(symbol, symbolParser->symbolStack->head->data);
+  
+  freeSymbolParser(symbolParser);
+}
+
+void test_peek_symbol_given_a_stack_with_symbol_expect_symbol_is_still_in_stack_after_peeked() {
+  Tokenizer *tokenizer = createTokenizer(" |=   ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol;
+  
+  //Verify is empty stack
+  TEST_ASSERT_EQUAL(0, symbolParser->symbolStack->count);
+  TEST_ASSERT_NULL(symbolParser->symbolStack->head);
+  
+  //Peek the symbol, symbol peeked should be pushed to the stack
+  symbol = peekSymbol(symbolParser);
+  
+  //Check if the symbol is pushed to the stack
+  TEST_ASSERT_EQUAL(1, symbolParser->symbolStack->count);
+  TEST_ASSERT_EQUAL(symbol, symbolParser->symbolStack->head->data);
+  
+  //Peek the symbol again, this time with symbol in stack
+  symbol = peekSymbol(symbolParser);
+  
+  //Verify that peek symbol does not consume the symbol
+  //The stack should still contain the symbol
+  TEST_ASSERT_EQUAL(1, symbolParser->symbolStack->count);
+  TEST_ASSERT_EQUAL(symbol, symbolParser->symbolStack->head->data);
+  
+  freeSymbolParser(symbolParser);
+}
+
+void test_get_symbol_given_a_stack_with_symbol_expect_symbol_is_not_in_stack_after_getSymbol() {
+  Tokenizer *tokenizer = createTokenizer(" |=   ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbolPeek, *symbolGet;
+  
+  //Verify is empty stack
+  TEST_ASSERT_EQUAL(0, symbolParser->symbolStack->count);
+  TEST_ASSERT_NULL(symbolParser->symbolStack->head);
+  
+  //Peek the symbol, symbol peeked should be pushed to the stack
+  symbolPeek = peekSymbol(symbolParser);
+  
+  //Check if the symbol is pushed to the stack
+  TEST_ASSERT_EQUAL(1, symbolParser->symbolStack->count);
+  TEST_ASSERT_EQUAL(symbolPeek, symbolParser->symbolStack->head->data);
+  
+  //This time get the symbol, this should pop the symbol off the stack
+  symbolGet = getSymbol(symbolParser);
+  
+  //Verify that stack is empty after getSymbol
+  //The symbol returned should be the one in the stack
+  TEST_ASSERT_EQUAL(0, symbolParser->symbolStack->count);
+  TEST_ASSERT_EQUAL_PTR(symbolPeek, symbolGet);
+  
+  freeSymbol(symbolGet);
+  freeSymbolParser(symbolParser);
+}
+
+void test_isNextSymbolThenConsume_given_next_symbol_is_desired_expect_it_to_be_consumed() {
+  Tokenizer *tokenizer = createTokenizer(" !ab  ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol;
+  
+  //Result should be true as the upcoming symbol is "!"
+  int result = isNextSymbolThenConsume(LOGI_NOT);
+  TEST_ASSERT_EQUAL(1, result);
+  
+  //Get the next symbol, should be "ab" as "!" was consumed
+  symbol = getSymbol(symbolParser);
+  
+  //Check if next symbol is "ab" after "!" was consumed
+  TEST_ASSERT_EQUAL(IDENTIFIER, symbol->id);
+  TEST_ASSERT_EQUAL_STRING("ab", symbol->token->str);
+  
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_isNextSymbolThenConsume_given_next_symbol_is_not_desired_expect_it_is_not_consumed() {
+  Tokenizer *tokenizer = createTokenizer(" 3-a  ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol;
+  
+  //Result should be false as the upcoming symbol is "3"
+  int result = isNextSymbolThenConsume(SUBTRACT);
+  TEST_ASSERT_EQUAL(0, result);
+  
+  //Get the next symbol, should still be "3" as it is not consumed
+  symbol = getSymbol(symbolParser);
+  
+  //Check if next symbol is "3"
+  TEST_ASSERT_EQUAL(NUMBER, symbol->id);
+  TEST_ASSERT_EQUAL_STRING("3", symbol->token->str);
+  
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_verifyIsNextSymbolThenConsume_given_next_symbol_is_desired_expect_it_to_be_consumed() {
+  Tokenizer *tokenizer = createTokenizer(" >>=3  ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol;
+  
+  verifyIsNextSymbolThenConsume(R_SHIFT_ASSIGN, ">>=");
+  
+  //Get the next symbol, should be "3" as ">>=" was consumed
+  symbol = getSymbol(symbolParser);
+  
+  //Check if next symbol is "3" after ">>=" was consumed
+  TEST_ASSERT_EQUAL(NUMBER, symbol->id);
+  TEST_ASSERT_EQUAL_STRING("3", symbol->token->str);
+  
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_verifyIsNextSymbolThenConsume_given_next_symbol_is_not_desired_expect_ERR_WRONG_SYMBOL_is_thrown() {
+  Tokenizer *tokenizer = createTokenizer(" 3.5+a ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    verifyIsNextSymbolThenConsume(ADD, "+");
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
+    free(e);
+  }
+  freeSymbolParser(symbolParser);
+}
+
+void test_isSymbolKeyword_given_symbol_not_a_keyword_and_identifier_is_seen_as_keyword_is_disabled_expect_result_returned_is_false() {
+  Tokenizer *tokenizer = createTokenizer(" apple ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = getSymbol(symbolParser);
+  
+  int result = isSymbolKeyword(symbol, 0);
+  TEST_ASSERT_EQUAL(0, result);
+  
+  freeSymbolParser(symbolParser);
+}
+
+void test_isSymbolKeyword_given_symbol_not_a_keyword_but_identifier_is_seen_as_keyword_is_enabled_expect_result_returned_is_true() {
+  Tokenizer *tokenizer = createTokenizer(" Tokenizer ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = getSymbol(symbolParser);
+  
+  //Although Symbol is not a standard C data type keyword, here it is assumed to be a keyword
+  //Identifiers that are not standard C keywords will only be seen as keyword if the identifierIsSeenAsKeyword is enabled
+  int result = isSymbolKeyword(symbol, 1);
+  TEST_ASSERT_EQUAL(1, result);
+  
+  freeSymbolParser(symbolParser);
+}
+
+void test_isSymbolKeyword_given_symbol_is_a_keyword_expect_result_returned_is_true() {
+  Tokenizer *tokenizer = createTokenizer(" double ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = getSymbol(symbolParser);
+  
+  //Here identifierIsSeenAsKeyword is disabled, but then "double" is a standard C keyword
+  //So result will return true
+  int result = isSymbolKeyword(symbol, 0);
+  TEST_ASSERT_EQUAL(1, result);
+  
+  freeSymbolParser(symbolParser);
+}
+
+void test_isSymbolKeywordThenGetType_given_symbol_is_a_keyword_expect_keyword_type_is_obtained_and_result_returns_true() {
+  Tokenizer *tokenizer = createTokenizer(" while ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = getSymbol(symbolParser);
+  
+  int i = 0;
+  int *type = &i;
+  int result = isSymbolKeywordThenGetType(symbol, type, 0);
+  TEST_ASSERT_EQUAL(1, result);
+  //The keyword is a while loop keyword, so WHILE should be returned
+  TEST_ASSERT_EQUAL(WHILE, *type);
+  
+  freeSymbolParser(symbolParser);
+}
+
+void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_expect_keyword_type_is_not_obtained_and_result_returns_false() {
+  Tokenizer *tokenizer = createTokenizer(" bambi ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = getSymbol(symbolParser);
+  
+  int i = 0;
+  int *type = &i;
+  int result = isSymbolKeywordThenGetType(symbol, type, 0);
+  TEST_ASSERT_EQUAL(0, result);
+  //The keyword is not a keyword, so keyword type is not returned
+  TEST_ASSERT_EQUAL(0, *type);
+  
+  freeSymbolParser(symbolParser);
+}
+
+void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_but_identifierIsSeenAsKeyword_enabled_expect_keyword_type_is_obtained_and_result_returns_true() {
+  Tokenizer *tokenizer = createTokenizer(" Simba ");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = getSymbol(symbolParser);
+  
+  int i = 0;
+  int *type = &i;
+  int result = isSymbolKeywordThenGetType(symbol, type, 1);
+  TEST_ASSERT_EQUAL(1, result);
+  //Non-keyword identifiers seen as keyword, type is returned
+  TEST_ASSERT_EQUAL(TYPE, *type);
+  
+  freeSymbolParser(symbolParser);
+}
+
 #endif // TEST

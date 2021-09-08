@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//If both nud and led are NULL, it indicates that that particular symbol is not supported
 SymbolAttrTable expressionSymbolTable[LAST_SYMBOL] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,   nud,             led}
   [NUMBER]             =   { NIL,  NIL,  NIL,        identityNud,     identityLed},
@@ -49,8 +50,8 @@ SymbolAttrTable expressionSymbolTable[LAST_SYMBOL] = {
   [CLOSE_PARENT]       =   {  0,     0,    0,           errorNud,            NULL},
   [OPEN_SQR]           =   {NIL,     0,  150,           errorNud,   sqrBracketLed},
   [CLOSE_SQR]          =   {  0,     0,    0,           errorNud,            NULL},
-  [COMMA]              =   {  0,     0,    0,               NULL,            NULL},
   [EOL]                =   {  0,     0,    0,  missingOperandNud,            NULL},
+  [COMMA]              =   {  0,     0,    0,               NULL,            NULL},
 };
 
 //handles prefix

@@ -19,37 +19,42 @@ FudFuncPtr keywordTable[] = {
   //[KEYWORD_TYPE] = function pointer
   [TYPE] = cDecl,
   [FOR]  = forFud,
-  [WHILE] = forFud,
-  [IF] = forFud,
-  [CASE] = forFud,
+  [WHILE] = whileFud,
+  [IF] = ifFud,
+  [CASE] = caseFud,
   [CONTINUE] = forFud,
   [BREAK] = forFud,
 };
 
+//These will throw error at the moment, it can be implemented in the future
 Symbol *forFud(int rbp) {
   Symbol *symbol = getSymbol(symbolParser);
   throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
   "Expecting a data type keyword here", symbol->token->str);
 }
-/*
+
 Symbol *whileFud(int rbp) {
-  
+  Symbol *symbol = getSymbol(symbolParser);
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
+  "Expecting a data type keyword here", symbol->token->str);
 }
 
 Symbol *ifFud(int rbp) {
-  
+  Symbol *symbol = getSymbol(symbolParser);
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
+  "Expecting a data type keyword here", symbol->token->str);
 }
 
 Symbol *caseFud(int rbp) {
-  
+  Symbol *symbol = getSymbol(symbolParser);
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
+  "Expecting a data type keyword here", symbol->token->str);
 }
-*/
 
 Symbol *groupingNud(Symbol *symbol) {
   symbol->arity = PREFIX;
   symbol->child[0] = tdop(0, CDeclSymbolTable);
   verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
-  freeSymbol(symbol->child[1]);
   return symbol;
 }
 
@@ -82,6 +87,7 @@ Symbol *funcLed(Symbol *symbol, Symbol *left) {
   return symbol;
 }
 
+//grows AST to the right subtree
 Symbol *combineAST(Symbol *AST, Symbol *oldAST) {
   if(oldAST == NULL)
     return oldAST = AST;

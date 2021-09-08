@@ -7,7 +7,6 @@ void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol) {
 }
 
 Symbol *tdop(int rbp, SymbolAttrTable *table) {
-  //SymbolParser *parser = symbolParser;
   Symbol *left, *symbol, *symbolCheck;
   setSymbolTable(symbolParser, table);
   symbol = getSymbol(symbolParser);

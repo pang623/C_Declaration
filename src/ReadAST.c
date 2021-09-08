@@ -13,16 +13,6 @@ ReadFunction readSymbolTable[] = {
 
 int readRight = 0;
 
-/*
- size_t len;
-  char *buffer;
-  
-  len = vsnprintf(NULL, 0, "%s%s", oldStr, newStr);
-  buffer = malloc(len + 1);
-  vsnprintf(buffer, len, "%s%s", oldStr, newStr);
-  free(oldStr);
-  free(newStr);
-*/
 char *functionRead(Symbol *symbol) {
   char *str, *newStr;
   //if no function parameters
