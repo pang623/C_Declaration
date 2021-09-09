@@ -353,7 +353,7 @@ void test_expression_given_not_c_declaration_name_expect_ERR_KEYWORD_DATA_TYPE_i
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_expression_given_c_declaration_but_terminated_with_comma_expect_ERR_WRONG_SYMBOL_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("int a(int b), ");
   symbolParser = createSymbolParser(tokenizer);
@@ -364,11 +364,12 @@ void test_expression_given_c_declaration_but_terminated_with_comma_expect_ERR_WR
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 /*
 void test_expression_given_c_declaration_but_two_separate_variable_names_expect_ERR_SYNTAX_is_thrown(void) {
   //'a' and 'b' separated, both are names, invalid, variable name can only be one
@@ -381,6 +382,7 @@ void test_expression_given_c_declaration_but_two_separate_variable_names_expect_
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -397,6 +399,7 @@ void test_expression_given_c_declaration_but_extra_variable_name_expect_ERR_SYNT
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -412,6 +415,7 @@ void test_expression_given_c_declaration_but_variable_is_a_number_expect_error_i
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -427,6 +431,7 @@ void test_expression_given_c_declaration_is_variable_but_mixed_with_operators_ex
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -442,6 +447,7 @@ void test_expression_given_c_declaration_but_keyword_is_not_data_type_expect_ERR
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_KEYWORD_DATA_TYPE, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -457,6 +463,7 @@ void test_expression_given_c_declaration_but_keyword_is_used_as_variable_name_ex
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_ILLEGAL_KEYWORD_USAGE, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -472,6 +479,7 @@ void test_expression_given_c_declaration_pointer_symbol_comes_after_variable_exp
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -487,6 +495,7 @@ void test_expression_given_c_declaration_but_no_name_expect_ERR_MISSING_OPERAND_
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -502,6 +511,7 @@ void test_expression_given_c_declaration_but_no_name_expect_ERR_EXPECING_CDECL_i
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_EXPECING_CDECL, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -518,6 +528,7 @@ void test_expression_given_c_declaration_but_expression_in_array_subscript_is_er
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -534,6 +545,7 @@ void test_expression_given_c_function_decl_but_parameters_passed_in_is_not_CDecl
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_KEYWORD_DATA_TYPE, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -550,6 +562,7 @@ void test_expression_given_c_function_decl_but_parameters_are_not_separated_with
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
