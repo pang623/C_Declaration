@@ -668,9 +668,9 @@ void test_throwException() {
         "Symbol %s is not supported in C Language", token->str);
         TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
     } Catch(e){
-        //dumpTokenErrorMessage(e, __LINE__);
+        dumpTokenErrorMessage(e, __LINE__);
         TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
-        //freeException(e);
+        freeException(e);
     }
     freeToken(token);
     freeTokenizer(tokenizer);
