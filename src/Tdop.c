@@ -2,7 +2,7 @@
 
 void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol) {
   if(nudOf(symbol) == NULL && ledOf(symbol) == NULL)
-    throwException(ERR_INVALID_SYMBOL, symbol->token, 0,
+    throwException(ERR_INVALID_SYMBOL, symbol->token, 1,
     "'%s' is not supported here", symbol->token->str);
 }
 

@@ -653,4 +653,21 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_but_identifierI
   freeSymbolParser(symbolParser);
 }
 
+void test_throwException() {
+    Tokenizer *tokenizer = createTokenizer(" $ ");
+    Token *token = getToken(tokenizer);
+    //Symbol symbolInfo = {INFIX, UNKNOWN, token};
+    Try {
+        throwException(ERR_INVALID_SYMBOL, token, 0,
+        "Symbol %s is not supported in C Language", token->str);
+        TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+    } Catch(e){
+        dumpTokenErrorMessage(e, __LINE__);
+        TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
+        freeException(e);
+    }
+    freeToken(token);
+    freeTokenizer(tokenizer);
+}
+
 #endif // TEST
