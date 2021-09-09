@@ -579,6 +579,7 @@ void test_isSymbolKeyword_given_symbol_not_a_keyword_and_identifier_is_seen_as_k
   int result = isSymbolKeyword(symbol, 0);
   TEST_ASSERT_EQUAL(0, result);
   
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
@@ -592,6 +593,7 @@ void test_isSymbolKeyword_given_symbol_not_a_keyword_but_identifier_is_seen_as_k
   int result = isSymbolKeyword(symbol, 1);
   TEST_ASSERT_EQUAL(1, result);
   
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
@@ -605,6 +607,7 @@ void test_isSymbolKeyword_given_symbol_is_a_keyword_expect_result_returned_is_tr
   int result = isSymbolKeyword(symbol, 0);
   TEST_ASSERT_EQUAL(1, result);
   
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
@@ -620,6 +623,7 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_a_keyword_expect_keyword_ty
   //The keyword is a while loop keyword, so WHILE should be returned
   TEST_ASSERT_EQUAL(WHILE, *type);
   
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
@@ -635,6 +639,7 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_expect_keyword_
   //The keyword is not a keyword, so keyword type is not returned
   TEST_ASSERT_EQUAL(0, *type);
   
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
@@ -650,6 +655,7 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_but_identifierI
   //Non-keyword identifiers seen as keyword, type is returned
   TEST_ASSERT_EQUAL(TYPE, *type);
   
+  freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
