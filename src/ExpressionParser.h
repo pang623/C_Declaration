@@ -13,16 +13,16 @@
 extern SymbolParser *symbolParser;
 
 Symbol *expression(int rbp);
-Symbol *prefixNud(Symbol *symbol);
+Symbol *prefixNud(Symbol *symbol, Symbol *left);
 Symbol *infixLedL(Symbol *symbol, Symbol *left);
 Symbol *infixLedR(Symbol *symbol, Symbol *left);
 Symbol *suffixLed(Symbol *symbol, Symbol *left);
-Symbol *identityNud(Symbol *symbol);
-Symbol *errorNud(Symbol *symbol);
-Symbol *missingOperandNud(Symbol *symbol);
+Symbol *identityNud(Symbol *symbol, Symbol *left);
+Symbol *errorNud(Symbol *symbol, Symbol *left);
+Symbol *missingOperandNud(Symbol *symbol, Symbol *left);
 Symbol *errorLed(Symbol *symbol, Symbol *left);
 Symbol *identityLed(Symbol *symbol, Symbol *left);
-Symbol *parentNud(Symbol *symbol);
+Symbol *parentNud(Symbol *symbol, Symbol *left);
 Symbol *sqrBracketLed(Symbol *symbol, Symbol *left);
 
 #endif // EXPRESSIONPARSER_H

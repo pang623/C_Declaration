@@ -8,10 +8,11 @@ void verifyIsSymbolInTable(SymbolParser *symbolParser, Symbol *symbol) {
 
 Symbol *tdop(int rbp, SymbolAttrTable *table) {
   Symbol *left, *symbol, *symbolCheck;
+  left = symbol = symbolCheck = NULL;
   setSymbolTable(symbolParser, table);
   symbol = getSymbol(symbolParser);
   verifyIsSymbolInTable(symbolParser, symbol);
-  left = nudOf(symbol)(symbol);
+  left = nudOf(symbol)(symbol, left);
   while(rbp < getInfixLBP((symbolCheck = peekSymbol(symbolParser)))) {
     symbol = getSymbol(symbolParser);
     setSymbolTable(symbolParser, table);

@@ -56,7 +56,7 @@ SymbolAttrTable expressionSymbolTable[LAST_SYMBOL] = {
 
 //handles prefix
 //unary, inc, dec etc
-Symbol *prefixNud(Symbol *symbol) {
+Symbol *prefixNud(Symbol *symbol, Symbol *left) {
   symbol->arity = PREFIX;
   symbol->child[0] = expression(getPrefixRBP(symbol));
   if(symbol->id == ADD)
@@ -100,31 +100,35 @@ Symbol *suffixLed(Symbol *symbol, Symbol *left) {
   return symbol;
 }
 
-Symbol *parentNud(Symbol *symbol) {
+Symbol *parentNud(Symbol *symbol, Symbol *left) {
   symbol->child[0] = expression(0);
   verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
   return symbol;
 }
 
 //just returns the symbol (numbers, var)
-Symbol *identityNud(Symbol *symbol) {
+Symbol *identityNud(Symbol *symbol, Symbol *left) {
   int i;
   int *type = &i;
-  if(isSymbolKeyword(symbol, 0))
+  if(isSymbolKeyword(symbol, 0)) {
+    freeSymbol(left);
     throwException(ERR_ILLEGAL_KEYWORD_USAGE, symbol->token, 0,
     "Keyword %s cannot be used here", symbol->token->str);
+  }
   symbol->arity = IDENTITY;
   return symbol;
 }
 
 //error handling for illegal prefix
-Symbol *errorNud(Symbol *symbol) {
+Symbol *errorNud(Symbol *symbol, Symbol *left) {
+  freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Operator %s is not a unary operator", symbol->token->str);
 }
 
 //error handling for missing right operand
-Symbol *missingOperandNud(Symbol *symbol) {
+Symbol *missingOperandNud(Symbol *symbol, Symbol *left) {
+  freeSymbol(left);
   throwException(ERR_MISSING_OPERAND, symbol->token, 0,
   "Expected an operand here, but none received", symbol->token->str);
 }

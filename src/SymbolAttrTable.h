@@ -8,7 +8,7 @@
 typedef struct Symbol Symbol;
 typedef struct SymbolAttrTable SymbolAttrTable;
 
-typedef Symbol *(*NudFuncPtr)(Symbol *symbol);
+typedef Symbol *(*NudFuncPtr)(Symbol *symbol, Symbol *left);
 typedef Symbol *(*LedFuncPtr)(Symbol *symbol, Symbol *left);
 
 struct Symbol {

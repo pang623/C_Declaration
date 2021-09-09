@@ -51,7 +51,7 @@ Symbol *caseFud(int rbp) {
   "Expecting a data type keyword here", symbol->token->str);
 }
 
-Symbol *groupingNud(Symbol *symbol) {
+Symbol *groupingNud(Symbol *symbol, Symbol *left) {
   symbol->arity = PREFIX;
   symbol->child[0] = tdop(0, CDeclSymbolTable);
   verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
@@ -65,9 +65,11 @@ Symbol *funcLed(Symbol *symbol, Symbol *left) {
   symbol->child[0] = left;
   while(1) {
     if((peekSymbol(symbolParser))->id == CLOSE_PARENT) {
-      if(next != NULL && next->id == COMMA)
+      if(next != NULL && next->id == COMMA) {
+        freeSymbol(left);
         throwException(ERR_EXPECING_CDECL, peekSymbol(symbolParser)->token, 0,
         "Expecting a C declaration here");
+      }
       break;
     }
     AST = cDecl(0);
@@ -78,9 +80,11 @@ Symbol *funcLed(Symbol *symbol, Symbol *left) {
     }else if(next->id == CLOSE_PARENT) {
       newAST = combineAST(AST, newAST);
       break;
-    }else
+    }else {
+      freeSymbol(left);
       throwException(ERR_SYNTAX, next->token, 0,
       "Must be a ',' or ')' here");
+    }
   }
   verifyIsNextSymbolThenConsume(CLOSE_PARENT, ")");
   symbol->child[1] = newAST;
@@ -96,11 +100,12 @@ Symbol *combineAST(Symbol *AST, Symbol *oldAST) {
 }
 
 Symbol *pointerLed(Symbol *symbol, Symbol *left) {
+  freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Pointer cannot be used here");
 }
 
-Symbol *pointerNud(Symbol *symbol) {
+Symbol *pointerNud(Symbol *symbol, Symbol *left) {
   symbol->arity = PREFIX;
   symbol->id = POINTER;
   symbol->child[0] = tdop(getPrefixRBP(symbol), CDeclSymbolTable);
