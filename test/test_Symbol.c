@@ -670,7 +670,7 @@ void test_throwException() {
     } Catch(e){
         //dumpTokenErrorMessage(e, __LINE__);
         TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
-        freeException(e);
+        //freeException(e);
     }
     freeToken(token);
     freeTokenizer(tokenizer);
