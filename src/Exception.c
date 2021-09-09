@@ -1,6 +1,6 @@
 #include "Exception.h"
 #include <stdio.h>
-#include <malloc.h>				//memory allocation library
+#include <stdlib.h>				//memory allocation library
 #include <stdarg.h>
 
 //char buffer[1024];			//static memory allocation (automatically assign memory space itself)
