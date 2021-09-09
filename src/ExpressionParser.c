@@ -112,7 +112,7 @@ Symbol *identityNud(Symbol *symbol, Symbol *left) {
   int *type = &i;
   if(isSymbolKeyword(symbol, 0)) {
     freeSymbol(left);
-    throwException(ERR_ILLEGAL_KEYWORD_USAGE, symbol->token, 0,
+    throwException(ERR_ILLEGAL_KEYWORD_USAGE, symbol->token, 1,
     "Keyword %s cannot be used here", symbol->token->str);
   }
   symbol->arity = IDENTITY;
@@ -122,7 +122,7 @@ Symbol *identityNud(Symbol *symbol, Symbol *left) {
 //error handling for illegal prefix
 Symbol *errorNud(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_SYNTAX, symbol->token, 0,
+  throwException(ERR_SYNTAX, symbol->token, 1,
   "Operator %s is not a unary operator", symbol->token->str);
   return NULL;
 }
@@ -130,7 +130,7 @@ Symbol *errorNud(Symbol *symbol, Symbol *left) {
 //error handling for missing right operand
 Symbol *missingOperandNud(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_MISSING_OPERAND, symbol->token, 0,
+  throwException(ERR_MISSING_OPERAND, symbol->token, 1,
   "Expected an operand here, but none received", symbol->token->str);
   return NULL;
 }
@@ -138,7 +138,7 @@ Symbol *missingOperandNud(Symbol *symbol, Symbol *left) {
 //error handling for illegal infix
 Symbol *errorLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_SYNTAX, symbol->token, 0,
+  throwException(ERR_SYNTAX, symbol->token, 1,
   "Operator %s is not a binary operator", symbol->token->str);
   return NULL;
 }
@@ -147,7 +147,7 @@ Symbol *errorLed(Symbol *symbol, Symbol *left) {
 //they cannot be infix, thus if led is called an error is thrown
 Symbol *identityLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_SYNTAX, symbol->token, 0,
+  throwException(ERR_SYNTAX, symbol->token, 1,
   "Identifiers and numbers cannot be used here, but received %s here", symbol->token->str);
   return NULL;
 }

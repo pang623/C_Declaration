@@ -283,7 +283,7 @@ void test_expression_with_single_number_expect_ast_created_correctly(void) {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_expression_given_3_and_2_expect_ERR_SYNTAX_is_thrown(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("3 2");

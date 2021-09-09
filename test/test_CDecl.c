@@ -353,7 +353,7 @@ void test_expression_given_not_c_declaration_name_expect_ERR_KEYWORD_DATA_TYPE_i
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_expression_given_c_declaration_but_terminated_with_comma_expect_ERR_WRONG_SYMBOL_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("int a(int b), ");
   symbolParser = createSymbolParser(tokenizer);
