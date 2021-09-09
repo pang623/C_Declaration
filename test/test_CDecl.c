@@ -387,7 +387,7 @@ void test_expression_given_c_declaration_but_two_separate_variable_names_expect_
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 void test_expression_given_c_declaration_but_extra_variable_name_expect_ERR_SYNTAX_is_thrown(void) {
   //two names declared, invalid, can only have one name
   Tokenizer *tokenizer = createTokenizer("Symbol a[3]extra;");
