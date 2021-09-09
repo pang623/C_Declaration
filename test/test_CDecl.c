@@ -370,7 +370,7 @@ void test_expression_given_c_declaration_but_terminated_with_comma_expect_ERR_WR
   freeSymbolParser(symbolParser);
 }
 
-/*
+
 void test_expression_given_c_declaration_but_two_separate_variable_names_expect_ERR_SYNTAX_is_thrown(void) {
   //'a' and 'b' separated, both are names, invalid, variable name can only be one
   Tokenizer *tokenizer = createTokenizer("Symbol a b;");
@@ -387,7 +387,7 @@ void test_expression_given_c_declaration_but_two_separate_variable_names_expect_
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+*/
 void test_expression_given_c_declaration_but_extra_variable_name_expect_ERR_SYNTAX_is_thrown(void) {
   //two names declared, invalid, can only have one name
   Tokenizer *tokenizer = createTokenizer("Symbol a[3]extra;");
@@ -404,7 +404,7 @@ void test_expression_given_c_declaration_but_extra_variable_name_expect_ERR_SYNT
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_expression_given_c_declaration_but_variable_is_a_number_expect_error_invalid_symbol_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("int 3;");
   symbolParser = createSymbolParser(tokenizer);
