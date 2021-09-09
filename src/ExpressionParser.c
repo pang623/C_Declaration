@@ -124,6 +124,7 @@ Symbol *errorNud(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Operator %s is not a unary operator", symbol->token->str);
+  return NULL;
 }
 
 //error handling for missing right operand
@@ -131,6 +132,7 @@ Symbol *missingOperandNud(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_MISSING_OPERAND, symbol->token, 0,
   "Expected an operand here, but none received", symbol->token->str);
+  return NULL;
 }
 
 //error handling for illegal infix
@@ -138,6 +140,7 @@ Symbol *errorLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Operator %s is not a binary operator", symbol->token->str);
+  return NULL;
 }
 
 //error handling for numbers and variables 
@@ -146,6 +149,7 @@ Symbol *identityLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Identifiers and numbers cannot be used here, but received %s here", symbol->token->str);
+  return NULL;
 }
 
 Symbol *expression(int rbp) {
