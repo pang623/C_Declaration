@@ -43,6 +43,7 @@ void test_expression_given_an_array_C_declaration_expect_read_out_correctly(void
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }
@@ -59,6 +60,7 @@ void test_expression_given_an_twoD_array_C_declaration_expect_read_out_correctly
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }
@@ -75,6 +77,7 @@ void test_expression_given_an_float_ptr_C_declaration_expect_read_out_correctly(
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }
@@ -91,6 +94,7 @@ void test_expression_given_an_array_of_char_ptr_C_declaration_expect_read_out_co
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }
@@ -108,6 +112,7 @@ void test_expression_given_a_mixed_C_declaration_expect_read_out_correctly(void)
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }
@@ -124,6 +129,7 @@ void test_expression_given_function_declaration_with_1_args_expect_read_out_corr
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }
@@ -140,6 +146,7 @@ void test_expression_given_function_declaration_with_2_args_expect_read_out_corr
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }
@@ -157,6 +164,7 @@ void test_expression_given_function_declaration_with_multiple_args_expect_read_o
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }
@@ -173,6 +181,7 @@ void test_expression_given_function_declaration_with_double_ptr_expect_read_out_
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   free(str);
 }

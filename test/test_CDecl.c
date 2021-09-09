@@ -51,6 +51,7 @@ void test_expression_given_an_array_C_declaration_expect_correctly_parsed(void) 
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -79,6 +80,7 @@ void test_expression_given_an_twoD_array_C_declaration_expect_correctly_parsed(v
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -103,6 +105,7 @@ void test_expression_given_an_float_ptr_C_declaration_expect_correctly_parsed(vo
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -130,6 +133,7 @@ void test_expression_given_an_array_of_char_ptr_C_declaration_expect_correctly_p
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -154,6 +158,7 @@ void test_expression_given_a_function_declaration_with_empty_parameters_expect_c
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -181,6 +186,7 @@ void test_expression_given_a_function_declaration_with_single_parameter_expect_c
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -219,6 +225,7 @@ void test_expression_given_a_function_declaration_with_two_parameters_expect_cor
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -268,6 +275,7 @@ void test_expression_given_a_function_declaration_with_multiple_parameters_expec
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -299,6 +307,7 @@ void test_expression_given_an_array_C_declaration_and_array_subscripted_with_exp
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -322,11 +331,13 @@ void test_expression_given_an_mixed_C_declaration_expect_correctly_parsed(void) 
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
+
 void test_expression_given_not_c_declaration_name_expect_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("while a");
   symbolParser = createSymbolParser(tokenizer);
@@ -337,11 +348,12 @@ void test_expression_given_not_c_declaration_name_expect_ERR_KEYWORD_DATA_TYPE_i
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_KEYWORD_DATA_TYPE, e->errorCode);
+    freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_expression_given_c_declaration_but_terminated_with_comma_expect_ERR_WRONG_SYMBOL_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("int a(int b), ");
   symbolParser = createSymbolParser(tokenizer);
