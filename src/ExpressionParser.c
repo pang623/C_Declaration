@@ -131,6 +131,7 @@ Symbol *missingOperandNud(Symbol *symbol) {
 
 //error handling for illegal infix
 Symbol *errorLed(Symbol *symbol, Symbol *left) {
+  freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Operator %s is not a binary operator", symbol->token->str);
 }
@@ -138,6 +139,7 @@ Symbol *errorLed(Symbol *symbol, Symbol *left) {
 //error handling for numbers and variables 
 //they cannot be infix, thus if led is called an error is thrown
 Symbol *identityLed(Symbol *symbol, Symbol *left) {
+  freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
   "Identifiers and numbers cannot be used here, but received %s here", symbol->token->str);
 }
