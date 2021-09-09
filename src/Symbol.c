@@ -47,7 +47,7 @@ SymbolCombination SymbolCombiTable[] = {
 };
 
 int isSymbolKeyword(Symbol *symbol, int identifierIsSeenAsKeyword) {
-  int i;
+  int i = 0;
   int *type = &i;
   return isSymbolKeywordThenGetType(symbol, type, identifierIsSeenAsKeyword);
 }

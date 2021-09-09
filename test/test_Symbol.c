@@ -582,7 +582,7 @@ void test_isSymbolKeyword_given_symbol_not_a_keyword_and_identifier_is_seen_as_k
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_isSymbolKeyword_given_symbol_not_a_keyword_but_identifier_is_seen_as_keyword_is_enabled_expect_result_returned_is_true() {
   Tokenizer *tokenizer = createTokenizer(" Tokenizer ");
   symbolParser = createSymbolParser(tokenizer);
@@ -596,7 +596,7 @@ void test_isSymbolKeyword_given_symbol_not_a_keyword_but_identifier_is_seen_as_k
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+*/
 void test_isSymbolKeyword_given_symbol_is_a_keyword_expect_result_returned_is_true() {
   Tokenizer *tokenizer = createTokenizer(" double ");
   symbolParser = createSymbolParser(tokenizer);
