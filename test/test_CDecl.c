@@ -420,7 +420,7 @@ void test_expression_given_c_declaration_but_variable_is_a_number_expect_error_i
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+*/
 void test_expression_given_c_declaration_is_variable_but_mixed_with_operators_expect_error_invalid_symbol_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("int a +3;");
   symbolParser = createSymbolParser(tokenizer);
@@ -436,7 +436,7 @@ void test_expression_given_c_declaration_is_variable_but_mixed_with_operators_ex
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_expression_given_c_declaration_but_keyword_is_not_data_type_expect_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("while var;");
