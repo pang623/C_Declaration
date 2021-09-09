@@ -201,7 +201,7 @@ Symbol *_getSymbol(Tokenizer *tokenizer) {
   
   //Symbols that are not defined in the table
   if(symbolInfo.id == UNKNOWN)
-    throwException(ERR_INVALID_SYMBOL, symbolInfo.token, 0,
+    throwException(ERR_INVALID_SYMBOL, symbolInfo.token, 1,
     "Symbol %s is not supported in C Language", (symbolInfo.token)->str);
   return createSymbol(&symbolInfo);
 }
@@ -233,7 +233,7 @@ int isNextSymbolThenConsume(SymbolID symbolId) {
 void verifyIsNextSymbolThenConsume(SymbolID symbolId, char *expectedSym) {
   if(!(isNextSymbolThenConsume(symbolId))) {
     Symbol *symbol = getSymbol(symbolParser);
-    throwException(ERR_WRONG_SYMBOL, symbol->token, 0,
+    throwException(ERR_WRONG_SYMBOL, symbol->token, 1,
     "Expecting a %s here, but received %s instead", expectedSym, symbol->token->str);
   }
 }
