@@ -99,13 +99,13 @@ void test_expression_given_NEG3_MINUS_2_times_NEG4_expect_correctly_parsed(void)
 void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   //parser should just consume the semicolon
-  Tokenizer *tokenizer = createTokenizer("3+++2;");
+  Tokenizer *tokenizer = createTokenizer("a+++b;");
   symbolParser = createSymbolParser(tokenizer);
   Try {
     symbol = expression(0);
     //Test tree created is correct in order
-    TEST_ASSERT_SYMBOL(ADD, "+", Operator("++"), Number("2"), symbol);
-    TEST_ASSERT_SYMBOL(INC_AFTER, "++", Number("3"), NULL, symbol->child[0]);
+    TEST_ASSERT_SYMBOL(ADD, "+", Operator("++"), Identifier("b"), symbol);
+    TEST_ASSERT_SYMBOL(INC_AFTER, "++", Identifier("a"), NULL, symbol->child[0]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");

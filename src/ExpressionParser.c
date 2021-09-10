@@ -76,9 +76,14 @@ Symbol *infixLedL(Symbol *symbol, Symbol *left) {
   return symbol;
 }
 
-//for right associativity
+//for right associativity (assignment operators)
 Symbol *infixLedR(Symbol *symbol, Symbol *left) {
   symbol->arity = INFIX;
+  if(left->id == NUMBER) {
+    freeSymbol(symbol);
+    throwException(ERR_SYNTAX, left->token, 1,
+    "Cannot assign expression to numbers");
+  }
   symbol->child[0] = left;
   symbol->child[1] = expression(getInfixRBP(symbol) - 1);
   return symbol;
@@ -87,13 +92,20 @@ Symbol *infixLedR(Symbol *symbol, Symbol *left) {
 Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
   symbol->arity = INFIX;
   symbol->child[0] = left;
-  symbol->child[1] = expression(0);
+  if(peekSymbol(symbolParser)->id != CLOSE_SQR)
+    symbol->child[1] = expression(0);
+  //note: cannot have -ve value and floating point value for array size
   verifyIsNextSymbolThenConsume(CLOSE_SQR, "]");
   return symbol;
 }
 
 //postfix, eg: "++", "--"
 Symbol *suffixLed(Symbol *symbol, Symbol *left) {
+  if(left->id != IDENTIFIER) {
+    freeSymbol(symbol);
+    throwException(ERR_SYNTAX, left->token, 1,
+    "Operand must be a variable", left->token->str);
+  }
   symbol->arity = SUFFIX;
   symbol->id += 1;
   symbol->child[0] = left;
