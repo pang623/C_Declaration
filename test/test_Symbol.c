@@ -24,7 +24,7 @@ void tearDown(void)
 
 CEXCEPTION_T e;
 SymbolParser *symbolParser;
-/*
+
 void test_createSymbol_given_symbol_data_expect_symbol_created() {
   Token *token = NULL;
   Symbol *symbol;
@@ -42,9 +42,9 @@ void test_createSymbol_given_symbol_data_expect_symbol_created() {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 /*----------CASE 1 -> Symbol with double repeated char, and with equal sign as last char ----------*/
-/*
+
 void test_underscore_getSymbol_given_a_double_repeated_but_separated_char_symbol_expect_symbol_returned_is_not_the_whole_operator() {
   Tokenizer *tokenizer = createTokenizer(" + +   ");
   symbolParser = createSymbolParser(tokenizer);
@@ -130,9 +130,9 @@ void test_underscore_getSymbol_given_a_symbol_with_equal_as_last_char_but_invali
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 /*----------CASE 2 -> Symbol with only equal sign as last char ----------*/
-/*
+
 void test_underscore_getSymbol_given_a_double_repeated_char_symbol_but_separated_expect_symbol_returned_is_assignment() {
   Tokenizer *tokenizer = createTokenizer(" = =");
   symbolParser = createSymbolParser(tokenizer);
@@ -234,9 +234,9 @@ void test_underscore_getSymbol_given_a_symbol_that_only_valid_with_equal_sign_as
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 /*----------CASE 3 -> Symbol that only exist by itself (do not combine with other symbols) ----------*/
-/*
+
 void test_underscore_getSymbol_given_symbol_bit_NOT_but_is_adjacent_with_another_tilda_expect_symbol_returned_is_still_only_a_single_tilda() {
   Tokenizer *tokenizer = createTokenizer(" ~~~ ");
   symbolParser = createSymbolParser(tokenizer);
@@ -304,9 +304,9 @@ void test_underscore_getSymbol_given_open_parent_but_with_adjacent_equal_expect_
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 /*----------CASE 4 -> Symbol that overlap with case 1, case 2, case 3 plus equal sign appended to double repeated char----------*/
-/*
+
 void test_underscore_getSymbol_given_a_separated_relational_operator_expect_symbol_returned_is_without_the_equal_sign() {
   Tokenizer *tokenizer = createTokenizer(" > =   ");
   symbolParser = createSymbolParser(tokenizer);
@@ -408,7 +408,7 @@ void test_underscore_getSymbol_given_a_triple_char_symbol_but_adjacent_with_anot
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_underscore_getSymbol_given_unsupported_symbol_expect_ERR_INVALID_SYMBOL_is_thrown() {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer(" $ ");
@@ -556,7 +556,7 @@ void test_verifyIsNextSymbolThenConsume_given_next_symbol_is_desired_expect_it_t
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_verifyIsNextSymbolThenConsume_given_next_symbol_is_not_desired_expect_ERR_WRONG_SYMBOL_is_thrown() {
   Tokenizer *tokenizer = createTokenizer(" 3.5+a ");
   symbolParser = createSymbolParser(tokenizer);
@@ -582,7 +582,7 @@ void test_isSymbolKeyword_given_symbol_not_a_keyword_and_identifier_is_seen_as_k
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_isSymbolKeyword_given_symbol_not_a_keyword_but_identifier_is_seen_as_keyword_is_enabled_expect_result_returned_is_true() {
   Tokenizer *tokenizer = createTokenizer(" Tokenizer ");
   symbolParser = createSymbolParser(tokenizer);
@@ -658,7 +658,7 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_but_identifierI
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 void test_throwException() {
     Tokenizer *tokenizer = createTokenizer(" $ ");
     Token *token = getToken(tokenizer);

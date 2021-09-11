@@ -29,25 +29,25 @@ FudFuncPtr keywordTable[] = {
 //These will throw error at the moment, it can be implemented in the future
 Symbol *forFud(int rbp) {
   Symbol *symbol = getSymbol(symbolParser);
-  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 1,
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
   "Expecting a data type keyword here", symbol->token->str);
 }
 
 Symbol *whileFud(int rbp) {
   Symbol *symbol = getSymbol(symbolParser);
-  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 1,
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
   "Expecting a data type keyword here", symbol->token->str);
 }
 
 Symbol *ifFud(int rbp) {
   Symbol *symbol = getSymbol(symbolParser);
-  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 1,
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
   "Expecting a data type keyword here", symbol->token->str);
 }
 
 Symbol *caseFud(int rbp) {
   Symbol *symbol = getSymbol(symbolParser);
-  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 1,
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
   "Expecting a data type keyword here", symbol->token->str);
 }
 
@@ -67,7 +67,7 @@ Symbol *funcLed(Symbol *symbol, Symbol *left) {
     if((peekSymbol(symbolParser))->id == CLOSE_PARENT) {
       if(next != NULL && next->id == COMMA) {
         freeSymbol(left);
-        throwException(ERR_EXPECING_CDECL, peekSymbol(symbolParser)->token, 1,
+        throwException(ERR_EXPECING_CDECL, peekSymbol(symbolParser)->token, 0,
         "Expecting a C declaration here");
       }
       break;
@@ -82,7 +82,7 @@ Symbol *funcLed(Symbol *symbol, Symbol *left) {
       break;
     }else {
       freeSymbol(left);
-      throwException(ERR_SYNTAX, next->token, 1,
+      throwException(ERR_SYNTAX, next->token, 0,
       "Must be a ',' or ')' here");
     }
   }
@@ -101,7 +101,7 @@ Symbol *combineAST(Symbol *AST, Symbol *oldAST) {
 
 Symbol *pointerLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_SYNTAX, symbol->token, 1,
+  throwException(ERR_SYNTAX, symbol->token, 0,
   "Pointer cannot be used here");
 }
 
@@ -117,7 +117,7 @@ Symbol *cDecl(int rbp) {
   int *type = &i;
   Symbol *symbol = getSymbol(symbolParser);
   if((!isSymbolKeywordThenGetType(symbol, type, 1)) || (*type != TYPE))
-    throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 1,
+    throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
     "Expecting a data type keyword here", symbol->token->str);
   symbol->id = TYPE;
   symbol->arity = IDENTITY;

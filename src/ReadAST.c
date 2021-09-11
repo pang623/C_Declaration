@@ -59,17 +59,40 @@ EvaluateFunction evaluateSymbolTable[] = {
 };
 
 ReadFunction readSymbolTable[] = {
-  [IDENTIFIER]      = identifierRead,
-  [NUMBER]          = generalRead,
-  [OPEN_SQR]        = arrayRead,
-  [FUNCTION]        = functionRead,
-  [POINTER]         = pointerRead,
-  [COMMA]           = generalRead,
-  [TYPE]            = generalRead,
-  [OPEN_PARENT]     = ignoreRead,
+  [IDENTIFIER]          =   identifierRead,
+  [NUMBER]              =      generalRead,
+  [OPEN_SQR]            =        arrayRead,
+  [FUNCTION]            =     functionRead,
+  [POINTER]             =      pointerRead,
+  [COMMA]               =      generalRead,
+  [TYPE]                =      generalRead,
+  [PLUS_SIGN]           =      generalRead,
+  [MINUS_SIGN]          =      generalRead,
+  [ADD]                 =      generalRead,
+  [SUBTRACT]            =      generalRead,
+  [MULTIPLY]            =      generalRead,
+  [DIVIDE]              =      generalRead,
+  [MODULUS]             =      generalRead,
+  [BIT_AND]             =      generalRead,
+  [BIT_XOR]             =      generalRead,
+  [BIT_OR]              =      generalRead,
+  [BIT_NOT]             =      generalRead,
+  [L_SHIFT]             =      generalRead,
+  [R_SHIFT]             =      generalRead,
+  [LOGI_NOT]            =      generalRead,
+  [LOGI_AND]            =      generalRead,
+  [LOGI_OR]             =      generalRead,
+  [LESSER]              =      generalRead,
+  [GREATER]             =      generalRead,
+  [LESS_OR_EQUAL]       =      generalRead,
+  [GREATER_OR_EQUAL]    =      generalRead,
+  [EQUALITY]            =      generalRead,
+  [NOT_EQUAL]           =      generalRead,
+  [OPEN_PARENT]         =       ignoreRead,
 };
 
 int readRight = 0;
+int readArray = 0;
 
 char *functionRead(Symbol *symbol) {
   char *str, *newStr;
@@ -91,6 +114,8 @@ char *pointerRead(Symbol *symbol) {
 
 char *identifierRead(Symbol *symbol) {
   char *str = createString(symbol->token->str);
+  if(readArray)
+    return str;
   return concat(str, createString(" is "));
 }
 
@@ -123,7 +148,6 @@ int isExpressionReducible(Symbol *symbol) {
 }
 
 int integerEvaluate(Symbol *symbol) {
-  int result;
   if(symbol == NULL)
     return 0;
   if(symbol->id == OPEN_PARENT)
@@ -133,7 +157,7 @@ int integerEvaluate(Symbol *symbol) {
   int left_val = integerEvaluate(symbol->child[0]);
   int right_val = integerEvaluate(symbol->child[1]);
   
-  return result = evaluate(symbol)(left_val, right_val);
+  return evaluate(symbol)(left_val, right_val);
 }
 
 char *arrayRead(Symbol *symbol) {
@@ -144,9 +168,12 @@ char *arrayRead(Symbol *symbol) {
   else if(isExpressionReducible(symbol->child[1])) {
     result = integerEvaluate(symbol->child[1]);
     str = concat(str, convertIntToStr(result));
-  }else
+  }else {
+    readArray = 1;
     str = readAST(symbol->child[1], str);
+  }
   readRight = 1;
+  readArray = 0;
   return concat(str, createString(" of "));
 }
 

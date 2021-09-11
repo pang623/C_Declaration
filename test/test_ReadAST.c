@@ -231,7 +231,7 @@ void test_integerEvaluate_given_an_expression_with_no_identifiers_expect_express
   freeSymbolParser(symbolParser);
 }
 
-void test_readAST_given_an_array_C_declaration_and_array_subscripted_with_expression_expect_correctly_parsed(void) {
+void test_readAST_given_an_array_C_declaration_and_array_subscripted_with_expression_no_identifiers_expect_array_size_is_evaluated(void) {
   char *str = NULL;
   Tokenizer *tokenizer = createTokenizer("float arr[3- -2*4];");
   symbolParser = createSymbolParser(tokenizer);
@@ -239,6 +239,46 @@ void test_readAST_given_an_array_C_declaration_and_array_subscripted_with_expres
   Try {
     str = readAST(AST, createString(""));
     TEST_ASSERT_EQUAL_STRING("arr is array of 11 of float", str);
+    printf("%s", str);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  free(str);
+}
+
+void test_readAST_given_an_array_C_declaration_and_array_subscripted_with_expression_has_identifiers_expect_array_size_not_evaluated(void) {
+  char *str = NULL;
+  Tokenizer *tokenizer = createTokenizer("float arr[a*4+2];");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *AST = statement();
+  Try {
+    str = readAST(AST, createString(""));
+    TEST_ASSERT_EQUAL_STRING("arr is array of a*4+2 of float", str);
+    printf("%s", str);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  free(str);
+}
+
+void test_readAST_given_a_complex_C_declaration_expect_read_out_correctly(void) {
+  char *str = NULL;
+  Tokenizer *tokenizer = createTokenizer("char (*(**(*(*(*x(char *str))[(4*7)%5])()))(int num, double *dNum[3]))(Symbol *info[a*9], int *(*b(double d)), INT (*c(int z, char (*func)(int w)))(int e))");
+  symbolParser = createSymbolParser(tokenizer);
+  
+  Try {
+    Symbol *AST = statement();
+    str = readAST(AST, createString(""));
+    //TEST_ASSERT_EQUAL_STRING("x is function taking in (str is pointer to char) \
+//returning pointer to array of 5 of pointer to function () returning pointer to function taking in (num is int) returning pointer to pointer to char", str);
+    TEST_ASSERT_EQUAL_STRING("x is function taking in (str is pointer to char) returning pointer to array of 3 of pointer to function () \
+returning pointer to pointer to pointer to function taking in (num is int,dNum is array of 3 of pointer to double) returning pointer to \
+function taking in (info is array of a*9 of pointer to Symbol,b is function taking in (d is double) returning pointer to pointer to int,c \
+is function taking in (z is int,func is pointer to function taking in (w is int) returning char) returning pointer to function taking in (e is int) returning INT) returning char", str);
     printf("%s", str);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);

@@ -17,13 +17,13 @@ int funcName(int number1, int number2) {                                        
 }
 
 #define createPrefixFunction(funcName, operator)                                  \
-int funcName(int number, int dummy) {                                           \
+int funcName(int number, int dummy) {                                             \
   prefixCalculation(number, operator);                                            \
   return result;                                                                  \
 }
 
 #define createSuffixFunction(funcName, operator)                                  \
-int funcName(int number, int dummy) {                                           \
+int funcName(int number, int dummy) {                                             \
   suffixCalculation(number, operator);                                            \
   return result;                                                                  \
 }

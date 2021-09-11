@@ -122,13 +122,13 @@ void test_expression_given_3_postincrement_plus_2_expect_correctly_parsed(void) 
        / \       / \
       ~  ++     --  b
      /     \   /   
-    2       a 8   
+    2       a c   
 */
 
 //parsed as ((~2)-(a++))+((--8)*b)
 void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
-  Tokenizer *tokenizer = createTokenizer("~ 2 - a++ +  --  8 *  b; expression ends after ;");
+  Tokenizer *tokenizer = createTokenizer("~ 2 - a++ +  --  c *  b; expression ends after ;");
   symbolParser = createSymbolParser(tokenizer);
   Try {
     symbol = expression(0);
@@ -138,7 +138,7 @@ void test_expression_given_mix_of_prefixes_and_suffixes_expect_correctly_parsed(
     TEST_ASSERT_SYMBOL(MULTIPLY, "*", Operator("--"), Identifier("b"), symbol->child[1]);
     TEST_ASSERT_SYMBOL(BIT_NOT, "~", Number("2"), NULL, symbol->child[0]->child[0]);
     TEST_ASSERT_SYMBOL(INC_AFTER, "++", Identifier("a"), NULL, symbol->child[0]->child[1]);
-    TEST_ASSERT_SYMBOL(DEC_BEFORE, "--", Number("8"), NULL, symbol->child[1]->child[0]);
+    TEST_ASSERT_SYMBOL(DEC_BEFORE, "--", Number("c"), NULL, symbol->child[1]->child[0]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -283,7 +283,59 @@ void test_expression_with_single_number_expect_ast_created_correctly(void) {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
+void test_expression_with_assigning_expression_to_numbers_expect_ERR_SYNTAX_is_thrown() {
+  Symbol *symbol = NULL;
+  //LHS of assignment operator must be a variable
+  Tokenizer *tokenizer = createTokenizer("3 + (2 += 3)");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+//this is evaluated to (a++)++ + 2, which is invalid, LHS operand of ++ and -- must be lvalue (eg: variable)
+void test_expression_given_postincrement_but_operand_not_lvalue_expect_ERR_SYNTAX_thrown(void) {
+  Symbol *symbol;
+  Tokenizer *tokenizer = createTokenizer("a+++++2");
+  symbolParser = createSymbolParser(tokenizer);
+  Try{
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeTokenizer(tokenizer);
+}
+
+//same goes with prefix ++ and --, must be a lvalue for RHS operand
+void test_expression_given_predecrement_but_operand_not_lvalue_expect_ERR_SYNTAX_thrown(void) {
+  Symbol *symbol = NULL;
+  Tokenizer *tokenizer = createTokenizer("--7");
+  symbolParser = createSymbolParser(tokenizer);
+  Try{
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeTokenizer(tokenizer);
+}
+
+
 void test_expression_given_3_and_2_expect_ERR_SYNTAX_is_thrown(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("3 2");
@@ -299,7 +351,7 @@ void test_expression_given_3_and_2_expect_ERR_SYNTAX_is_thrown(void) {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_expression_given_expression_with_missing_operator_expect_ERR_SYNTAX_is_thrown(void) {
   Symbol *symbol = NULL;
   //parsed as (a++)b, missing operator before b
@@ -472,7 +524,7 @@ void test_expression_given_an_EOL_but_with_no_operands_in_front_of_it_expect_err
 
 void test_expression_given_an_expression_but_with_unknown_symbol_expect_error_invalid_symbol_is_thrown(void) {
   Symbol *symbol = NULL;
-  //"#" is an invlaid symbol in expression
+  //"#" is an invalid symbol in C language
   Tokenizer *tokenizer = createTokenizer(" 3# 2");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -489,7 +541,7 @@ void test_expression_given_an_expression_but_with_unknown_symbol_expect_error_in
 
 void test_expression_given_an_expression_but_unsupported_symbol_expect_error_invalid_symbol_is_thrown(void) {
   Symbol *symbol = NULL;
-  //"#" is an invalid symbol in expression
+  //"," is an invalid symbol in expression
   Tokenizer *tokenizer = createTokenizer(" a*b,c");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -503,5 +555,5 @@ void test_expression_given_an_expression_but_unsupported_symbol_expect_error_inv
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 #endif // TEST

@@ -13,8 +13,8 @@ SymbolAttrTable expressionSymbolTable[LAST_SYMBOL] = {
   [MULTIPLY]           =   { NIL,  130,  130,           errorNud,       infixLedL},
   [DIVIDE]             =   { NIL,  130,  130,           errorNud,       infixLedL},
   [MODULUS]            =   { NIL,  130,  130,           errorNud,       infixLedL},
-  [INC_BEFORE]         =   { 140,  NIL,  150,          prefixNud,       suffixLed},
-  [DEC_BEFORE]         =   { 140,  NIL,  150,          prefixNud,       suffixLed},
+  [INC_BEFORE]         =   { 140,  NIL,  150,    prefixIncDecNud, suffixIncDecLed},
+  [DEC_BEFORE]         =   { 140,  NIL,  150,    prefixIncDecNud, suffixIncDecLed},
   //Bitwise
   [BIT_AND]            =   { NIL,   80,   80,           errorNud,       infixLedL},
   [BIT_XOR]            =   { NIL,   70,   70,           errorNud,       infixLedL},
@@ -81,7 +81,7 @@ Symbol *infixLedR(Symbol *symbol, Symbol *left) {
   symbol->arity = INFIX;
   if(left->id == NUMBER) {
     freeSymbol(symbol);
-    throwException(ERR_SYNTAX, left->token, 1,
+    throwException(ERR_SYNTAX, left->token, 0,
     "Cannot assign expression to numbers");
   }
   symbol->child[0] = left;
@@ -99,11 +99,24 @@ Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
   return symbol;
 }
 
-//postfix, eg: "++", "--"
-Symbol *suffixLed(Symbol *symbol, Symbol *left) {
+//prefix "++" "--"
+Symbol *prefixIncDecNud(Symbol *symbol, Symbol *left) {
+  Symbol *right = getSymbol(symbolParser);
+  if(right->id != IDENTIFIER) {
+    freeSymbol(symbol);
+    throwException(ERR_SYNTAX, right->token, 0,
+    "Operand must be a variable", right->token->str);
+  }
+  symbol->arity = PREFIX;
+  symbol->child[0] = right;
+  return symbol;
+}
+
+//postfix "++" "--"
+Symbol *suffixIncDecLed(Symbol *symbol, Symbol *left) {
   if(left->id != IDENTIFIER) {
     freeSymbol(symbol);
-    throwException(ERR_SYNTAX, left->token, 1,
+    throwException(ERR_SYNTAX, left->token, 0,
     "Operand must be a variable", left->token->str);
   }
   symbol->arity = SUFFIX;
@@ -124,7 +137,7 @@ Symbol *identityNud(Symbol *symbol, Symbol *left) {
   int *type = &i;
   if(isSymbolKeyword(symbol, 0)) {
     freeSymbol(left);
-    throwException(ERR_ILLEGAL_KEYWORD_USAGE, symbol->token, 1,
+    throwException(ERR_ILLEGAL_KEYWORD_USAGE, symbol->token, 0,
     "Keyword %s cannot be used here", symbol->token->str);
   }
   symbol->arity = IDENTITY;
@@ -134,7 +147,7 @@ Symbol *identityNud(Symbol *symbol, Symbol *left) {
 //error handling for illegal prefix
 Symbol *errorNud(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_SYNTAX, symbol->token, 1,
+  throwException(ERR_SYNTAX, symbol->token, 0,
   "Operator %s is not a unary operator", symbol->token->str);
   return NULL;
 }
@@ -142,7 +155,7 @@ Symbol *errorNud(Symbol *symbol, Symbol *left) {
 //error handling for missing right operand
 Symbol *missingOperandNud(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_MISSING_OPERAND, symbol->token, 1,
+  throwException(ERR_MISSING_OPERAND, symbol->token, 0,
   "Expected an operand here, but none received", symbol->token->str);
   return NULL;
 }
@@ -150,7 +163,7 @@ Symbol *missingOperandNud(Symbol *symbol, Symbol *left) {
 //error handling for illegal infix
 Symbol *errorLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_SYNTAX, symbol->token, 1,
+  throwException(ERR_SYNTAX, symbol->token, 0,
   "Operator %s is not a binary operator", symbol->token->str);
   return NULL;
 }
@@ -159,7 +172,7 @@ Symbol *errorLed(Symbol *symbol, Symbol *left) {
 //they cannot be infix, thus if led is called an error is thrown
 Symbol *identityLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
-  throwException(ERR_SYNTAX, symbol->token, 1,
+  throwException(ERR_SYNTAX, symbol->token, 0,
   "Identifiers and numbers cannot be used here, but received %s here", symbol->token->str);
   return NULL;
 }
