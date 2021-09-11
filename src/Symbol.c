@@ -28,6 +28,7 @@ KeywordAttrTable keywordIdTable[] = {
   {"char"       , TYPE},
   {"float"      , TYPE},
   {"double"     , TYPE},
+  {"void"       , TYPE},
   {"if"         , IF},
   {"else"       , IF},
   {"while"      , WHILE},
