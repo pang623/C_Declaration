@@ -660,4 +660,46 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_but_identifierI
   freeSymbolParser(symbolParser);
 }
 
+void test_isCorrectSymbolAndAdjacent_given_symbol_adjacent_repeating_expect_result_returns_true() {
+  Tokenizer *tokenizer = createTokenizer(" >>+ ");
+  Token *symbol = getToken(tokenizer);
+  Token *nextSymbol = getToken(tokenizer);
+  
+  //if symToCheck is NULL, it means that the function will check the next token for repeating symbol based on the first token
+  int result = isCorrectSymbolAndAdjacent(symbol, nextSymbol, NULL);
+  TEST_ASSERT_EQUAL(1, result);
+  
+  freeToken(symbol);
+  freeToken(nextSymbol);
+  freeTokenizer(tokenizer);
+}
+
+void test_isCorrectSymbolAndAdjacent_given_symbol_adjacent_equal_sign_expect_result_returns_true() {
+  Tokenizer *tokenizer = createTokenizer(" >= ");
+  Token *symbol = getToken(tokenizer);
+  Token *nextSymbol = getToken(tokenizer);
+  
+  //next symbol to check is "="
+  int result = isCorrectSymbolAndAdjacent(symbol, nextSymbol, "=");
+  TEST_ASSERT_EQUAL(1, result);
+  
+  freeToken(symbol);
+  freeToken(nextSymbol);
+  freeTokenizer(tokenizer);
+}
+
+void test_isCorrectSymbolAndAdjacent_given_symbol_adjacent_is_not_equal_sign_expect_result_returns_false() {
+  Tokenizer *tokenizer = createTokenizer(" >> ");
+  Token *symbol = getToken(tokenizer);
+  Token *nextSymbol = getToken(tokenizer);
+  
+  //next symbol to check is "=", but is not "=", return false
+  int result = isCorrectSymbolAndAdjacent(symbol, nextSymbol, "=");
+  TEST_ASSERT_EQUAL(0, result);
+  
+  freeToken(symbol);
+  freeToken(nextSymbol);
+  freeTokenizer(tokenizer);
+}
+
 #endif // TEST

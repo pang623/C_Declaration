@@ -580,23 +580,6 @@ void test_cDecl_given_c_function_decl_but_missing_closing_parent_at_arguments_ex
   freeSymbolParser(symbolParser);
 }
 
-void test_cDecl_given_c_function_decl_but_only_has_keyword_no_name_expect_ERR_MISSING_OPERAND_is_thrown() {
-  Symbol *symbol = NULL;
-  //only data type is defined, no function/variable name
-  Tokenizer *tokenizer = createTokenizer("double ");
-  symbolParser = createSymbolParser(tokenizer);
-  Try {
-    symbol = cDecl(0);
-    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
-    freeException(e);
-  }
-  freeSymbol(symbol);
-  freeSymbolParser(symbolParser);
-}
-
 void test_cDecl_given_c_array_decl_but_array_size_is_negative_expect_ERR_ARRAY_SIZE_NEGATIVE_is_thrown() {
   Symbol *symbol = NULL;
   //array size negative

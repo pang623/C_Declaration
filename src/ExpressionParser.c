@@ -243,7 +243,7 @@ Symbol *identityNud(Symbol *symbol, Symbol *left) {
   if(isSymbolKeyword(symbol, 0)) {
     freeSymbol(left);
     throwException(ERR_ILLEGAL_KEYWORD_USAGE, symbol->token, 0,
-    "Keyword %s cannot be used here", symbol->token->str);
+    "Keyword '%s' cannot be used here", symbol->token->str);
   }
   symbol->arity = IDENTITY;
   return symbol;
@@ -253,7 +253,7 @@ Symbol *identityNud(Symbol *symbol, Symbol *left) {
 Symbol *errorNud(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
-  "Operator %s is not a unary operator", symbol->token->str);
+  "Operator '%s' is not a unary operator", symbol->token->str);
   return NULL;
 }
 
@@ -269,7 +269,7 @@ Symbol *missingOperandNud(Symbol *symbol, Symbol *left) {
 Symbol *errorLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
-  "Operator %s is not a binary operator", symbol->token->str);
+  "Operator '%s' is not a binary operator", symbol->token->str);
   return NULL;
 }
 
@@ -278,7 +278,7 @@ Symbol *errorLed(Symbol *symbol, Symbol *left) {
 Symbol *identityLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
-  "%s cannot be used here", symbol->token->str);
+  "'%s' cannot be used here", symbol->token->str);
   return NULL;
 }
 

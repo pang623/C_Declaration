@@ -189,58 +189,14 @@ void test_readAST_given_function_declaration_with_double_ptr_expect_read_out_cor
   free(str);
 }
 
-void test_isExpressionReducible_given_expression_with_identifiers_expect_return_false() {
-  Tokenizer *tokenizer = createTokenizer("c+b*a");
-  symbolParser = createSymbolParser(tokenizer);
-  Symbol *AST = expression(0);
-  
-  int result = isExpressionReducible(AST);
-  TEST_ASSERT_EQUAL(0, result);
-  
-  freeSymbol(AST);
-  freeSymbolParser(symbolParser);
-}
-
-void test_isExpressionReducible_given_expression_with_no_identifiers_expect_return_true() {
-  Tokenizer *tokenizer = createTokenizer("3 >> 2");
-  symbolParser = createSymbolParser(tokenizer);
-  Symbol *AST = expression(0);
-  
-  int result = isExpressionReducible(AST);
-  TEST_ASSERT_EQUAL(1, result);
-  
-  freeSymbol(AST);
-  freeSymbolParser(symbolParser);
-}
-
-void test_convertIntToStr_given_a_number_expect_str_returned() {
-  int num = 1359;
-  char *str = convertIntToStr(num);
-  
-  TEST_ASSERT_EQUAL_STRING("1359", str);
-  free(str);
-}
-
-void test_integerEvaluate_given_an_expression_with_no_identifiers_expect_expression_is_evaluated() {
-  Tokenizer *tokenizer = createTokenizer("-(3 << 2) / -2");
-  symbolParser = createSymbolParser(tokenizer);
-  Symbol *AST = expression(0);
-  
-  int result = integerEvaluate(AST);
-  TEST_ASSERT_EQUAL(6, result);
-  
-  freeSymbol(AST);
-  freeSymbolParser(symbolParser);
-}
-
 void test_readAST_given_an_array_C_declaration_and_array_subscripted_with_expression_no_identifiers_expect_array_size_is_evaluated(void) {
   char *str = NULL;
-  Tokenizer *tokenizer = createTokenizer("float arr[3- -2*4];");
+  Tokenizer *tokenizer = createTokenizer("float arr[-3- -2*+4];");
   symbolParser = createSymbolParser(tokenizer);
   Symbol *AST = statement();
   Try {
     str = readAST(AST, createString(""));
-    TEST_ASSERT_EQUAL_STRING("arr is array of 11 of float", str);
+    TEST_ASSERT_EQUAL_STRING("arr is array of 5 of float", str);
     printf("%s", str);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
@@ -275,6 +231,23 @@ void test_readAST_given_array_size_not_defined_expect_read_out_correctly(void) {
   Try {
     str = readAST(AST, createString(""));
     TEST_ASSERT_EQUAL_STRING("array is array of double", str);
+    printf("%s", str);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  free(str);
+}
+
+void test_readAST_given_cdecl_expect_read_out_correctly(void) {
+  char *str = NULL;
+  Tokenizer *tokenizer = createTokenizer("char* (*(*foo[5])(char* str))[]");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *AST = statement();
+  Try {
+    str = readAST(AST, createString(""));
+    TEST_ASSERT_EQUAL_STRING("foo is array of 5 of pointer to function taking in (str is pointer to char) returning pointer to array of pointer to char", str);
     printf("%s", str);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);

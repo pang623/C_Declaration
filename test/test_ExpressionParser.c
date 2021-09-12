@@ -492,7 +492,7 @@ void test_expression_given_open_parent_used_as_infix_expect_error_syntax_is_thro
 void test_expression_given_missing_closing_parent_expect_error_wrong_symbol_is_thrown(void) {
   Symbol *symbol = NULL;
   //missing closing parent
-  Tokenizer *tokenizer = createTokenizer("a*(3+2");
+  Tokenizer *tokenizer = createTokenizer("a*(3+(2/5)");
   symbolParser = createSymbolParser(tokenizer);
   Try {
     symbol = expression(0);
