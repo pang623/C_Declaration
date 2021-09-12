@@ -8,28 +8,14 @@
 #include "Arity.h"
 #include "SymbolAttrTable.h"
 #include "Tdop.h"
-#include "KeywordType.h"
-
-#define   fudOf(type)                (keywordTable[type])
-
-typedef Symbol *(*FudFuncPtr)(int rbp);
 
 extern SymbolParser *symbolParser;
 
-Symbol *statement();
 Symbol *groupingNud(Symbol *symbol, Symbol *left);
 Symbol *funcLed(Symbol *symbol, Symbol *left);
 Symbol *pointerNud(Symbol *symbol, Symbol *left);
 Symbol *pointerLed(Symbol *symbol, Symbol *left);
 Symbol *combineAST(Symbol *AST, Symbol *oldAST);
-
-//Fuds
 Symbol *cDecl(int rbp);
-Symbol *forFud(int rbp);
-Symbol *whileFud(int rbp);
-Symbol *ifFud(int rbp);
-Symbol *caseFud(int rbp);
-Symbol *continueFud(int rbp);
-Symbol *breakFud(int rbp);
 
 #endif // CDECL_H

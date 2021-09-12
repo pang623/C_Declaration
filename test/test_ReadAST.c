@@ -19,6 +19,7 @@
 #include "CustomTestAssertion.h"
 #include "Tdop.h"
 #include "Arithmetic.h"
+#include "Statement.h"
 
 void setUp(void)
 {

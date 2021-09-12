@@ -2,6 +2,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+createPrefixFunction(prefixPlus, +);
+createPrefixFunction(prefixMinus, -);
+
+createInfixFunction(infixAdd, +);
+createInfixFunction(infixSubtract, -);
+createInfixFunction(infixMultiply, *);
+createInfixFunction(infixDivide, /);
+createInfixFunction(infixModulus, %);
+
+createInfixFunction(infixBitwiseAnd, &);
+createInfixFunction(infixBitwiseXor, ^);
+createInfixFunction(infixBitwiseOr, |);
+createPrefixFunction(prefixBitwiseNot, ~);
+createInfixFunction(infixLeftShift, <<);
+createInfixFunction(infixRightShift, >>);
+
+createPrefixFunction(prefixLogicalNot, !);
+createInfixFunction(infixLogicalAnd, &&);
+createInfixFunction(infixLogicalOr, ||);
+
+createInfixFunction(infixLesser, <);
+createInfixFunction(infixGreater, >);
+createInfixFunction(infixLesserEq, <=);
+createInfixFunction(infixGreaterEq, >=);
+createInfixFunction(infixEquality, ==);
+createInfixFunction(infixNotEqual, !=);
+
 //If both nud and led are NULL, it indicates that that particular symbol is not supported
 SymbolAttrTable expressionSymbolTable[LAST_SYMBOL] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,   nud,             led}
@@ -53,6 +80,72 @@ SymbolAttrTable expressionSymbolTable[LAST_SYMBOL] = {
   [EOL]                =   {  0,     0,    0,  missingOperandNud,            NULL},
 };
 
+EvaluateFunction evaluateSymbolTable[] = {
+  [PLUS_SIGN]          =          prefixPlus,
+  [MINUS_SIGN]         =         prefixMinus,
+  //Arithmetic
+  [ADD]                =            infixAdd,
+  [SUBTRACT]           =       infixSubtract,
+  [MULTIPLY]           =       infixMultiply,
+  [DIVIDE]             =         infixDivide,
+  [MODULUS]            =        infixModulus,
+  //Bitwise
+  [BIT_AND]            =     infixBitwiseAnd,
+  [BIT_XOR]            =     infixBitwiseXor,
+  [BIT_OR]             =      infixBitwiseOr,
+  [BIT_NOT]            =    prefixBitwiseNot,
+  [L_SHIFT]            =      infixLeftShift,
+  [R_SHIFT]            =     infixRightShift,
+  //Logical
+  [LOGI_NOT]           =    prefixLogicalNot,
+  [LOGI_AND]           =     infixLogicalAnd,
+  [LOGI_OR]            =      infixLogicalOr,
+  //Relational
+  [LESSER]             =         infixLesser,
+  [GREATER]            =        infixGreater,
+  [LESS_OR_EQUAL]      =       infixLesserEq,
+  [GREATER_OR_EQUAL]   =      infixGreaterEq,
+  [EQUALITY]           =       infixEquality,
+  [NOT_EQUAL]          =       infixNotEqual,
+};
+
+int isExpressionReducible(Symbol *symbol) {
+  if(symbol == NULL)
+    return 1;
+  if(symbol->id == IDENTIFIER)
+    return 0;
+  int result1 = isExpressionReducible(symbol->child[0]);
+  if(result1 == 0)
+    return result1;
+  int result2 = isExpressionReducible(symbol->child[1]);
+  return result2;
+}
+
+int integerEvaluate(Symbol *symbol) {
+  if(symbol == NULL)
+    return 0;
+  if(symbol->id == OPEN_PARENT)
+    return integerEvaluate(symbol->child[0]);
+  if(symbol->child[0] == NULL && symbol->child[1] == NULL)
+    return getSymbolInteger(symbol);
+  int left_val = integerEvaluate(symbol->child[0]);
+  int right_val = integerEvaluate(symbol->child[1]);
+  
+  return evaluate(symbol)(left_val, right_val);
+}
+
+int isExpressionHasFloatNum(Symbol *symbol) {
+  if(symbol == NULL)
+    return 0;
+  if(symbol->token->type == TOKEN_FLOAT_TYPE)
+    return 1;
+  int result1 = isExpressionHasFloatNum(symbol->child[0]);
+  if(result1 == 1)
+    return result1;
+  int result2 = isExpressionHasFloatNum(symbol->child[1]);
+  return result2;
+}
+
 //handles prefix
 //unary, inc, dec etc
 Symbol *prefixNud(Symbol *symbol, Symbol *left) {
@@ -96,9 +189,21 @@ Symbol *infixAssgnLed(Symbol *symbol, Symbol *left) {
 Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
   symbol->arity = INFIX;
   symbol->child[0] = left;
-  if(peekSymbol(symbolParser)->id != CLOSE_SQR)
+  if(peekSymbol(symbolParser)->id != CLOSE_SQR) {
     symbol->child[1] = expression(0);
-  //note: cannot have -ve value and floating point value for array size
+    //cannot have -ve value and floating point value for array size
+    if(isExpressionHasFloatNum(symbol->child[1])) {
+      freeSymbol(left);
+      throwException(ERR_ARRAY_SIZE_FLOATING_NUM, symbol->child[1]->token, 0,
+      "Array size cannot have floating point values");
+    }
+    if(isExpressionReducible(symbol->child[1]))
+      if(integerEvaluate(symbol->child[1]) < 0) {
+        freeSymbol(left);
+        throwException(ERR_ARRAY_SIZE_NEGATIVE, symbol->child[1]->token, 0,
+        "Array size cannot be negative");
+      }
+  }
   verifyIsNextSymbolThenConsume(CLOSE_SQR, "]");
   return symbol;
 }

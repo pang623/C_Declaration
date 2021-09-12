@@ -9,6 +9,7 @@
 #define   ERR_KEYWORD_DATA_TYPE            205
 #define   ERR_ILLEGAL_KEYWORD_USAGE        206
 #define   ERR_EXPECING_CDECL               207
-#define   ERR_BRACKETS_NOT_BALANCED        208
+#define   ERR_ARRAY_SIZE_NEGATIVE          208
+#define   ERR_ARRAY_SIZE_FLOATING_NUM      209
 
 #endif // CDECL_ERRORS_H

@@ -591,4 +591,153 @@ void test_expression_given_an_expression_but_with_unknown_symbol_expect_error_in
   freeSymbolParser(symbolParser);
 }
 
+void test_expression_given_an_array_but_size_is_negative_expect_error_ERR_ARRAY_SIZE_NEGATIVE_is_thrown(void) {
+  Symbol *symbol = NULL;
+  //array size is negative
+  Tokenizer *tokenizer = createTokenizer(" arr[5-9] = 5");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_ARRAY_SIZE_NEGATIVE, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_expression_given_an_array_but_size_has_floating_point_numbers_expect_ERR_ARRAY_SIZE_FLOATING_NUM_is_thrown(void) {
+  Symbol *symbol = NULL;
+  //array size is negative
+  Tokenizer *tokenizer = createTokenizer(" arr[3 + 0.7] = 5");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = expression(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_ARRAY_SIZE_FLOATING_NUM, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_integerEvaluate_given_expression_that_will_evaluate_to_negative_result_expect_correct_result_returned(void) {
+  Tokenizer *tokenizer = createTokenizer("3 * 2 - 8");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = expression(0);
+  Try {
+    int result = integerEvaluate(symbol);
+    TEST_ASSERT(result < 0);
+    TEST_ASSERT_EQUAL(3*2-8, result);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_integerEvaluate_given_expression_that_will_evaluate_to_positive_result_expect_correct_result_returned(void) {
+  Tokenizer *tokenizer = createTokenizer("7/2 + 2");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = expression(0);
+  Try {
+    int result = integerEvaluate(symbol);
+    TEST_ASSERT(result > 0);
+    TEST_ASSERT_EQUAL(7/2 + 2, result);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_integerEvaluate_given_expression_that_will_evaluate_to_zero_expect_correct_result_returned(void) {
+  Tokenizer *tokenizer = createTokenizer("3*3 - 9");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = expression(0);
+  Try {
+    int result = integerEvaluate(symbol);
+    TEST_ASSERT(result == 0);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_isExpressionHasFloatNum_given_expression_with_floating_point_numbers_expect_result_returns_true(void) {
+  Tokenizer *tokenizer = createTokenizer("a + (3.5) * (2 -b)");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = expression(0);
+  Try {
+    int result = isExpressionHasFloatNum(symbol);
+    TEST_ASSERT(result == 1);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_isExpressionHasFloatNum_given_expression_without_floating_point_numbers_expect_result_returns_true(void) {
+  Tokenizer *tokenizer = createTokenizer("(30/2)*(1%(5))");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = expression(0);
+  Try {
+    int result = isExpressionHasFloatNum(symbol);
+    TEST_ASSERT(result == 0);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_isExpressionReducible_given_expression_without_identifiers_expect_result_returns_true(void) {
+  //expression is reducible if it does not have identifiers in it
+  Tokenizer *tokenizer = createTokenizer("9 + (3.5) * (2 -6)");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = expression(0);
+  Try {
+    int result = isExpressionReducible(symbol);
+    TEST_ASSERT(result == 1);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_isExpressionReducible_given_expression_with_identifiers_expect_result_returns_false(void) {
+  Tokenizer *tokenizer = createTokenizer("((a/2)*3)%10");
+  symbolParser = createSymbolParser(tokenizer);
+  Symbol *symbol = expression(0);
+  Try {
+    int result = isExpressionReducible(symbol);
+    TEST_ASSERT(result == 0);
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
 #endif // TEST

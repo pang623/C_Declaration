@@ -1,63 +1,6 @@
 #include "ReadAST.h"
 #include <stdio.h>
 
-createPrefixFunction(prefixPlus, +);
-createPrefixFunction(prefixMinus, -);
-
-createInfixFunction(infixAdd, +);
-createInfixFunction(infixSubtract, -);
-createInfixFunction(infixMultiply, *);
-createInfixFunction(infixDivide, /);
-createInfixFunction(infixModulus, %);
-
-createInfixFunction(infixBitwiseAnd, &);
-createInfixFunction(infixBitwiseXor, ^);
-createInfixFunction(infixBitwiseOr, |);
-createPrefixFunction(prefixBitwiseNot, ~);
-createInfixFunction(infixLeftShift, <<);
-createInfixFunction(infixRightShift, >>);
-
-createPrefixFunction(prefixLogicalNot, !);
-createInfixFunction(infixLogicalAnd, &&);
-createInfixFunction(infixLogicalOr, ||);
-
-createInfixFunction(infixLesser, <);
-createInfixFunction(infixGreater, >);
-createInfixFunction(infixLesserEq, <=);
-createInfixFunction(infixGreaterEq, >=);
-createInfixFunction(infixEquality, ==);
-createInfixFunction(infixNotEqual, !=);
-
-
-EvaluateFunction evaluateSymbolTable[] = {
-  [PLUS_SIGN]          =          prefixPlus,
-  [MINUS_SIGN]         =         prefixMinus,
-  //Arithmetic
-  [ADD]                =            infixAdd,
-  [SUBTRACT]           =       infixSubtract,
-  [MULTIPLY]           =       infixMultiply,
-  [DIVIDE]             =         infixDivide,
-  [MODULUS]            =        infixModulus,
-  //Bitwise
-  [BIT_AND]            =     infixBitwiseAnd,
-  [BIT_XOR]            =     infixBitwiseXor,
-  [BIT_OR]             =      infixBitwiseOr,
-  [BIT_NOT]            =    prefixBitwiseNot,
-  [L_SHIFT]            =      infixLeftShift,
-  [R_SHIFT]            =     infixRightShift,
-  //Logical
-  [LOGI_NOT]           =    prefixLogicalNot,
-  [LOGI_AND]           =     infixLogicalAnd,
-  [LOGI_OR]            =      infixLogicalOr,
-  //Relational
-  [LESSER]             =         infixLesser,
-  [GREATER]            =        infixGreater,
-  [LESS_OR_EQUAL]      =       infixLesserEq,
-  [GREATER_OR_EQUAL]   =      infixGreaterEq,
-  [EQUALITY]           =       infixEquality,
-  [NOT_EQUAL]          =       infixNotEqual,
-};
-
 ReadFunction readSymbolTable[] = {
   [IDENTIFIER]          =   identifierRead,
   [NUMBER]              =      generalRead,
@@ -135,31 +78,6 @@ char *convertIntToStr(int num) {
   return resultStr;
 }
 
-int isExpressionReducible(Symbol *symbol) {
-  if(symbol == NULL)
-    return 1;
-  if(symbol->id == IDENTIFIER)
-    return 0;
-  int result1 = isExpressionReducible(symbol->child[0]);
-  if(result1 == 0)
-    return result1;
-  int result2 = isExpressionReducible(symbol->child[1]);
-  return result2;
-}
-
-int integerEvaluate(Symbol *symbol) {
-  if(symbol == NULL)
-    return 0;
-  if(symbol->id == OPEN_PARENT)
-    return integerEvaluate(symbol->child[0]);
-  if(symbol->child[0] == NULL && symbol->child[1] == NULL)
-    return getSymbolInteger(symbol);
-  int left_val = integerEvaluate(symbol->child[0]);
-  int right_val = integerEvaluate(symbol->child[1]);
-  
-  return evaluate(symbol)(left_val, right_val);
-}
-
 char *arrayRead(Symbol *symbol) {
   int result;
   char *str = createString("array of ");
@@ -193,15 +111,3 @@ char *readAST(Symbol *AST, char *str) {
   readRight = 0;
   return str;
 }
-
-/*
-//put to another module
-char *translate(char *cDecl) {
-  Tokenizer *tokenizer = createTokenizer(cDecl);
-  symbolParser = createSymbolParser(tokenizer);
-  Symbol *AST = statement();
-  char *newStr = readAST(AST, createString(""));
-  freeSymbol(AST);
-  freeSymbolParser(symbolParser);
-  return newStr;
-}*/

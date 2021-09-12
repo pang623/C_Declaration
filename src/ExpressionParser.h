@@ -7,11 +7,20 @@
 #include "Symbol.h"
 #include "SymbolAttrTable.h"
 #include "Tdop.h"
+#include "Arithmetic.h"
 
 #define   NIL   1000
 
+typedef int (*EvaluateFunction)(int, int);
+
+#define   getSymbolInteger(symbol)    (((IntegerToken *)(*symbol).token)->value)
+#define   evaluate(symbol)            (evaluateSymbolTable[symbol->id])
+
 extern SymbolParser *symbolParser;
 
+int isExpressionReducible(Symbol *symbol);
+int isExpressionHasFloatNum(Symbol *symbol);
+int integerEvaluate(Symbol *expression);
 Symbol *expression(int rbp);
 Symbol *prefixNud(Symbol *symbol, Symbol *left);
 Symbol *infixLedL(Symbol *symbol, Symbol *left);

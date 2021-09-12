@@ -23,7 +23,8 @@
             (child->token->type == TOKEN_OPERATOR_TYPE && (strcmp(((TestOperator *)testChild)->_operator, child->token->str)))
             
 #define   isNumberNotMatch(testChild, child)   \
-            (child->token->type == TOKEN_INTEGER_TYPE && (strcmp(((TestNumber *)testChild)->value, child->token->str)))
+            ((child->token->type == TOKEN_INTEGER_TYPE || child->token->type == TOKEN_FLOAT_TYPE) && \
+            (strcmp(((TestNumber *)testChild)->value, child->token->str)))
 
 #define   isIdentifierNotMatch(testChild, child)   \
             (child->token->type == TOKEN_IDENTIFIER_TYPE && (strcmp(((TestIdentifier *)testChild)->str, child->token->str)))
