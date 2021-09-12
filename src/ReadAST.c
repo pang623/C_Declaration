@@ -71,13 +71,6 @@ char *ignoreRead(Symbol *symbol) {
   return createString("");
 }
 
-char *convertIntToStr(int num) {
-  int len = snprintf(NULL, 0, "%d", num);
-  char *resultStr = malloc(len + 1);
-  snprintf(resultStr, len + 1, "%d", num);
-  return resultStr;
-}
-
 char *arrayRead(Symbol *symbol) {
   int result;
   char *str = createString("array of ");
@@ -93,12 +86,6 @@ char *arrayRead(Symbol *symbol) {
   readRight = 1;
   readArray = 0;
   return concat(str, createString(" of "));
-}
-
-char *concat(char *s1, char *s2) {
-  char *result = realloc(s1, strlen(s1) + strlen(s2) + 1);
-  strcat(result, s2);
-  return result;
 }
 
 char *readAST(Symbol *AST, char *str) {

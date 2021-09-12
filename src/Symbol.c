@@ -118,22 +118,6 @@ void freeSymbol(void *symbol) {
   free((Symbol *)symbol);
 }
 
-//return a malloc'ed string
-char *createString(char *str) {
-  char *newStr;
-  int len;
-  if(str) {
-    len = strlen(str);
-    newStr = malloc(len+1);
-    while(newStr == NULL)
-      newStr = malloc(len+1);
-    strncpy(newStr, str, len);
-    newStr[len] = '\0';
-    return newStr;
-  }else
-    return NULL;
-}
-
 Token *processToken(Token *symbol, int option) {
   (symbol->length)++;
   char newStr[symbol->length];

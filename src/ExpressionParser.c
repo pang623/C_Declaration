@@ -192,17 +192,13 @@ Symbol *sqrBracketLed(Symbol *symbol, Symbol *left) {
   if(peekSymbol(symbolParser)->id != CLOSE_SQR) {
     symbol->child[1] = expression(0);
     //cannot have -ve value and floating point value for array size
-    if(isExpressionHasFloatNum(symbol->child[1])) {
-      freeSymbol(left);
+    if(isExpressionHasFloatNum(symbol->child[1]))
       throwException(ERR_ARRAY_SIZE_FLOATING_NUM, symbol->child[1]->token, 0,
       "Array size cannot have floating point values");
-    }
     if(isExpressionReducible(symbol->child[1]))
-      if(integerEvaluate(symbol->child[1]) < 0) {
-        freeSymbol(left);
+      if(integerEvaluate(symbol->child[1]) < 0)
         throwException(ERR_ARRAY_SIZE_NEGATIVE, symbol->child[1]->token, 0,
         "Array size cannot be negative");
-      }
   }
   verifyIsNextSymbolThenConsume(CLOSE_SQR, "]");
   return symbol;

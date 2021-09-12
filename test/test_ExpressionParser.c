@@ -15,6 +15,7 @@
 #include "Arity.h"
 #include "CustomTestAssertion.h"
 #include "Tdop.h"
+#include "Strings.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -244,20 +245,20 @@ void test_expression_given_expression_with_assignment_operator_expect_ast_create
         /   \
        [     +
       / \   / \
-   arr  10 10  b
+   arr  10 10 0.5
 */
 
 //testing right associativity (assignment operators are of right assc.)
 void test_expression_given_expression_with_array_expect_ast_created_correctly(void) {
   Symbol *symbol = NULL;
-  Tokenizer *tokenizer = createTokenizer("arr[10] = 10+b");
+  Tokenizer *tokenizer = createTokenizer("arr[10] = 10+0.5");
   symbolParser = createSymbolParser(tokenizer);
   Try {
     symbol = expression(0);
     //Test tree created is correct in order
     TEST_ASSERT_SYMBOL(ASSIGNMENT, "=", Operator("["), Operator("+"), symbol);
     TEST_ASSERT_SYMBOL(OPEN_SQR, "[", Identifier("arr"), Number("10"), symbol->child[0]);
-    TEST_ASSERT_SYMBOL(ADD, "+", Number("10"), Identifier("b"), symbol->child[1]);
+    TEST_ASSERT_SYMBOL(ADD, "+", Number("10"), Number("0.5"), symbol->child[1]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
@@ -610,7 +611,7 @@ void test_expression_given_an_array_but_size_is_negative_expect_error_ERR_ARRAY_
 
 void test_expression_given_an_array_but_size_has_floating_point_numbers_expect_ERR_ARRAY_SIZE_FLOATING_NUM_is_thrown(void) {
   Symbol *symbol = NULL;
-  //array size is negative
+  //array size has floating point values
   Tokenizer *tokenizer = createTokenizer(" arr[3 + 0.7] = 5");
   symbolParser = createSymbolParser(tokenizer);
   Try {

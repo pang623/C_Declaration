@@ -13,6 +13,7 @@
 #include "Symbol_Id.h"
 #include "Arity.h"
 #include "Exception.h"
+#include "Strings.h"
 
 void setUp(void)
 {
@@ -632,12 +633,12 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_expect_keyword_
   symbolParser = createSymbolParser(tokenizer);
   Symbol *symbol = getSymbol(symbolParser);
   
-  int i = 0;
+  int i = 3;
   int *type = &i;
   int result = isSymbolKeywordThenGetType(symbol, type, 0);
   TEST_ASSERT_EQUAL(0, result);
   //The keyword is not a keyword, so keyword type is not returned
-  TEST_ASSERT_EQUAL(0, *type);
+  TEST_ASSERT_EQUAL(3, *type);
   
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
@@ -658,22 +659,5 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_but_identifierI
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
-void test_throwException() {
-    Tokenizer *tokenizer = createTokenizer(" $ ");
-    Token *token = getToken(tokenizer);
-    //Symbol symbolInfo = {INFIX, UNKNOWN, token};
-    Try {
-        throwException(ERR_INVALID_SYMBOL, token, 0,
-        "Symbol %s is not supported in C Language", token->str);
-        TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
-    } Catch(e){
-        dumpTokenErrorMessage(e, __LINE__);
-        TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
-        freeException(e);
-    }
-    freeToken(token);
-    freeTokenizer(tokenizer);
-}
-*/
+
 #endif // TEST

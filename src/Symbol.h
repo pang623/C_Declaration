@@ -12,6 +12,7 @@
 #include "SymbolCombination.h"
 #include "SymbolAttrTable.h"
 #include "KeywordType.h"
+#include "Strings.h"
 
 typedef struct OperatorAttrTable OperatorAttrTable;
 typedef struct SymbolCombination SymbolCombination;
@@ -55,14 +56,13 @@ struct SymbolParser {
 };
 
 Symbol *createSymbol(Symbol *symbolInfo);
+void freeSymbol(void *symbol);
 SymbolParser *createSymbolParser(Tokenizer *tokenizer);
 void freeSymbolParser(SymbolParser *symbolParser);
 void setSymbolTable(SymbolParser *symbolParser, SymbolAttrTable *table);
 Symbol *peekSymbol(SymbolParser *symbolParser);
 Symbol *getSymbol(SymbolParser *symbolParser);
 Symbol *_getSymbol(Tokenizer *tokenizer);
-void freeSymbol(void *symbol);
-char *createString(char *str);
 int isNextSymbolThenConsume(SymbolID symbolId);
 void verifyIsNextSymbolThenConsume(SymbolID symbolId, char *expectedSym);
 Token *processToken(Token *symbol, int option);

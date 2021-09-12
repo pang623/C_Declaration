@@ -17,6 +17,7 @@
 #include "Arity.h"
 #include "CustomTestAssertion.h"
 #include "Tdop.h"
+#include "Strings.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -590,6 +591,40 @@ void test_cDecl_given_c_function_decl_but_only_has_keyword_no_name_expect_ERR_MI
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_cDecl_given_c_array_decl_but_array_size_is_negative_expect_ERR_ARRAY_SIZE_NEGATIVE_is_thrown() {
+  Symbol *symbol = NULL;
+  //array size negative
+  Tokenizer *tokenizer = createTokenizer("char *arr[3*5-50]");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = cDecl(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_ARRAY_SIZE_NEGATIVE, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_cDecl_given_c_array_decl_but_array_size_has_floating_point_value_expect_ERR_ARRAY_SIZE_FLOATING_NUM_is_thrown() {
+  Symbol *symbol = NULL;
+  //array size has floating point value
+  Tokenizer *tokenizer = createTokenizer("int func(double arr[5/0.5])");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = cDecl(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_ARRAY_SIZE_FLOATING_NUM, e->errorCode);
     freeException(e);
   }
   freeSymbol(symbol);

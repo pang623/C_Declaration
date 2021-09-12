@@ -20,6 +20,7 @@
 #include "Tdop.h"
 #include "Arithmetic.h"
 #include "Statement.h"
+#include "Strings.h"
 
 void setUp(void)
 {
