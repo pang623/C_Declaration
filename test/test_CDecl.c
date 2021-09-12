@@ -40,7 +40,7 @@ SymbolParser *symbolParser;
      arr  3
 */
 
-void test_expression_given_an_array_C_declaration_expect_correctly_parsed(void) {
+void test_statement_given_an_array_C_declaration_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("int arr[3];");
   symbolParser = createSymbolParser(tokenizer);
@@ -67,7 +67,7 @@ void test_expression_given_an_array_C_declaration_expect_correctly_parsed(void) 
     a   2
 */
 
-void test_expression_given_an_twoD_array_C_declaration_expect_correctly_parsed(void) {
+void test_statement_given_an_twoD_array_C_declaration_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   //In this case DOUBLE is seen as a user defined data type, not the 'double' type, so will be accepted as well
   Tokenizer *tokenizer = createTokenizer("DOUBLE a[2][3];");
@@ -94,7 +94,7 @@ void test_expression_given_an_twoD_array_C_declaration_expect_correctly_parsed(v
       f
 */
 
-void test_expression_given_an_float_ptr_C_declaration_expect_correctly_parsed(void) {
+void test_statement_given_an_float_ptr_C_declaration_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("float *f  ");
   symbolParser = createSymbolParser(tokenizer);
@@ -121,7 +121,7 @@ void test_expression_given_an_float_ptr_C_declaration_expect_correctly_parsed(vo
     b   10
 */
 
-void test_expression_given_an_array_of_char_ptr_C_declaration_expect_correctly_parsed(void) {
+void test_statement_given_an_array_of_char_ptr_C_declaration_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("char   * b[10]  ");
   symbolParser = createSymbolParser(tokenizer);
@@ -147,7 +147,7 @@ void test_expression_given_an_array_of_char_ptr_C_declaration_expect_correctly_p
    func   
 */
   
-void test_expression_given_a_function_declaration_with_empty_parameters_expect_correctly_parsed(void) {
+void test_statement_given_a_function_declaration_with_empty_parameters_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("int func(); ");
   symbolParser = createSymbolParser(tokenizer);
@@ -174,7 +174,7 @@ void test_expression_given_a_function_declaration_with_empty_parameters_expect_c
          a
 */
   
-void test_expression_given_a_function_declaration_with_single_parameter_expect_correctly_parsed(void) {
+void test_statement_given_a_function_declaration_with_single_parameter_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("int func(char a); ");
   symbolParser = createSymbolParser(tokenizer);
@@ -208,7 +208,7 @@ void test_expression_given_a_function_declaration_with_single_parameter_expect_c
      symbol   left
 */
   
-void test_expression_given_a_function_declaration_with_two_parameters_expect_correctly_parsed(void) {
+void test_statement_given_a_function_declaration_with_two_parameters_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("Symbol *led(Symbol *symbol, Symbol *left); ");
   symbolParser = createSymbolParser(tokenizer);
@@ -253,7 +253,7 @@ void test_expression_given_a_function_declaration_with_two_parameters_expect_cor
   evilCharacter  2
 */
   
-void test_expression_given_a_function_declaration_with_multiple_parameters_expect_correctly_parsed(void) {
+void test_statement_given_a_function_declaration_with_multiple_parameters_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("Avengers *asgard(God *Loki , God *Thor, God *evilCharacter[2][5])");
   symbolParser = createSymbolParser(tokenizer);
@@ -293,7 +293,7 @@ void test_expression_given_a_function_declaration_with_multiple_parameters_expec
           a   4
 */
 
-void test_expression_given_an_array_C_declaration_and_array_subscripted_with_expression_expect_correctly_parsed(void) {
+void test_statement_given_an_array_C_declaration_and_array_subscripted_with_expression_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   //In this case DOUBLE is seen as a user defined data type, not the 'double' type, so will be accepted as well
   Tokenizer *tokenizer = createTokenizer("float arr[3+a*4];");
@@ -313,7 +313,7 @@ void test_expression_given_an_array_C_declaration_and_array_subscripted_with_exp
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_an_mixed_C_declaration_expect_correctly_parsed(void) {
+void test_statement_given_an_mixed_C_declaration_expect_correctly_parsed(void) {
   Symbol *symbol = NULL;
   Symbol *testSymbol = NULL;
   Tokenizer *tokenizer = createTokenizer("char (*(*x[3])())[5]");
@@ -337,25 +337,33 @@ void test_expression_given_an_mixed_C_declaration_expect_correctly_parsed(void) 
   freeSymbolParser(symbolParser);
 }
 
+/*
+            -
+           / \
+          3  --
+               \
+                b
+*/
 
-void test_expression_given_not_c_declaration_name_expect_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
-  Tokenizer *tokenizer = createTokenizer("while a");
-  symbolParser = createSymbolParser(tokenizer);
+void test_statement_given_expression_expect_still_able_to_be_parsed() {
   Symbol *symbol = NULL;
+  Symbol *testSymbol = NULL;
+  Tokenizer *tokenizer = createTokenizer("3 - --b");
+  symbolParser = createSymbolParser(tokenizer);
   Try {
     symbol = statement();
-    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+    TEST_ASSERT_SYMBOL(SUBTRACT, "-", Number("3"), Operator("--"), symbol);
+    TEST_ASSERT_SYMBOL(DEC_BEFORE, "--", Identifier("b"), NULL, testSymbol = symbol->child[1]);
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_KEYWORD_DATA_TYPE, e->errorCode);
+    TEST_FAIL_MESSAGE("System Error: Don't expect any exception to be thrown!");
     freeException(e);
   }
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
 
-
-void test_expression_given_c_declaration_but_terminated_with_comma_expect_ERR_WRONG_SYMBOL_is_thrown(void) {
+void test_statement_given_c_declaration_but_terminated_with_comma_expect_ERR_WRONG_SYMBOL_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("int a(int b), ");
   symbolParser = createSymbolParser(tokenizer);
   Symbol *symbol = NULL;
@@ -372,8 +380,8 @@ void test_expression_given_c_declaration_but_terminated_with_comma_expect_ERR_WR
 }
 
 
-void test_expression_given_c_declaration_but_two_separate_variable_names_expect_ERR_SYNTAX_is_thrown(void) {
-  //'a' and 'b' separated, both are names, invalid, variable name can only be one
+void test_statement_given_c_declaration_but_two_separate_variable_names_expect_ERR_SYNTAX_is_thrown(void) {
+  //'a' and 'b' separated, both are names, invalid, variable name can only be declared once in a C Decl
   Tokenizer *tokenizer = createTokenizer("Symbol a b;");
   symbolParser = createSymbolParser(tokenizer);
   Symbol *symbol = NULL;
@@ -389,7 +397,7 @@ void test_expression_given_c_declaration_but_two_separate_variable_names_expect_
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_extra_variable_name_expect_ERR_SYNTAX_is_thrown(void) {
+void test_statement_given_c_declaration_but_extra_variable_name_expect_ERR_SYNTAX_is_thrown(void) {
   //two names declared, invalid, can only have one name
   Tokenizer *tokenizer = createTokenizer("Symbol a[3]extra;");
   symbolParser = createSymbolParser(tokenizer);
@@ -406,7 +414,7 @@ void test_expression_given_c_declaration_but_extra_variable_name_expect_ERR_SYNT
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_variable_is_a_number_expect_error_invalid_symbol_is_thrown(void) {
+void test_statement_given_c_declaration_but_variable_is_a_number_expect_error_invalid_symbol_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("int 3;");
   symbolParser = createSymbolParser(tokenizer);
   Symbol *symbol = NULL;
@@ -422,7 +430,8 @@ void test_expression_given_c_declaration_but_variable_is_a_number_expect_error_i
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_is_variable_but_mixed_with_operators_expect_error_invalid_symbol_is_thrown(void) {
+void test_statement_given_c_declaration_is_variable_but_mixed_with_operators_expect_error_invalid_symbol_is_thrown(void) {
+  //Some operators such as arithmetic, logical... cannot be used in C Decl
   Tokenizer *tokenizer = createTokenizer("int a +3;");
   symbolParser = createSymbolParser(tokenizer);
   Symbol *symbol = NULL;
@@ -438,7 +447,7 @@ void test_expression_given_c_declaration_is_variable_but_mixed_with_operators_ex
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_keyword_is_not_data_type_expect_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
+void test_statement_given_c_declaration_but_keyword_is_not_data_type_expect_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("while var;");
   symbolParser = createSymbolParser(tokenizer);
@@ -454,8 +463,9 @@ void test_expression_given_c_declaration_but_keyword_is_not_data_type_expect_ERR
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_keyword_is_used_as_variable_name_expect_ERR_ILLEGAL_KEYWORD_USAGE_is_thrown(void) {
+void test_statement_given_c_declaration_but_keyword_is_used_as_variable_name_expect_ERR_ILLEGAL_KEYWORD_USAGE_is_thrown(void) {
   Symbol *symbol = NULL;
+  //keyword "if" is used as variable name
   Tokenizer *tokenizer = createTokenizer("char if;");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -470,7 +480,7 @@ void test_expression_given_c_declaration_but_keyword_is_used_as_variable_name_ex
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_pointer_symbol_comes_after_variable_expect_ERR_SYNTAX_is_thrown(void) {
+void test_statement_given_c_declaration_pointer_symbol_comes_after_variable_expect_ERR_SYNTAX_is_thrown(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("double a*[3];");
   symbolParser = createSymbolParser(tokenizer);
@@ -486,7 +496,7 @@ void test_expression_given_c_declaration_pointer_symbol_comes_after_variable_exp
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_no_name_expect_ERR_MISSING_OPERAND_is_thrown(void) {
+void test_statement_given_c_declaration_but_no_name_expect_ERR_MISSING_OPERAND_is_thrown(void) {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer("int *");
   symbolParser = createSymbolParser(tokenizer);
@@ -502,8 +512,9 @@ void test_expression_given_c_declaration_but_no_name_expect_ERR_MISSING_OPERAND_
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_no_name_expect_ERR_EXPECING_CDECL_is_thrown(void) {
+void test_statement_given_c_declaration_but_no_c_decl_after_comma_in_func_args_expect_ERR_EXPECING_CDECL_is_thrown(void) {
   Symbol *symbol = NULL;
+  //comma expecting another c decl, but it is terminated with ) instead, throw error
   Tokenizer *tokenizer = createTokenizer("Token *getToken(Tokenizer *tokenizer, );");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -518,7 +529,24 @@ void test_expression_given_c_declaration_but_no_name_expect_ERR_EXPECING_CDECL_i
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_declaration_but_expression_in_array_subscript_is_erroneous_ERR_WRONG_SYMBOL_is_thrown(void) {
+void test_statement_given_c_declaration_but_comma_encountered_before_an_argument_expect_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
+  Symbol *symbol = NULL;
+  //function arguments should consist of only C Decls, but ',' is encountered, without a CDecl before it
+  Tokenizer *tokenizer = createTokenizer("Tokenizer *createTokenizer(, char *str);");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_KEYWORD_DATA_TYPE, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_statement_given_c_declaration_but_expression_in_array_subscript_is_erroneous_ERR_WRONG_SYMBOL_is_thrown(void) {
   Symbol *symbol = NULL;
   //expression terminates at ")", expression by right should terminate at "]" in this case, thus error is thrown
   Tokenizer *tokenizer = createTokenizer("int a[c+d)*4]");
@@ -535,9 +563,9 @@ void test_expression_given_c_declaration_but_expression_in_array_subscript_is_er
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_function_decl_but_parameters_passed_in_is_not_CDecl_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
+void test_statement_given_c_function_decl_but_parameters_passed_in_is_not_CDecl_ERR_KEYWORD_DATA_TYPE_is_thrown(void) {
   Symbol *symbol = NULL;
-  //expression terminates at "]", thus the 
+  //one of the function arguments are not C declaration, invalid
   Tokenizer *tokenizer = createTokenizer("int a(char b, 32)");
   symbolParser = createSymbolParser(tokenizer);
   Try {
@@ -552,7 +580,7 @@ void test_expression_given_c_function_decl_but_parameters_passed_in_is_not_CDecl
   freeSymbolParser(symbolParser);
 }
 
-void test_expression_given_c_function_decl_but_parameters_are_not_separated_with_comma_ERR_SYNTAX_is_thrown(void) {
+void test_statement_given_c_function_decl_but_parameters_are_not_separated_with_comma_ERR_SYNTAX_is_thrown(void) {
   Symbol *symbol = NULL;
   //separated by "]", throw error
   Tokenizer *tokenizer = createTokenizer("int a(char b ] int a)");
@@ -563,6 +591,40 @@ void test_expression_given_c_function_decl_but_parameters_are_not_separated_with
   } Catch(e){
     dumpTokenErrorMessage(e, __LINE__);
     TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_statement_given_c_function_decl_but_missing_closing_parent_at_arguments_expect_ERR_WRONG_SYMBOL_is_thrown() {
+  Symbol *symbol = NULL;
+  //missing closing parent
+  Tokenizer *tokenizer = createTokenizer("int a(double b");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_SYNTAX, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+void test_statement_given_c_function_decl_but_only_has_keyword_no_name_expect_ERR_MISSING_OPERAND_is_thrown() {
+  Symbol *symbol = NULL;
+  //only data type is defined, no function/variable name
+  Tokenizer *tokenizer = createTokenizer("double ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = statement();
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
     freeException(e);
   }
   freeSymbol(symbol);

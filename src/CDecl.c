@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+//If both nud and led are NULL, it indicates that that particular symbol is not supported
 SymbolAttrTable CDeclSymbolTable[LAST_SYMBOL] = {
   //[SYMBOLID]         =   {prefixRBP, infixRBP, infixLBP,      nud,           led}
   [IDENTIFIER]         =   { NIL,  NIL,  NIL,           identityNud,   identityLed},
@@ -17,13 +18,13 @@ SymbolAttrTable CDeclSymbolTable[LAST_SYMBOL] = {
 
 FudFuncPtr keywordTable[] = {
   //[KEYWORD_TYPE] = function pointer
-  [TYPE] = cDecl,
-  [FOR]  = forFud,
-  [WHILE] = whileFud,
-  [IF] = ifFud,
-  [CASE] = caseFud,
-  [CONTINUE] = forFud,
-  [BREAK] = forFud,
+  [TYPE]           =       cDecl,
+  [FOR]            =      forFud,
+  [WHILE]          =    whileFud,
+  [IF]             =       ifFud,
+  [CASE]           =     caseFud,
+  [CONTINUE]       = continueFud,
+  [BREAK]          =    breakFud,
 };
 
 //These will throw error at the moment, it can be implemented in the future
@@ -46,6 +47,18 @@ Symbol *ifFud(int rbp) {
 }
 
 Symbol *caseFud(int rbp) {
+  Symbol *symbol = getSymbol(symbolParser);
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
+  "Expecting a data type keyword here", symbol->token->str);
+}
+
+Symbol *continueFud(int rbp) {
+  Symbol *symbol = getSymbol(symbolParser);
+  throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
+  "Expecting a data type keyword here", symbol->token->str);
+}
+
+Symbol *breakFud(int rbp) {
   Symbol *symbol = getSymbol(symbolParser);
   throwException(ERR_KEYWORD_DATA_TYPE, symbol->token, 0,
   "Expecting a data type keyword here", symbol->token->str);

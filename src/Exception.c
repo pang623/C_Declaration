@@ -11,6 +11,8 @@ ExceptionPtr createException(char *msg, int errorCode) {
 	Exception *ex;						//ex is a pointer to 'Exception' struct type
 	//can also be written as ExceptionPtr ex;
 	ex = malloc(sizeof(Exception)); 	//dynamic memory allocation
+  while(ex == NULL)
+    ex = malloc(sizeof(Exception));
 	ex->msg = msg;						//is equivalent to (*ex).msg
 	ex->errorCode = errorCode;
 	ex->data = NULL;					//is equivalent to (*ex).data
@@ -64,6 +66,8 @@ void throwException(int errorCode, void *data, int freeDataOnFreeingException, c
 	va_start(va, message);
 	len = vsnprintf(NULL, 0, message, va);	//copy 0 bytes from 'message' to 'NULL', vsnprintf just returns the number of bytes needed to print the string 'message' to len
 	buffer = malloc(len + 1);				//+ 1 is because we need to include the null character
+  while(buffer == NULL)
+    buffer == malloc(len + 1);
 	vsprintf(buffer, message, va);			//va list is read into message, and message is printed to buffer
 	va_end(va);
 

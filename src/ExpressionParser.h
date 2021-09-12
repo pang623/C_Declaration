@@ -15,7 +15,7 @@ extern SymbolParser *symbolParser;
 Symbol *expression(int rbp);
 Symbol *prefixNud(Symbol *symbol, Symbol *left);
 Symbol *infixLedL(Symbol *symbol, Symbol *left);
-Symbol *infixLedR(Symbol *symbol, Symbol *left);
+Symbol *infixAssgnLed(Symbol *symbol, Symbol *left);
 Symbol *prefixIncDecNud(Symbol *symbol, Symbol *left);
 Symbol *suffixIncDecLed(Symbol *symbol, Symbol *left);
 Symbol *identityNud(Symbol *symbol, Symbol *left);

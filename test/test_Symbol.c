@@ -658,7 +658,7 @@ void test_isSymbolKeywordThenGetType_given_symbol_is_not_keyword_but_identifierI
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_throwException() {
     Tokenizer *tokenizer = createTokenizer(" $ ");
     Token *token = getToken(tokenizer);
@@ -675,5 +675,5 @@ void test_throwException() {
     freeToken(token);
     freeTokenizer(tokenizer);
 }
-
+*/
 #endif // TEST

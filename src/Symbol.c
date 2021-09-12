@@ -38,7 +38,7 @@ KeywordAttrTable keywordIdTable[] = {
   {"case"       , CASE},
   {"continue"   , CONTINUE},
   {"break"      , BREAK},
-  {NULL         , TYPE},
+  {NULL         , TYPE},      //non-keyword identifiers are assumed as user-defined data type
 };
 
 SymbolCombination SymbolCombiTable[] = {
@@ -71,6 +71,8 @@ int isSymbolKeywordThenGetType(Symbol *symbol, int *type, int identifierIsSeenAs
 
 SymbolParser *createSymbolParser(Tokenizer *tokenizer) {
   SymbolParser *parser = (SymbolParser *)malloc(sizeof(SymbolParser));
+  while(parser == NULL)
+    parser = (SymbolParser *)malloc(sizeof(SymbolParser));
   parser->tokenizer = tokenizer;
   parser->symbolStack = linkedListCreateList();
   parser->symbolTable = NULL;
@@ -94,6 +96,8 @@ void setSymbolTable(SymbolParser *symbolParser, SymbolAttrTable *table) {
 //create data structure for Symbol
 Symbol *createSymbol(Symbol *symbolInfo) {
   Symbol *symbol = (Symbol *)malloc(sizeof(Symbol));
+  while(symbol == NULL)
+    symbol = (Symbol *)malloc(sizeof(Symbol));
   symbol->token = symbolInfo->token;
   symbol->arity = symbolInfo->arity;
   symbol->id = symbolInfo->id;
@@ -112,7 +116,6 @@ void freeSymbol(void *symbol) {
     ((Symbol *)symbol)->token = NULL;
   }
   free((Symbol *)symbol);
-  symbol = NULL;
 }
 
 //return a malloc'ed string
@@ -122,6 +125,8 @@ char *createString(char *str) {
   if(str) {
     len = strlen(str);
     newStr = malloc(len+1);
+    while(newStr == NULL)
+      newStr = malloc(len+1);
     strncpy(newStr, str, len);
     newStr[len] = '\0';
     return newStr;
@@ -184,10 +189,9 @@ Symbol handleEqualRepeatedAndBothSymbol(Token *symbol, int *flag) {
 }
 
 Symbol *_getSymbol(Tokenizer *tokenizer) {
-  Token *symbol;
   int flagVal = 0;
   int *flag = &flagVal;
-  symbol = getToken(tokenizer);
+  Token *symbol = getToken(tokenizer);
   Symbol symbolInfo = {INFIX, EOL, symbol};
   if(isNULLToken(symbol))
     return createSymbol(&symbolInfo);
@@ -234,7 +238,7 @@ int isNextSymbolThenConsume(SymbolID symbolId) {
 void verifyIsNextSymbolThenConsume(SymbolID symbolId, char *expectedSym) {
   if(!(isNextSymbolThenConsume(symbolId))) {
     Symbol *symbol = getSymbol(symbolParser);
-    throwException(ERR_WRONG_SYMBOL, symbol->token, 1,
+    throwException(ERR_WRONG_SYMBOL, symbol->token, 0,
     "Expecting a %s here, but received %s instead", expectedSym, symbol->token->str);
   }
 }

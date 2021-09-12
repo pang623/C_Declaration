@@ -34,24 +34,23 @@ SymbolAttrTable expressionSymbolTable[LAST_SYMBOL] = {
   [EQUALITY]           =   { NIL,   90,   90,           errorNud,       infixLedL},
   [NOT_EQUAL]          =   { NIL,   90,   90,           errorNud,       infixLedL},
   //Assignment
-  [ASSIGNMENT]         =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [ADD_ASSIGN]         =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [SUBT_ASSIGN]        =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [MUL_ASSIGN]         =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [DIV_ASSIGN]         =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [MOD_ASSIGN]         =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [AND_ASSIGN]         =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [OR_ASSIGN]          =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [XOR_ASSIGN]         =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [L_SHIFT_ASSIGN]     =   { NIL,   20,   20,           errorNud,       infixLedR},
-  [R_SHIFT_ASSIGN]     =   { NIL,   20,   20,           errorNud,       infixLedR},
+  [ASSIGNMENT]         =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [ADD_ASSIGN]         =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [SUBT_ASSIGN]        =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [MUL_ASSIGN]         =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [DIV_ASSIGN]         =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [MOD_ASSIGN]         =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [AND_ASSIGN]         =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [OR_ASSIGN]          =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [XOR_ASSIGN]         =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [L_SHIFT_ASSIGN]     =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
+  [R_SHIFT_ASSIGN]     =   { NIL,   20,   20,           errorNud,   infixAssgnLed},
   //Misc.
   [OPEN_PARENT]        =   {  0,   NIL,  NIL,          parentNud,        errorLed},
   [CLOSE_PARENT]       =   {  0,     0,    0,           errorNud,            NULL},
   [OPEN_SQR]           =   {NIL,     0,  150,           errorNud,   sqrBracketLed},
   [CLOSE_SQR]          =   {  0,     0,    0,           errorNud,            NULL},
   [EOL]                =   {  0,     0,    0,  missingOperandNud,            NULL},
-  [COMMA]              =   {  0,     0,    0,               NULL,            NULL},
 };
 
 //handles prefix
@@ -77,12 +76,17 @@ Symbol *infixLedL(Symbol *symbol, Symbol *left) {
 }
 
 //for right associativity (assignment operators)
-Symbol *infixLedR(Symbol *symbol, Symbol *left) {
+Symbol *infixAssgnLed(Symbol *symbol, Symbol *left) {
+  Symbol *symbolCheck = left;
   symbol->arity = INFIX;
-  if(left->id == NUMBER) {
+  //skips open parent (grouping)
+  while(symbolCheck->id == OPEN_PARENT)
+    symbolCheck = symbolCheck->child[0];
+  //check is the left operand is rvalue
+  if(symbolCheck->id != IDENTIFIER && symbolCheck->id != OPEN_SQR) {
     freeSymbol(symbol);
-    throwException(ERR_SYNTAX, left->token, 0,
-    "Cannot assign expression to numbers");
+    throwException(ERR_SYNTAX, symbolCheck->token, 0,
+    "Cannot assign expression to rvalue");
   }
   symbol->child[0] = left;
   symbol->child[1] = expression(getInfixRBP(symbol) - 1);
@@ -156,7 +160,7 @@ Symbol *errorNud(Symbol *symbol, Symbol *left) {
 Symbol *missingOperandNud(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_MISSING_OPERAND, symbol->token, 0,
-  "Expected an operand here, but none received", symbol->token->str);
+  "Expected an operand here, but none received");
   return NULL;
 }
 
@@ -173,7 +177,7 @@ Symbol *errorLed(Symbol *symbol, Symbol *left) {
 Symbol *identityLed(Symbol *symbol, Symbol *left) {
   freeSymbol(left);
   throwException(ERR_SYNTAX, symbol->token, 0,
-  "Identifiers and numbers cannot be used here, but received %s here", symbol->token->str);
+  "%s cannot be used here", symbol->token->str);
   return NULL;
 }
 
