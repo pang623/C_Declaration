@@ -410,22 +410,6 @@ void test_underscore_getSymbol_given_a_triple_char_symbol_but_adjacent_with_anot
   freeSymbolParser(symbolParser);
 }
 
-void test_underscore_getSymbol_given_unsupported_symbol_expect_ERR_INVALID_SYMBOL_is_thrown() {
-  Symbol *symbol = NULL;
-  Tokenizer *tokenizer = createTokenizer(" $ ");
-  symbolParser = createSymbolParser(tokenizer);
-  Try {
-    symbol = _getSymbol(symbolParser->tokenizer);
-    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
-    free(e);
-  }
-  freeSymbol(symbol);
-  freeSymbolParser(symbolParser);
-}
-
 void test_peek_symbol_given_an_empty_stack_expect_symbol_peeked_is_stored_in_stack() {
   Tokenizer *tokenizer = createTokenizer(" |=   ");
   symbolParser = createSymbolParser(tokenizer);
@@ -558,20 +542,6 @@ void test_verifyIsNextSymbolThenConsume_given_next_symbol_is_desired_expect_it_t
   freeSymbolParser(symbolParser);
 }
 
-void test_verifyIsNextSymbolThenConsume_given_next_symbol_is_not_desired_expect_ERR_WRONG_SYMBOL_is_thrown() {
-  Tokenizer *tokenizer = createTokenizer(" 3.5+a ");
-  symbolParser = createSymbolParser(tokenizer);
-  Try {
-    verifyIsNextSymbolThenConsume(ADD, "+");
-    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
-  } Catch(e){
-    dumpTokenErrorMessage(e, __LINE__);
-    TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
-    free(e);
-  }
-  freeSymbolParser(symbolParser);
-}
-
 void test_isSymbolKeyword_given_symbol_not_a_keyword_and_identifier_is_seen_as_keyword_is_disabled_expect_result_returned_is_false() {
   Tokenizer *tokenizer = createTokenizer(" apple ");
   symbolParser = createSymbolParser(tokenizer);
@@ -701,5 +671,35 @@ void test_isCorrectSymbolAndAdjacent_given_symbol_adjacent_is_not_equal_sign_exp
   freeToken(nextSymbol);
   freeTokenizer(tokenizer);
 }
+/*
+void test_underscore_getSymbol_given_unsupported_symbol_expect_ERR_INVALID_SYMBOL_is_thrown() {
+  Symbol *symbol = NULL;
+  Tokenizer *tokenizer = createTokenizer(" $ ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = _getSymbol(symbolParser->tokenizer);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_INVALID_SYMBOL, e->errorCode);
+    free(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
 
+void test_verifyIsNextSymbolThenConsume_given_next_symbol_is_not_desired_expect_ERR_WRONG_SYMBOL_is_thrown() {
+  Tokenizer *tokenizer = createTokenizer(" 3.5+a ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    verifyIsNextSymbolThenConsume(ADD, "+");
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_WRONG_SYMBOL, e->errorCode);
+    free(e);
+  }
+  freeSymbolParser(symbolParser);
+}
+*/
 #endif // TEST

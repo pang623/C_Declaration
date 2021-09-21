@@ -74,7 +74,7 @@ void test_statement_given_expression_expect_able_to_be_parsed() {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+/*
 void test_statement_given_c_declaration_but_terminated_with_comma_expect_ERR_WRONG_SYMBOL_is_thrown(void) {
   Tokenizer *tokenizer = createTokenizer("int a(int b), ");
   symbolParser = createSymbolParser(tokenizer);
@@ -90,5 +90,5 @@ void test_statement_given_c_declaration_but_terminated_with_comma_expect_ERR_WRO
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+*/
 #endif // TEST

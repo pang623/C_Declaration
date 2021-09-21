@@ -18,7 +18,7 @@ typedef struct OperatorAttrTable OperatorAttrTable;
 typedef struct SymbolCombination SymbolCombination;
 typedef struct KeywordAttrTable KeywordAttrTable;
 typedef struct SymbolParser SymbolParser;
-typedef struct Symbol Symbol;
+
 typedef Symbol (*FuncPtr)(Token *, int *);
 
 #define   isIntegerToken(token)                      (token->type == TOKEN_INTEGER_TYPE)
@@ -54,13 +54,6 @@ struct SymbolParser {
   Tokenizer *tokenizer;
   DoubleLinkedList *symbolStack;
   SymbolAttrTable *symbolTable;
-};
-
-struct Symbol {
-  int arity;
-  SymbolID id;
-  Token *token;
-  Symbol *child[2];
 };
 
 Symbol *createSymbol(Symbol *symbolInfo);

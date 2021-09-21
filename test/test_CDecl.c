@@ -337,15 +337,7 @@ void test_cDecl_given_an_mixed_C_declaration_expect_correctly_parsed(void) {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
 /*
-            -
-           / \
-          3  --
-               \
-                b
-*/
-
 void test_cDecl_given_c_declaration_but_two_separate_variable_names_expect_ERR_SYNTAX_is_thrown(void) {
   //'a' and 'b' separated, both are names, invalid, variable name can only be declared once in a C Decl
   Tokenizer *tokenizer = createTokenizer("Symbol a b;");
@@ -629,6 +621,6 @@ void test_cDecl_given_c_array_decl_but_missing_operand_after_data_type_expect_ER
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-
+*/
 
 #endif // TEST
