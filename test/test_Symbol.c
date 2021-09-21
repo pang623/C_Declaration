@@ -671,7 +671,7 @@ void test_isCorrectSymbolAndAdjacent_given_symbol_adjacent_is_not_equal_sign_exp
   freeToken(nextSymbol);
   freeTokenizer(tokenizer);
 }
-/*
+
 void test_underscore_getSymbol_given_unsupported_symbol_expect_ERR_INVALID_SYMBOL_is_thrown() {
   Symbol *symbol = NULL;
   Tokenizer *tokenizer = createTokenizer(" $ ");
@@ -701,5 +701,5 @@ void test_verifyIsNextSymbolThenConsume_given_next_symbol_is_not_desired_expect_
   }
   freeSymbolParser(symbolParser);
 }
-*/
+
 #endif // TEST

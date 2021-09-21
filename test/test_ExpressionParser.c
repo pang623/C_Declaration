@@ -284,7 +284,7 @@ void test_expression_with_single_number_expect_ast_created_correctly(void) {
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-/*
+
 void test_expression_with_assigning_expression_to_numbers_expect_ERR_SYNTAX_is_thrown() {
   Symbol *symbol = NULL;
   //LHS of assignment operator must be a lvalue (eg: variable)
@@ -740,5 +740,5 @@ void test_isExpressionReducible_given_expression_with_identifiers_expect_result_
   freeSymbol(symbol);
   freeSymbolParser(symbolParser);
 }
-*/
+
 #endif // TEST
