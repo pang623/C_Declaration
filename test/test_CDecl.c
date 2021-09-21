@@ -614,4 +614,21 @@ void test_cDecl_given_c_array_decl_but_array_size_has_floating_point_value_expec
   freeSymbolParser(symbolParser);
 }
 
+void test_cDecl_given_c_array_decl_but_missing_operand_after_data_type_expect_ERR_MISSING_OPERAND_is_thrown() {
+  Symbol *symbol = NULL;
+  Tokenizer *tokenizer = createTokenizer("int ");
+  symbolParser = createSymbolParser(tokenizer);
+  Try {
+    symbol = cDecl(0);
+    TEST_FAIL_MESSAGE("System Error: An exception is expected, but none received!");
+  } Catch(e){
+    dumpTokenErrorMessage(e, __LINE__);
+    TEST_ASSERT_EQUAL(ERR_MISSING_OPERAND, e->errorCode);
+    freeException(e);
+  }
+  freeSymbol(symbol);
+  freeSymbolParser(symbolParser);
+}
+
+
 #endif // TEST

@@ -10,15 +10,6 @@
 #include "Symbol.h"
 #include "SymbolAttrTable.h"
 
-//TestSymbol Types
-#define   OPERATOR_TYPE       10
-#define   NUMBER_TYPE         11
-#define   IDENTIFIER_TYPE     12
-
-//TEST_ASSERT MACROS
-#define   TEST_ASSERT_SYMBOL(expectedSymbolId, expectedSymbolChar, childZero, childOne, root)      \
-            testAssertSymbol(expectedSymbolId, expectedSymbolChar, childZero, childOne, root, __LINE__)
-            
 #define   isOperatorNotMatch(testChild, child)   \
             (child->token->type == TOKEN_OPERATOR_TYPE && (strcmp(((TestOperator *)testChild)->_operator, child->token->str)))
             
@@ -28,6 +19,15 @@
 
 #define   isIdentifierNotMatch(testChild, child)   \
             (child->token->type == TOKEN_IDENTIFIER_TYPE && (strcmp(((TestIdentifier *)testChild)->str, child->token->str)))
+
+//TestSymbol Types
+#define   OPERATOR_TYPE       10
+#define   NUMBER_TYPE         11
+#define   IDENTIFIER_TYPE     12
+
+//TEST_ASSERT MACRO
+#define   TEST_ASSERT_SYMBOL(expectedSymbolId, expectedSymbolChar, childZero, childOne, root)      \
+            testAssertSymbol(expectedSymbolId, expectedSymbolChar, childZero, childOne, root, __LINE__)
 
 typedef struct TestSymbolType TestSymbolType;
 typedef struct TestOperator TestOperator;
